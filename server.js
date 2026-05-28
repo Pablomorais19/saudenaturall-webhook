@@ -1,12 +1,14 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Firebase Admin SDK
+// ── Firebase Admin SDK ───────────────────────────────────────────────────────
 let fbCredential;
 if (process.env.FIREBASE_SERVICE_ACCOUNT && process.env.FIREBASE_SERVICE_ACCOUNT !== '{}') {
   const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -28,13 +30,14 @@ const ADMIN_TOKEN   = process.env.ADMIN_TOKEN   || 'mude-esta-senha-admin';
 
 async function ativarAssinante(email, nome, transacao) {
   let user;
-  try { user = await auth.getUserByEmail(email); }
-  catch {
+  try {
+    user = await auth.getUserByEmail(email);
+  } catch {
     const senha = Math.random().toString(36).slice(-8) + 'Aa1!';
     user = await auth.createUser({ email, displayName: nome, emailVerified: true, password: senha });
   }
   const resetLink = await auth.generatePasswordResetLink(email);
-  console.log('Link de acesso para ' + email + ': ' + resetLink);
+  console.log(`🔗 Link de acesso para ${email}: ${resetLink}`);
   await db.collection('assinantes').doc(user.uid).set({
     email, nome, ativo: true, transacao,
     atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
@@ -50,22 +53,24 @@ async function desativarAssinante(email) {
       { ativo: false, atualizadoEm: admin.firestore.FieldValue.serverTimestamp() },
       { merge: true }
     );
-    console.log('Desativado: ' + email);
-  } catch { console.warn('Usuario nao encontrado: ' + email); }
+    console.log(`❌ Desativado: ${email}`);
+  } catch {
+    console.warn(`⚠️ Usuário não encontrado para desativar: ${email}`);
+  }
 }
 
 app.post('/webhook/hotmart', async (req, res) => {
   const token = req.headers['x-hotmart-webhook-token'];
   if (HOTMART_TOKEN && token !== HOTMART_TOKEN)
-    return res.status(401).json({ error: 'Token invalido' });
+    return res.status(401).json({ error: 'Token inválido' });
   const body = req.body;
   const event = body.event;
-  const data = body.data || {};
-  console.log('Webhook: ' + event);
+  const data  = body.data || {};
+  console.log(`📩 Webhook: ${event}`);
   const email = data?.buyer?.email || data?.subscriber?.email;
   const nome  = data?.buyer?.name  || data?.subscriber?.name || 'Assinante';
   const trans = data?.purchase?.transaction || data?.subscription?.subscriber_code || '';
-  if (!email) return res.status(400).json({ error: 'Email nao encontrado' });
+  if (!email) return res.status(400).json({ error: 'Email não encontrado' });
   const ATIVAR    = ['PURCHASE_COMPLETE','PURCHASE_APPROVED','SUBSCRIPTION_REACTIVATED'];
   const DESATIVAR = ['PURCHASE_REFUNDED','PURCHASE_CHARGEBACK','SUBSCRIPTION_CANCELLATION','PURCHASE_CANCELED'];
   try {
@@ -86,7 +91,7 @@ app.post('/webhook/hotmart', async (req, res) => {
 
 app.post('/admin/ativar', async (req, res) => {
   if (req.headers['x-admin-token'] !== ADMIN_TOKEN)
-    return res.status(401).json({ error: 'Nao autorizado' });
+    return res.status(401).json({ error: 'Não autorizado' });
   const { email, nome } = req.body;
   try {
     const { user, resetLink } = await ativarAssinante(email, nome || 'Admin', 'manual');
@@ -96,7 +101,7 @@ app.post('/admin/ativar', async (req, res) => {
 
 app.post('/admin/desativar', async (req, res) => {
   if (req.headers['x-admin-token'] !== ADMIN_TOKEN)
-    return res.status(401).json({ error: 'Nao autorizado' });
+    return res.status(401).json({ error: 'Não autorizado' });
   const { email } = req.body;
   try {
     await desativarAssinante(email);
@@ -107,4 +112,4 @@ app.post('/admin/desativar', async (req, res) => {
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Servidor na porta ' + PORT));
+app.listen(PORT, () => console.log(`🚀 Servidor na porta ${PORT}`));
