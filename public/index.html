@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -302,7 +302,7 @@ footer strong{color:var(--primary)}
   <nav class="land-nav">
     <div class="land-nav-inner">
       <div class="land-logo">Nuv<span>Lev</span></div>
-      <button class="btn-login-top" onclick="abrirLogin()">Já sou assinante →</button>
+      <button class="btn-login-top" onclick="abrirLogin()" data-i18n="nav_login">Já sou assinante →</button>
     </div>
   </nav>
 
@@ -310,25 +310,25 @@ footer strong{color:var(--primary)}
   <section class="land-hero">
     <div class="land-hero-inner">
       <div>
-        <div class="land-badge">✦ Plataforma de Nutrição</div>
-        <h1>614 receitas organizadas + um sistema que <em>decide sua alimentação</em> todos os dias.</h1>
-        <p>Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.</p>
+        <div class="land-badge" data-i18n="land_badge">✦ Plataforma de Nutrição</div>
+        <h1 data-i18n="land_h1">614 receitas organizadas + um sistema que <em>decide sua alimentação</em> todos os dias.</h1>
+        <p data-i18n="land_hero_p">Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.</p>
         <div class="land-feats">
-          <div class="land-feat">7 volumes completos com receitas reais e práticas</div>
-          <div class="land-feat">Planejador semanal interativo integrado</div>
-          <div class="land-feat">Lista de compras automática com um clique</div>
-          <div class="land-feat">Busca e filtros por objetivo e refeição</div>
-          <div class="land-feat">Novas receitas adicionadas todo mês</div>
+          <div class="land-feat" data-i18n="land_feat1">7 volumes completos com receitas reais e práticas</div>
+          <div class="land-feat" data-i18n="land_feat2">Planejador semanal interativo integrado</div>
+          <div class="land-feat" data-i18n="land_feat3">Lista de compras automática com um clique</div>
+          <div class="land-feat" data-i18n="land_feat4">Busca e filtros por objetivo e refeição</div>
+          <div class="land-feat" data-i18n="land_feat5">Novas receitas adicionadas todo mês</div>
         </div>
-        <a href="https://pay.hotmart.com/PRODUTO_AQUI" class="btn-assinar" style="display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;padding:1rem 2rem;width:auto">🔓 Quero acessar por R$19,90/mês</a>
+        <a href="https://pay.hotmart.com/M106116851N" class="btn-assinar" style="display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;padding:1rem 2rem;width:auto" data-i18n="land_cta_btn">🔓 Quero acessar por R$19,90/mês</a>
       </div>
       <div class="land-price-box">
-        <div class="land-price-badge">⭐ Assinatura Mensal</div>
+        <div class="land-price-badge" data-i18n="land_price_badge">⭐ Assinatura Mensal</div>
         <div class="land-price-main"><sup>R$</sup>19<sub>,90</sub></div>
-        <div class="land-price-period">por mês · cancele quando quiser</div>
-        <div class="land-price-cancel">Sem fidelidade · Sem taxa de cancelamento</div>
-        <a href="https://pay.hotmart.com/PRODUTO_AQUI" class="btn-assinar">ASSINAR AGORA →</a>
-        <div class="land-guarantee">🔒 Pagamento seguro via Hotmart · Cartão, Pix ou Boleto</div>
+        <div class="land-price-period" data-i18n="land_price_period">por mês · cancele quando quiser</div>
+        <div class="land-price-cancel" data-i18n="land_price_cancel">Sem fidelidade · Sem taxa de cancelamento</div>
+        <a href="https://pay.hotmart.com/M106116851N" class="btn-assinar" data-i18n="land_subscribe_btn">ASSINAR AGORA →</a>
+        <div class="land-guarantee" data-i18n="land_guarantee">🔒 Pagamento seguro via Hotmart · Cartão, Pix ou Boleto</div>
       </div>
     </div>
   </section>
@@ -336,15 +336,15 @@ footer strong{color:var(--primary)}
   <!-- FEATURES -->
   <section class="land-features">
     <div class="land-features-inner">
-      <h2>Tudo que você precisa em um só lugar</h2>
-      <p>Uma plataforma completa para quem quer comer bem sem complicar</p>
+      <h2 data-i18n="feat_h2">Tudo que você precisa em um só lugar</h2>
+      <p data-i18n="feat_sub">Uma plataforma completa para quem quer comer bem sem complicar</p>
       <div class="feat-grid">
-        <div class="feat-card"><div class="feat-card-icon">🍽️</div><h3>614 Receitas Reais</h3><p>Organizadas por refeição, objetivo e tempo de preparo. Sem ingredientes impossíveis.</p></div>
-        <div class="feat-card"><div class="feat-card-icon">📅</div><h3>Planejador Semanal</h3><p>Monte seu cardápio de segunda a domingo com poucos cliques. Direto e prático.</p></div>
-        <div class="feat-card"><div class="feat-card-icon">🛒</div><h3>Lista de Compras</h3><p>Gerada automaticamente a partir das receitas que você escolheu. Chega de esquecer nada.</p></div>
-        <div class="feat-card"><div class="feat-card-icon">🔍</div><h3>Busca Inteligente</h3><p>Filtre por volume, objetivo, tipo de refeição ou busque pelo nome do ingrediente.</p></div>
-        <div class="feat-card"><div class="feat-card-icon">📱</div><h3>100% no Navegador</h3><p>Funciona no celular, tablet e computador. Sem app para instalar, sem download.</p></div>
-        <div class="feat-card"><div class="feat-card-icon">🔄</div><h3>Novas Receitas</h3><p>Adicionamos novas receitas todo mês. Sua biblioteca cresce enquanto você assina.</p></div>
+        <div class="feat-card"><div class="feat-card-icon">🍽️</div><h3 data-i18n="fc1_h">614 Receitas Reais</h3><p data-i18n="fc1_p">Organizadas por refeição, objetivo e tempo de preparo. Sem ingredientes impossíveis.</p></div>
+        <div class="feat-card"><div class="feat-card-icon">📅</div><h3 data-i18n="fc2_h">Planejador Semanal</h3><p data-i18n="fc2_p">Monte seu cardápio de segunda a domingo com poucos cliques. Direto e prático.</p></div>
+        <div class="feat-card"><div class="feat-card-icon">🛒</div><h3 data-i18n="fc3_h">Lista de Compras</h3><p data-i18n="fc3_p">Gerada automaticamente a partir das receitas que você escolheu. Chega de esquecer nada.</p></div>
+        <div class="feat-card"><div class="feat-card-icon">🔍</div><h3 data-i18n="fc4_h">Busca Inteligente</h3><p data-i18n="fc4_p">Filtre por volume, objetivo, tipo de refeição ou busque pelo nome do ingrediente.</p></div>
+        <div class="feat-card"><div class="feat-card-icon">📱</div><h3 data-i18n="fc5_h">100% no Navegador</h3><p data-i18n="fc5_p">Funciona no celular, tablet e computador. Sem app para instalar, sem download.</p></div>
+        <div class="feat-card"><div class="feat-card-icon">🔄</div><h3 data-i18n="fc6_h">Novas Receitas</h3><p data-i18n="fc6_p">Adicionamos novas receitas todo mês. Sua biblioteca cresce enquanto você assina.</p></div>
       </div>
     </div>
   </section>
@@ -352,31 +352,31 @@ footer strong{color:var(--primary)}
   <!-- VOLUMES -->
   <section class="land-volumes">
     <div class="land-volumes-inner">
-      <h2>7 Volumes Completos</h2>
-      <p>Cada volume é especializado em um tipo de refeição ou objetivo</p>
+      <h2 data-i18n="vol_h2">7 Volumes Completos</h2>
+      <p data-i18n="vol_sub">Cada volume é especializado em um tipo de refeição ou objetivo</p>
       <div class="land-vol-grid">
-        <div class="land-vol-card"><span class="land-vol-card-emoji">☀️</span><div class="land-vol-card-label">Vol.1 Café da Manhã</div><div class="land-vol-card-count">86 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🥗</span><div class="land-vol-card-label">Vol.2 Almoços</div><div class="land-vol-card-count">92 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🌙</span><div class="land-vol-card-label">Vol.3 Jantares</div><div class="land-vol-card-count">88 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🍎</span><div class="land-vol-card-label">Vol.4 Lanches</div><div class="land-vol-card-count">84 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🥤</span><div class="land-vol-card-label">Vol.5 Bebidas</div><div class="land-vol-card-count">80 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">⚡</span><div class="land-vol-card-label">Vol.6 Protocolos</div><div class="land-vol-card-count">102 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🛠️</span><div class="land-vol-card-label">Vol.7 Ferramentas</div><div class="land-vol-card-count">82 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">☀️</span><div class="land-vol-card-label" data-i18n="lv1_l">Vol.1 Café da Manhã</div><div class="land-vol-card-count" data-i18n="lv1_c">86 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🥗</span><div class="land-vol-card-label" data-i18n="lv2_l">Vol.2 Almoços</div><div class="land-vol-card-count" data-i18n="lv2_c">92 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🌙</span><div class="land-vol-card-label" data-i18n="lv3_l">Vol.3 Jantares</div><div class="land-vol-card-count" data-i18n="lv3_c">88 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🍎</span><div class="land-vol-card-label" data-i18n="lv4_l">Vol.4 Lanches</div><div class="land-vol-card-count" data-i18n="lv4_c">84 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🥤</span><div class="land-vol-card-label" data-i18n="lv5_l">Vol.5 Bebidas</div><div class="land-vol-card-count" data-i18n="lv5_c">80 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">⚡</span><div class="land-vol-card-label" data-i18n="lv6_l">Vol.6 Protocolos</div><div class="land-vol-card-count" data-i18n="lv6_c">102 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🛠️</span><div class="land-vol-card-label" data-i18n="lv7_l">Vol.7 Ferramentas</div><div class="land-vol-card-count" data-i18n="lv7_c">82 receitas</div></div>
       </div>
     </div>
   </section>
 
   <!-- CTA FINAL -->
   <section class="land-cta">
-    <h2>Comece hoje por menos de R$1 por dia</h2>
-    <p>Acesso completo às 614 receitas, planejador e lista de compras. Novas receitas todo mês.</p>
-    <div class="land-cta-price">Apenas <strong>R$19,90</strong>/mês · cancele quando quiser</div>
-    <a href="https://pay.hotmart.com/PRODUTO_AQUI" class="btn-assinar-lg">QUERO ASSINAR AGORA →</a>
+    <h2 data-i18n="cta_h2">Comece hoje por menos de R$1 por dia</h2>
+    <p data-i18n="cta_p">Acesso completo às 614 receitas, planejador e lista de compras. Novas receitas todo mês.</p>
+    <div class="land-cta-price" data-i18n="cta_price">Apenas <strong>R$19,90</strong>/mês · cancele quando quiser</div>
+    <a href="https://pay.hotmart.com/M106116851N" class="btn-assinar-lg" data-i18n="cta_big_btn">QUERO ASSINAR AGORA →</a>
   </section>
 
   <footer class="land-footer">
-    © 2025 NuvLev · saudenaturall.online · Todos os direitos reservados<br>
-    <span style="margin-top:.5rem;display:block">Já é assinante? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Clique aqui para entrar</a></span>
+    <span data-i18n="land_footer_copy">© 2025 NuvLev · saudenaturall.online · Todos os direitos reservados</span><br>
+    <span style="margin-top:.5rem;display:block"><span data-i18n="land_footer_sub">Já é assinante? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Clique aqui para entrar</a></span></span>
   </footer>
 </div>
 
@@ -384,15 +384,15 @@ footer strong{color:var(--primary)}
 <div id="login-modal">
   <div class="login-box">
     <button class="login-box-close" onclick="fecharLogin()">✕</button>
-    <h2>Entrar no NuvLev</h2>
-    <p>Use o e-mail e senha que você definiu ao assinar</p>
+    <h2 data-i18n="login_h2">Entrar no NuvLev</h2>
+    <p data-i18n="login_p">Use o e-mail e senha que você definiu ao assinar</p>
     <input id="login-email" class="login-input" type="email" placeholder="seu@email.com" autocomplete="email">
-    <input id="login-senha" class="login-input" type="password" placeholder="Sua senha" autocomplete="current-password">
-    <div id="login-error">E-mail ou senha incorretos. Verifique e tente novamente.</div>
-    <button class="btn-login-submit" id="btn-login-submit" onclick="fazerLogin()">Entrar →</button>
+    <input id="login-senha" class="login-input" type="password" placeholder="Sua senha" data-i18n-ph="login_pwd_ph" autocomplete="current-password">
+    <div id="login-error" data-i18n="login_error">E-mail ou senha incorretos. Verifique e tente novamente.</div>
+    <button class="btn-login-submit" id="btn-login-submit" onclick="fazerLogin()" data-i18n="login_btn">Entrar →</button>
     <div class="login-forgot">
-      Esqueceu a senha? <a onclick="recuperarSenha()">Recuperar acesso</a><br>
-      Ainda não assina? <a href="https://pay.hotmart.com/PRODUTO_AQUI">Assinar por R$19,90/mês</a>
+      <span data-i18n="login_forgot">Esqueceu a senha? <a onclick="recuperarSenha()">Recuperar acesso</a></span><br>
+      <span data-i18n="login_no_sub">Ainda não assina? <a href="https://pay.hotmart.com/M106116851N">Assinar por R$19,90/mês</a></span>
     </div>
   </div>
 </div>
@@ -400,8 +400,8 @@ footer strong{color:var(--primary)}
 <!-- ─── MAIN APP (membros) ────────────────────────────────── -->
 <div id="main-app">
   <div class="user-bar" id="user-bar">
-    <span id="user-email-display">Carregando...</span>
-    <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+    <span id="user-email-display" data-i18n="app_loading">Carregando...</span>
+    <button class="btn-logout" onclick="fazerLogout()" data-i18n="app_logout">Sair</button>
   </div>
 
 <!-- NAV -->
@@ -409,10 +409,10 @@ footer strong{color:var(--primary)}
   <div class="nav-inner">
     <div class="logo">Nuv<span>Lev</span></div>
     <div class="nav-links">
-      <a href="#receitas">Receitas</a>
-      <a href="#planejador">Planejador</a>
-      <a href="#lista">Lista de Compras</a>
-      <a href="#comprar" class="btn-nav">Acessar Agora →</a>
+      <a href="#receitas" data-i18n="nav_recipes">Receitas</a>
+      <a href="#planejador" data-i18n="nav_planner">Planejador</a>
+      <a href="#lista" data-i18n="nav_shop">Lista de Compras</a>
+      <a href="#comprar" class="btn-nav" data-i18n="nav_access">Acessar Agora →</a>
     </div>
   </div>
 </nav>
@@ -421,14 +421,14 @@ footer strong{color:var(--primary)}
 <section class="hero">
   <div class="hero-inner">
     <div>
-      <div class="hero-badge">✦ Sistema Completo de Nutrição</div>
-      <h1>614 receitas organizadas + um sistema que <em>decide sua alimentação</em> todos os dias.</h1>
-      <p>Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.</p>
+      <div class="hero-badge" data-i18n="app_hero_badge">✦ Sistema Completo de Nutrição</div>
+      <h1 data-i18n="app_hero_h1">614 receitas organizadas + um sistema que <em>decide sua alimentação</em> todos os dias.</h1>
+      <p data-i18n="app_hero_p">Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.</p>
       <div class="hero-features">
-        <div class="hero-feat">7 volumes completos com receitas reais e práticas</div>
-        <div class="hero-feat">Planejador semanal interativo integrado</div>
-        <div class="hero-feat">Lista de compras automática com um clique</div>
-        <div class="hero-feat">Busca e filtros por objetivo e refeição</div>
+        <div class="hero-feat" data-i18n="land_feat1">7 volumes completos com receitas reais e práticas</div>
+        <div class="hero-feat" data-i18n="land_feat2">Planejador semanal interativo integrado</div>
+        <div class="hero-feat" data-i18n="land_feat3">Lista de compras automática com um clique</div>
+        <div class="hero-feat" data-i18n="land_feat4">Busca e filtros por objetivo e refeição</div>
       </div>
       <div>
         <a href="#comprar" class="btn-hero">🔓 Quero Acessar Agora</a>
@@ -449,8 +449,8 @@ footer strong{color:var(--primary)}
 <!-- VOLUMES STRIP -->
 <section class="vols-strip">
   <div class="vols-inner">
-    <h2>O que está dentro do NuvLev</h2>
-    <p>7 volumes completos cobrindo todas as refeições e objetivos</p>
+    <h2 data-i18n="app_vols_h2">O que está dentro do NuvLev</h2>
+    <p data-i18n="app_vols_p">7 volumes completos cobrindo todas as refeições e objetivos</p>
     <div class="vol-cards" id="vol-cards"></div>
   </div>
 </section>
@@ -458,31 +458,31 @@ footer strong{color:var(--primary)}
 <!-- RECIPE LIBRARY -->
 <section class="library" id="receitas">
   <div class="library-inner">
-    <div class="section-tag">📖 Biblioteca de Receitas</div>
-    <h2 class="section-title">Explore todas as receitas</h2>
-    <p class="section-sub">Busque por nome, ingrediente ou filtre por volume</p>
+    <div class="section-tag" data-i18n="lib_tag">📖 Biblioteca de Receitas</div>
+    <h2 class="section-title" data-i18n="lib_h2">Explore todas as receitas</h2>
+    <p class="section-sub" data-i18n="lib_sub">Busque por nome, ingrediente ou filtre por volume</p>
     <div class="search-bar">
-      <input type="text" class="search-input" id="search-input" placeholder="🔍  Buscar receita ou ingrediente...">
+      <input type="text" class="search-input" id="search-input" placeholder="🔍  Buscar receita ou ingrediente..." data-i18n-ph="search_ph">
       <select class="filter-select" id="vol-filter">
-        <option value="">Todos os volumes</option>
+        <option value="" data-i18n="vol_all">Todos os volumes</option>
       </select>
     </div>
     <div class="results-count" id="results-count"></div>
     <div class="recipe-grid" id="recipe-grid"></div>
-    <button class="load-more" id="load-more" onclick="loadMore()">Carregar mais receitas ↓</button>
+    <button class="load-more" id="load-more" onclick="loadMore()" data-i18n="load_more">Carregar mais receitas ↓</button>
   </div>
 </section>
 
 <!-- PLANNER -->
 <section class="planner" id="planejador">
   <div class="planner-inner">
-    <div class="section-tag">📅 Planejador Semanal</div>
-    <h2 class="section-title">Monte sua semana</h2>
-    <p class="section-sub">Adicione receitas ao seu planejador e gere a lista de compras automaticamente</p>
+    <div class="section-tag" data-i18n="plan_tag">📅 Planejador Semanal</div>
+    <h2 class="section-title" data-i18n="plan_h2">Monte sua semana</h2>
+    <p class="section-sub" data-i18n="plan_sub">Adicione receitas ao seu planejador e gere a lista de compras automaticamente</p>
     <div class="planner-grid" id="planner-grid"></div>
     <div class="planner-actions">
-      <button class="btn-secondary" onclick="generateShopList()">🛒 Gerar Lista de Compras</button>
-      <button class="btn-secondary" onclick="clearPlan()">🗑 Limpar Planejador</button>
+      <button class="btn-secondary" onclick="generateShopList()" data-i18n="plan_gen_btn">🛒 Gerar Lista de Compras</button>
+      <button class="btn-secondary" onclick="clearPlan()" data-i18n="plan_clear_btn">🗑 Limpar Planejador</button>
     </div>
   </div>
 </section>
@@ -490,37 +490,37 @@ footer strong{color:var(--primary)}
 <!-- SHOPPING LIST -->
 <section class="shop-section" id="lista">
   <div class="shop-inner">
-    <div class="section-tag">🛒 Lista de Compras</div>
-    <h2 class="section-title">Sua lista inteligente</h2>
-    <p class="section-sub">Gerada automaticamente a partir do seu planejador semanal</p>
-    <div id="shop-list-container"><div class="empty-shop">Adicione receitas ao planejador e clique em "Gerar Lista de Compras"</div></div>
+    <div class="section-tag" data-i18n="shop_tag">🛒 Lista de Compras</div>
+    <h2 class="section-title" data-i18n="shop_h2">Sua lista inteligente</h2>
+    <p class="section-sub" data-i18n="shop_sub">Gerada automaticamente a partir do seu planejador semanal</p>
+    <div id="shop-list-container"><div class="empty-shop">${I18N[_lang].js_empty_shop}</div></div>
   </div>
 </section>
 
 <!-- PROVAS SOCIAIS -->
 <section class="provas">
   <div class="provas-inner">
-    <div class="section-tag" style="background:rgba(231,111,81,0.15);color:#F4A261">⭐ Depoimentos</div>
-    <h2 class="section-title" style="color:#fff">Quem já usa o NuvLev</h2>
+    <div class="section-tag" style="background:rgba(231,111,81,0.15);color:#F4A261" data-i18n="proof_tag">⭐ Depoimentos</div>
+    <h2 class="section-title" style="color:#fff" data-i18n="proof_h2">Quem já usa o NuvLev</h2>
     <div class="provas-grid">
-      <div class="prova-card"><div class="prova-stars">★★★★★</div><p class="prova-text">"Finalmente um sistema que funciona na minha rotina corrida. As receitas são práticas e não preciso ficar pensando o que fazer."</p><div class="prova-name">Mariana S., São Paulo</div></div>
-      <div class="prova-card"><div class="prova-stars">★★★★★</div><p class="prova-text">"O planejador semanal mudou minha vida. Faço a lista de compras em 5 minutos e já sei o que vou comer a semana toda."</p><div class="prova-name">Carlos R., Belo Horizonte</div></div>
-      <div class="prova-card"><div class="prova-stars">★★★★★</div><p class="prova-text">"Comprei achando que era mais um e-book. Me surpreendi com a qualidade e a variedade. Vale muito mais que o preço."</p><div class="prova-name">Ana Beatriz M., Rio de Janeiro</div></div>
+      <div class="prova-card"><div class="prova-stars">★★★★★</div><p class="prova-text"><span data-i18n="t1">"Finalmente um sistema que funciona na minha rotina corrida. As receitas são práticas e não preciso ficar pensando o que fazer."</span></p><div class="prova-name">Mariana S., São Paulo</div></div>
+      <div class="prova-card"><div class="prova-stars">★★★★★</div><p class="prova-text"><span data-i18n="t2">"O planejador semanal mudou minha vida. Faço a lista de compras em 5 minutos e já sei o que vou comer a semana toda."</span></p><div class="prova-name">Carlos R., Belo Horizonte</div></div>
+      <div class="prova-card"><div class="prova-stars">★★★★★</div><p class="prova-text"><span data-i18n="t3">"Comprei achando que era mais um e-book. Me surpreendi com a qualidade e a variedade. Vale muito mais que o preço."</span></p><div class="prova-name">Ana Beatriz M., Rio de Janeiro</div></div>
     </div>
   </div>
 </section>
 
 <!-- FINAL CTA -->
 <section class="final-cta">
-  <h2>Pronto para transformar sua alimentação?</h2>
-  <p>614 receitas organizadas + planejador + lista de compras — tudo por R$ 29,00</p>
-  <a href="#comprar" class="btn-final">🚀 Quero o NuvLev Agora</a>
+  <h2 data-i18n="final_h2">Pronto para transformar sua alimentação?</h2>
+  <p data-i18n="final_p">614 receitas organizadas + planejador + lista de compras — tudo por R$ 29,00</p>
+  <a href="#comprar" class="btn-final" data-i18n="final_btn">🚀 Quero o NuvLev Agora</a>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <p><strong>NuvLev</strong> · saudenaturall.online · Nutrição que funciona na vida real</p>
-  <p style="margin-top:.5rem">© 2025 NuvLev. Todos os direitos reservados.</p>
+  <p><strong>NuvLev</strong> · saudenaturall.online · <span data-i18n="footer_tagline">Nutrição que funciona na vida real</span></p>
+  <p style="margin-top:.5rem"><span data-i18n="footer_copy">© 2025 NuvLev. Todos os direitos reservados.</span></p>
 </footer>
 
 <!-- MODAL -->
@@ -530,19 +530,19 @@ footer strong{color:var(--primary)}
     <div class="modal-vol" id="modal-vol"></div>
     <h2 class="modal-title" id="modal-title"></h2>
     <div class="modal-section" id="modal-ing-section">
-      <h3>🥘 Ingredientes</h3>
+      <h3 data-i18n="modal_ing">🥘 Ingredientes</h3>
       <ul class="ingredient-list" id="modal-ingredients"></ul>
     </div>
     <div class="modal-section">
-      <h3>👨‍🍳 Modo de Preparo</h3>
+      <h3 data-i18n="modal_steps">👨‍🍳 Modo de Preparo</h3>
       <ol class="step-list" id="modal-steps"></ol>
     </div>
     <div class="modal-benefit" id="modal-benefit-box" style="display:none">
-      <strong>💡 Benefício:</strong> <span id="modal-benefit"></span>
+      <strong data-i18n="modal_benefit">💡 Benefício:</strong> <span id="modal-benefit"></span>
     </div>
     <div class="modal-actions">
-      <button class="btn-plan" onclick="addToPlanFromModal()">📅 Adicionar ao Planejador</button>
-      <button class="btn-shop" onclick="addToShopFromModal()">🛒 Ingredientes na Lista</button>
+      <button class="btn-plan" onclick="addToPlanFromModal()" data-i18n="modal_add_plan">📅 Adicionar ao Planejador</button>
+      <button class="btn-shop" onclick="addToShopFromModal()" data-i18n="modal_add_shop">🛒 Ingredientes na Lista</button>
     </div>
   </div>
 </div>
@@ -600,7 +600,7 @@ function renderVolCards() {
   container.innerHTML = '';
   const total = document.createElement('div');
   total.className = 'vol-card' + (activeVol === null ? ' active' : '');
-  total.innerHTML = `<span class="vol-card-emoji">📚</span><div class="vol-card-label">Todos os Volumes</div><div class="vol-card-count">${ALL_RECIPES.length} itens</div>`;
+  total.innerHTML = `<span class="vol-card-emoji">📚</span><div class="vol-card-label">Todos os Volumes</div><div class="vol-card-count">${ALL_RECIPES.length} ${I18N[_lang].js_items}</div>`;
   total.onclick = () => { activeVol = null; applyFilter(); renderVolCards(); };
   container.appendChild(total);
 
@@ -608,7 +608,7 @@ function renderVolCards() {
     const card = document.createElement('div');
     card.className = 'vol-card' + (activeVol === i ? ' active' : '');
     const short = vol.label.split('–')[1]?.trim() || vol.label;
-    card.innerHTML = `<span class="vol-card-emoji">${vol.emoji}</span><div class="vol-card-label">${short}</div><div class="vol-card-count">${vol.recipes.length} receitas</div>`;
+    card.innerHTML = `<span class="vol-card-emoji">${vol.emoji}</span><div class="vol-card-label">${short}</div><div class="vol-card-count">${vol.recipes.length} ${I18N[_lang].js_recipes}</div>`;
     card.onclick = () => {
       activeVol = i;
       document.getElementById('vol-filter').value = i;
@@ -669,15 +669,15 @@ function renderRecipes() {
       <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
       <div class="recipe-card-name">${r.name}</div>
       <div class="recipe-card-meta">
-        ${hasIng ? `<span class="recipe-tag">${r.ingredients.length} ingredientes</span>` : ''}
-        ${r.steps && r.steps.length > 1 ? `<span class="recipe-tag">${r.steps.length} passos</span>` : ''}
+        ${hasIng ? `<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>` : ''}
+        ${r.steps && r.steps.length > 1 ? `<span class="recipe-tag">${r.steps.length} ${I18N[_lang].js_steps}</span>` : ''}
       </div>`;
     card.onclick = () => openRecipe(r);
     grid.appendChild(card);
   });
   
   displayed += slice.length;
-  count.innerHTML = `Mostrando <strong>${displayed}</strong> de <strong>${filtered.length}</strong> receitas`;
+  count.innerHTML = `${I18N[_lang].js_showing} <strong>${displayed}</strong> ${I18N[_lang].js_of} <strong>${filtered.length}</strong> ${I18N[_lang].js_showing_suffix}`;
   loadBtn.style.display = displayed >= filtered.length ? 'none' : 'block';
 }
 
@@ -702,7 +702,7 @@ function openRecipe(r) {
   if (r.steps && r.steps.length) {
     steps.innerHTML = r.steps.map(s => `<li>${s}</li>`).join('');
   } else {
-    steps.innerHTML = '<li>Consulte o e-book para o modo de preparo completo.</li>';
+    steps.innerHTML = `<li>${I18N[_lang].js_no_steps}</li>`;
   }
   
   const benefitBox = document.getElementById('modal-benefit-box');
@@ -737,18 +737,18 @@ function renderPlanner() {
         <span class="planned-meal-remove" onclick="removeMeal('${key}',${i})">×</span>
       </div>`).join('');
     col.innerHTML = `<div class="day-name">${label}</div>${mealsHtml}
-      <button class="add-meal-btn" onclick="openAddMeal('${key}')">+ Adicionar</button>`;
+      <button class="add-meal-btn" onclick="openAddMeal('${key}')">${I18N[_lang].js_add}</button>`;
     grid.appendChild(col);
   });
 }
 
 function openAddMeal(day) {
-  const q = prompt('Buscar receita pelo nome:');
+  const q = prompt(I18N[_lang].js_search_prompt);
   if (!q) return;
   const matches = ALL_RECIPES.filter(r => r.name.toLowerCase().includes(q.toLowerCase())).slice(0,5);
-  if (!matches.length) { showNotif('Nenhuma receita encontrada'); return; }
+  if (!matches.length) { showNotif(I18N[_lang].js_no_recipe); return; }
   const choice = matches.length === 1 ? matches[0] : matches[prompt(matches.map((r,i) => `${i+1}. ${r.name}`).join('\n') + '\nDigite o número:') - 1];
-  if (choice) { plan[day].push(choice); renderPlanner(); showNotif(choice.name + ' adicionado!', 'success'); }
+  if (choice) { plan[day].push(choice); renderPlanner(); showNotif(choice.name + I18N[_lang].js_added_plan, 'success'); }
 }
 
 function removeMeal(day, idx) {
@@ -757,20 +757,20 @@ function removeMeal(day, idx) {
 }
 
 function clearPlan() {
-  if (confirm('Limpar todo o planejador?')) {
+  if (confirm(I18N[_lang].js_clear_confirm)) {
     DAYS.forEach(([k]) => plan[k] = []);
     renderPlanner();
-    showNotif('Planejador limpo!');
+    showNotif(I18N[_lang].js_plan_cleared);
   }
 }
 
 function addToPlanFromModal() {
   if (!currentRecipe) return;
-  const day = prompt('Qual dia? (Seg, Ter, Qua, Qui, Sex, Sáb, Dom)');
-  const dayMap = {'seg':'Mon','ter':'Tue','qua':'Wed','qui':'Thu','sex':'Fri','sáb':'Sat','sab':'Sat','dom':'Sun'};
+  const day = prompt(I18N[_lang].js_day_prompt);
+  const dayMap = {'seg':'Mon','ter':'Tue','qua':'Wed','qui':'Thu','sex':'Fri','sáb':'Sat','sab':'Sat','dom':'Sun','mon':'Mon','tue':'Tue','wed':'Wed','thu':'Thu','fri':'Fri','sat':'Sat','sun':'Sun'};
   const key = dayMap[day?.toLowerCase().trim()];
-  if (key) { plan[key].push(currentRecipe); renderPlanner(); showNotif('Adicionado ao planejador!','success'); }
-  else { showNotif('Dia não reconhecido. Use: Seg, Ter, Qua...'); }
+  if (key) { plan[key].push(currentRecipe); renderPlanner(); showNotif(I18N[_lang].js_added_plan_ok,'success'); }
+  else { showNotif(I18N[_lang].js_day_invalid); }
 }
 
 // --- SHOPPING LIST ---
@@ -808,7 +808,7 @@ function renderShopList() {
       <input type="checkbox" id="si${i}" ${item.checked?'checked':''} onchange="toggleShop(${i})">
       <label for="si${i}">${item.text}</label>
     </li>`).join('')}</ul>
-    <button class="btn-secondary" style="margin-top:1rem" onclick="clearShop()">🗑 Limpar Lista</button>`;
+    <button class="btn-secondary" style="margin-top:1rem" onclick="clearShop()" data-i18n="plan_clear_shop">🗑 Limpar Lista</button>`;
 }
 
 function toggleShop(i) { shopList[i].checked = !shopList[i].checked; renderShopList(); }
@@ -920,5 +920,322 @@ document.getElementById('login-senha').addEventListener('keydown', e => {
 </script>
 
 </div><!-- /main-app -->
+
+<!-- ═══════════════════════════════════════════════════════════════ i18n SYSTEM -->
+<style>
+#lang-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  background: #E76F51;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: .45rem 1.1rem;
+  font-weight: 700;
+  font-size: .82rem;
+  cursor: pointer;
+  z-index: 10000;
+  box-shadow: 0 2px 12px rgba(0,0,0,.25);
+  letter-spacing: .5px;
+  font-family: inherit;
+  transition: .2s;
+}
+#lang-toggle:hover { background: #C85A3C; transform: translateY(-1px); }
+</style>
+
+<button id="lang-toggle" onclick="toggleLang()">🇺🇸 EN</button>
+
+<script>
+// ─── TRANSLATIONS ────────────────────────────────────────────────────────────
+const I18N = {
+  pt: {
+    // Landing nav
+    nav_login: 'Já sou assinante →',
+    // Landing hero
+    land_badge: '✦ Plataforma de Nutrição',
+    land_h1: '614 receitas organizadas + um sistema que <em>decide sua alimentação</em> todos os dias.',
+    land_hero_p: 'Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.',
+    land_feat1: '7 volumes completos com receitas reais e práticas',
+    land_feat2: 'Planejador semanal interativo integrado',
+    land_feat3: 'Lista de compras automática com um clique',
+    land_feat4: 'Busca e filtros por objetivo e refeição',
+    land_feat5: 'Novas receitas adicionadas todo mês',
+    land_cta_btn: '🔓 Quero acessar por R$19,90/mês',
+    // Price box
+    land_price_badge: '⭐ Assinatura Mensal',
+    land_price_period: 'por mês · cancele quando quiser',
+    land_price_cancel: 'Sem fidelidade · Sem taxa de cancelamento',
+    land_subscribe_btn: 'ASSINAR AGORA →',
+    land_guarantee: '🔒 Pagamento seguro via Hotmart · Cartão, Pix ou Boleto',
+    // Features
+    feat_h2: 'Tudo que você precisa em um só lugar',
+    feat_sub: 'Uma plataforma completa para quem quer comer bem sem complicar',
+    fc1_h: '614 Receitas Reais', fc1_p: 'Organizadas por refeição, objetivo e tempo de preparo. Sem ingredientes impossíveis.',
+    fc2_h: 'Planejador Semanal', fc2_p: 'Monte seu cardápio de segunda a domingo com poucos cliques. Direto e prático.',
+    fc3_h: 'Lista de Compras', fc3_p: 'Gerada automaticamente a partir das receitas que você escolheu. Chega de esquecer nada.',
+    fc4_h: 'Busca Inteligente', fc4_p: 'Filtre por volume, objetivo, tipo de refeição ou busque pelo nome do ingrediente.',
+    fc5_h: '100% no Navegador', fc5_p: 'Funciona no celular, tablet e computador. Sem app para instalar, sem download.',
+    fc6_h: 'Novas Receitas', fc6_p: 'Adicionamos novas receitas todo mês. Sua biblioteca cresce enquanto você assina.',
+    // Volumes
+    vol_h2: '7 Volumes Completos',
+    vol_sub: 'Cada volume é especializado em um tipo de refeição ou objetivo',
+    lv1_l: 'Vol.1 Café da Manhã', lv1_c: '86 receitas',
+    lv2_l: 'Vol.2 Almoços', lv2_c: '92 receitas',
+    lv3_l: 'Vol.3 Jantares', lv3_c: '88 receitas',
+    lv4_l: 'Vol.4 Lanches', lv4_c: '84 receitas',
+    lv5_l: 'Vol.5 Bebidas', lv5_c: '80 receitas',
+    lv6_l: 'Vol.6 Protocolos', lv6_c: '102 receitas',
+    lv7_l: 'Vol.7 Ferramentas', lv7_c: '82 receitas',
+    // CTA
+    cta_h2: 'Comece hoje por menos de R$1 por dia',
+    cta_p: 'Acesso completo às 614 receitas, planejador e lista de compras. Novas receitas todo mês.',
+    cta_price: 'Apenas <strong>R$19,90</strong>/mês · cancele quando quiser',
+    cta_big_btn: 'QUERO ASSINAR AGORA →',
+    // Footer
+    land_footer_copy: '© 2025 NuvLev · saudenaturall.online · Todos os direitos reservados',
+    land_footer_sub: 'Já é assinante? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Clique aqui para entrar</a>',
+    // Login
+    login_h2: 'Entrar no NuvLev',
+    login_p: 'Use o e-mail e senha que você definiu ao assinar',
+    login_pwd_ph: 'Sua senha',
+    login_error: 'E-mail ou senha incorretos. Verifique e tente novamente.',
+    login_btn: 'Entrar →',
+    login_forgot: 'Esqueceu a senha? <a onclick="recuperarSenha()">Recuperar acesso</a>',
+    login_no_sub: 'Ainda não assina? <a href="https://pay.hotmart.com/M106116851N">Assinar por R$19,90/mês</a>',
+    // App
+    app_loading: 'Carregando...',
+    app_logout: 'Sair',
+    nav_recipes: 'Receitas',
+    nav_planner: 'Planejador',
+    nav_shop: 'Lista de Compras',
+    nav_access: 'Acessar Agora →',
+    app_hero_badge: '✦ Sistema Completo de Nutrição',
+    app_hero_h1: '614 receitas organizadas + um sistema que <em>decide sua alimentação</em> todos os dias.',
+    app_hero_p: 'Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.',
+    app_vols_h2: 'O que está dentro do NuvLev',
+    app_vols_p: '7 volumes completos cobrindo todas as refeições e objetivos',
+    lib_tag: '📖 Biblioteca de Receitas',
+    lib_h2: 'Explore todas as receitas',
+    lib_sub: 'Busque por nome, ingrediente ou filtre por volume',
+    search_ph: '🔍  Buscar receita ou ingrediente...',
+    vol_all: 'Todos os volumes',
+    load_more: 'Carregar mais receitas ↓',
+    plan_tag: '📅 Planejador Semanal',
+    plan_h2: 'Monte sua semana',
+    plan_sub: 'Adicione receitas ao seu planejador e gere a lista de compras automaticamente',
+    plan_gen_btn: '🛒 Gerar Lista de Compras',
+    plan_clear_btn: '🗑 Limpar Planejador',
+    shop_tag: '🛒 Lista de Compras',
+    shop_h2: 'Sua lista inteligente',
+    shop_sub: 'Gerada automaticamente a partir do seu planejador semanal',
+    proof_tag: '⭐ Depoimentos',
+    proof_h2: 'Quem já usa o NuvLev',
+    t1: '"Finalmente um sistema que funciona na minha rotina corrida. As receitas são práticas e não preciso ficar pensando o que fazer."',
+    t2: '"O planejador semanal mudou minha vida. Faço a lista de compras em 5 minutos e já sei o que vou comer a semana toda."',
+    t3: '"Comprei achando que era mais um e-book. Me surpreendi com a qualidade e a variedade. Vale muito mais que o preço."',
+    final_h2: 'Pronto para transformar sua alimentação?',
+    final_p: '614 receitas organizadas + planejador + lista de compras — tudo por R$ 29,00',
+    final_btn: '🚀 Quero o NuvLev Agora',
+    footer_tagline: 'Nutrição que funciona na vida real',
+    footer_copy: '© 2025 NuvLev. Todos os direitos reservados.',
+    modal_ing: '🥘 Ingredientes',
+    modal_steps: '👨‍🍳 Modo de Preparo',
+    modal_benefit: '💡 Benefício:',
+    modal_add_plan: '📅 Adicionar ao Planejador',
+    modal_add_shop: '🛒 Ingredientes na Lista',
+    // JS dynamic strings
+    js_days: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+    js_add: '+ Adicionar',
+    js_added_plan: ' adicionado ao planejador!',
+    js_no_recipe: 'Nenhuma receita encontrada',
+    js_plan_cleared: 'Planejador limpo!',
+    js_clear_confirm: 'Limpar todo o planejador?',
+    js_search_prompt: 'Buscar receita pelo nome:',
+    js_day_prompt: 'Qual dia? (Seg, Ter, Qua, Qui, Sex, Sáb, Dom)',
+    js_day_invalid: 'Dia não reconhecido. Use: Seg, Ter, Qua...',
+    js_no_steps: 'Consulte o e-book para o modo de preparo completo.',
+    js_all_vols: I18N[_lang].js_all_vols,
+    js_items: 'itens',
+    js_recipes: 'receitas',
+    js_ingredients: 'ingredientes',
+    js_steps: 'passos',
+    js_showing: 'Mostrando',
+    js_of: 'de',
+    js_showing_suffix: 'receitas',
+    js_empty_shop: 'Adicione receitas ao planejador e clique em "Gerar Lista de Compras"',
+    js_clear_shop: '🗑 Limpar Lista',
+    js_added_shop: ' adicionado à lista!',
+    js_added_plan_ok: 'Adicionado ao planejador!',
+  },
+  en: {
+    nav_login: 'Already a subscriber →',
+    land_badge: '✦ Nutrition Platform',
+    land_h1: '614 organized recipes + a system that <em>plans your meals</em> every day.',
+    land_hero_p: 'Stop wasting energy deciding what to eat. NuvLev organizes breakfast, lunch, dinner, snacks, drinks and more — all in one place.',
+    land_feat1: '7 complete volumes with real, practical recipes',
+    land_feat2: 'Integrated interactive weekly planner',
+    land_feat3: 'Automatic shopping list with one click',
+    land_feat4: 'Search and filter by goal and meal type',
+    land_feat5: 'New recipes added every month',
+    land_cta_btn: '🔓 Get access for R$19.90/mo',
+    land_price_badge: '⭐ Monthly Plan',
+    land_price_period: 'per month · cancel anytime',
+    land_price_cancel: 'No commitment · No cancellation fee',
+    land_subscribe_btn: 'SUBSCRIBE NOW →',
+    land_guarantee: '🔒 Secure payment via Hotmart · Card, Pix or Bank Slip',
+    feat_h2: 'Everything you need in one place',
+    feat_sub: 'A complete platform for those who want to eat well without the hassle',
+    fc1_h: '614 Real Recipes', fc1_p: 'Organized by meal, goal and prep time. No impossible ingredients.',
+    fc2_h: 'Weekly Planner', fc2_p: 'Plan your menu from Monday to Sunday in a few clicks. Simple and practical.',
+    fc3_h: 'Shopping List', fc3_p: 'Auto-generated from the recipes you chose. Never forget anything again.',
+    fc4_h: 'Smart Search', fc4_p: 'Filter by volume, goal, meal type or search by ingredient name.',
+    fc5_h: '100% Browser-Based', fc5_p: 'Works on mobile, tablet and desktop. No app to install, no download.',
+    fc6_h: 'New Recipes', fc6_p: 'We add new recipes every month. Your library grows while you subscribe.',
+    vol_h2: '7 Complete Volumes',
+    vol_sub: 'Each volume specializes in one type of meal or goal',
+    lv1_l: 'Vol.1 Breakfast', lv1_c: '86 recipes',
+    lv2_l: 'Vol.2 Lunches', lv2_c: '92 recipes',
+    lv3_l: 'Vol.3 Dinners', lv3_c: '88 recipes',
+    lv4_l: 'Vol.4 Snacks', lv4_c: '84 recipes',
+    lv5_l: 'Vol.5 Drinks', lv5_c: '80 recipes',
+    lv6_l: 'Vol.6 Protocols', lv6_c: '102 recipes',
+    lv7_l: 'Vol.7 Tools', lv7_c: '82 recipes',
+    cta_h2: 'Start today for less than R$1 a day',
+    cta_p: 'Full access to 614 recipes, planner and shopping list. New recipes every month.',
+    cta_price: 'Only <strong>R$19.90</strong>/month · cancel anytime',
+    cta_big_btn: 'SUBSCRIBE NOW →',
+    land_footer_copy: '© 2025 NuvLev · saudenaturall.online · All rights reserved',
+    land_footer_sub: 'Already a subscriber? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Click here to log in</a>',
+    login_h2: 'Sign in to NuvLev',
+    login_p: 'Use the email and password you set when subscribing',
+    login_pwd_ph: 'Your password',
+    login_error: 'Incorrect email or password. Please check and try again.',
+    login_btn: 'Sign in →',
+    login_forgot: 'Forgot password? <a onclick="recuperarSenha()">Reset access</a>',
+    login_no_sub: 'Not subscribed yet? <a href="https://pay.hotmart.com/M106116851N">Subscribe for R$19.90/mo</a>',
+    app_loading: 'Loading...',
+    app_logout: 'Log out',
+    nav_recipes: 'Recipes',
+    nav_planner: 'Planner',
+    nav_shop: 'Shopping List',
+    nav_access: 'Access Now →',
+    app_hero_badge: '✦ Complete Nutrition System',
+    app_hero_h1: '614 organized recipes + a system that <em>plans your meals</em> every day.',
+    app_hero_p: 'Stop wasting energy deciding what to eat. NuvLev organizes breakfast, lunch, dinner, snacks, drinks and more — all in one place.',
+    app_vols_h2: 'What\'s inside NuvLev',
+    app_vols_p: '7 complete volumes covering all meals and goals',
+    lib_tag: '📖 Recipe Library',
+    lib_h2: 'Explore all recipes',
+    lib_sub: 'Search by name, ingredient or filter by volume',
+    search_ph: '🔍  Search recipe or ingredient...',
+    vol_all: 'All volumes',
+    load_more: 'Load more recipes ↓',
+    plan_tag: '📅 Weekly Planner',
+    plan_h2: 'Plan your week',
+    plan_sub: 'Add recipes to your planner and generate the shopping list automatically',
+    plan_gen_btn: '🛒 Generate Shopping List',
+    plan_clear_btn: '🗑 Clear Planner',
+    shop_tag: '🛒 Shopping List',
+    shop_h2: 'Your smart list',
+    shop_sub: 'Auto-generated from your weekly planner',
+    proof_tag: '⭐ Testimonials',
+    proof_h2: 'Who already uses NuvLev',
+    t1: '"Finally a system that works in my busy routine. The recipes are practical and I don\'t have to think about what to make."',
+    t2: '"The weekly planner changed my life. I make my shopping list in 5 minutes and already know what to eat all week."',
+    t3: '"I bought it thinking it was just another e-book. I was surprised by the quality and variety. Worth way more than the price."',
+    final_h2: 'Ready to transform your diet?',
+    final_p: '614 organized recipes + planner + shopping list — all for R$ 29.00',
+    final_btn: '🚀 I want NuvLev Now',
+    footer_tagline: 'Nutrition that works in real life',
+    footer_copy: '© 2025 NuvLev. All rights reserved.',
+    modal_ing: '🥘 Ingredients',
+    modal_steps: '👨‍🍳 Preparation Method',
+    modal_benefit: '💡 Benefit:',
+    modal_add_plan: '📅 Add to Planner',
+    modal_add_shop: '🛒 Add Ingredients to List',
+    // JS dynamic strings
+    js_days: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    js_add: '+ Add',
+    js_added_plan: ' added to planner!',
+    js_no_recipe: 'No recipe found',
+    js_plan_cleared: 'Planner cleared!',
+    js_clear_confirm: 'Clear the entire planner?',
+    js_search_prompt: 'Search recipe by name:',
+    js_day_prompt: 'Which day? (Mon, Tue, Wed, Thu, Fri, Sat, Sun)',
+    js_day_invalid: 'Day not recognized. Use: Mon, Tue, Wed...',
+    js_no_steps: 'Check the e-book for the full preparation method.',
+    js_all_vols: 'All Volumes',
+    js_items: 'items',
+    js_recipes: 'recipes',
+    js_ingredients: 'ingredients',
+    js_steps: 'steps',
+    js_showing: 'Showing',
+    js_of: 'of',
+    js_showing_suffix: 'recipes',
+    js_empty_shop: 'Add recipes to the planner and click "Generate Shopping List"',
+    js_clear_shop: '🗑 Clear List',
+    js_added_shop: ' added to list!',
+    js_added_plan_ok: 'Added to planner!',
+  }
+};
+
+// ─── APPLY LANGUAGE ──────────────────────────────────────────────────────────
+let _lang = localStorage.getItem('nuvlev-lang') || 'pt';
+
+function applyI18n(lang) {
+  const T = I18N[lang];
+  if (!T) return;
+  _lang = lang;
+  localStorage.setItem('nuvlev-lang', lang);
+  document.getElementById('html-root').lang = lang === 'pt' ? 'pt-BR' : 'en';
+
+  // Update static text
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (T[key] !== undefined) el.innerHTML = T[key];
+  });
+
+  // Update placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.dataset.i18nPh;
+    if (T[key] !== undefined) el.placeholder = T[key];
+  });
+
+  // Update day names in DAYS array
+  if (typeof DAYS !== 'undefined') {
+    const dayKeys = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    T.js_days.forEach((label, i) => { DAYS[i][1] = label; });
+    if (typeof renderPlanner === 'function') renderPlanner();
+  }
+
+  // Update toggle button
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = lang === 'pt' ? '🇺🇸 EN' : '🇧🇷 PT';
+
+  // Update vol cards if loaded
+  if (typeof renderVolCards === 'function') renderVolCards();
+
+  // Update recipe count text
+  if (typeof renderRecipes === 'function' && typeof displayed !== 'undefined' && displayed > 0) {
+    const count = document.getElementById('results-count');
+    if (count) count.innerHTML = `${T.js_showing} <strong>${displayed}</strong> ${T.js_of} <strong>${typeof filtered !== 'undefined' ? filtered.length : 0}</strong> ${T.js_showing_suffix}`;
+  }
+}
+
+function toggleLang() {
+  applyI18n(_lang === 'pt' ? 'en' : 'pt');
+}
+
+// Apply stored/default language on load
+document.addEventListener('DOMContentLoaded', () => {
+  if (_lang === 'en') applyI18n('en');
+});
+
+// Also apply after recipes load (override renderRecipes to use translated strings)
+const _origRenderRecipes = typeof renderRecipes !== 'undefined' ? renderRecipes : null;
+</script>
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+
 </body>
 </html>
