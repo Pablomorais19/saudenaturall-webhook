@@ -948,7 +948,7 @@ document.getElementById('login-senha').addEventListener('keydown', e => {
 
 <script>
 // ─── TRANSLATIONS ────────────────────────────────────────────────────────────
-const I18N = {
+var I18N = {
   pt: {
     // Landing nav
     nav_login: 'Já sou assinante →',
@@ -1055,7 +1055,7 @@ const I18N = {
     js_day_prompt: 'Qual dia? (Seg, Ter, Qua, Qui, Sex, Sáb, Dom)',
     js_day_invalid: 'Dia não reconhecido. Use: Seg, Ter, Qua...',
     js_no_steps: 'Consulte o e-book para o modo de preparo completo.',
-    js_all_vols: I18N[_lang].js_all_vols,
+    js_all_vols: 'Todos os Volumes',
     js_items: 'itens',
     js_recipes: 'receitas',
     js_ingredients: 'ingredientes',
@@ -1238,4 +1238,4 @@ const _origRenderRecipes = typeof renderRecipes !== 'undefined' ? renderRecipes 
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
 
 </body>
-</html>
+</html>       
