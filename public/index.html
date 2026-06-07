@@ -1181,7 +1181,7 @@ const I18N = {
 };
 
 // ─── APPLY LANGUAGE ──────────────────────────────────────────────────────────
-let _lang = localStorage.getItem('nuvlev-lang') || 'pt';
+var _lang = localStorage.getItem('nuvlev-lang') || 'pt';
 
 function applyI18n(lang) {
   const T = I18N[lang];
