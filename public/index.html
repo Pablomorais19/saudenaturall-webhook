@@ -256,6 +256,22 @@ footer strong{color:var(--primary)}
 .land-cta-price strong{font-size:2rem}
 .btn-assinar-lg{display:inline-block;background:#fff;color:#E76F51;padding:1.1rem 3rem;border-radius:50px;font-size:1.2rem;font-weight:900;text-align:center;transition:.2s;box-shadow:0 4px 24px rgba(0,0,0,.2);text-decoration:none;cursor:pointer;border:none;font-family:inherit}
 .btn-assinar-lg:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+/* ── DEMO MODE ── */
+.btn-demo{display:inline-flex;align-items:center;gap:.5rem;background:transparent;color:#E76F51;border:2px solid #E76F51;padding:.85rem 2rem;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s;font-family:inherit;margin-top:.75rem}
+.btn-demo:hover{background:#E76F51;color:#fff;transform:translateY(-2px)}
+#demo-banner{background:linear-gradient(90deg,#E76F51,#f4a261);color:#fff;text-align:center;padding:.6rem 1rem;font-size:.9rem;font-weight:600;position:sticky;top:0;z-index:200;display:none}
+#demo-banner a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:.5rem}
+.recipe-card-locked{position:relative;cursor:pointer;filter:none}
+.recipe-card-locked .lock-overlay{position:absolute;inset:0;background:rgba(30,30,40,.7);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:#fff;font-size:.85rem;font-weight:600;backdrop-filter:blur(3px)}
+.recipe-card-locked .lock-overlay span{font-size:1.6rem}
+#demo-cta-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center}
+#demo-cta-modal.show{display:flex}
+.demo-cta-box{background:#1a1a2e;border-radius:20px;padding:2.5rem 2rem;max-width:420px;width:90%;text-align:center;position:relative;border:2px solid #E76F51}
+.demo-cta-box h2{color:#fff;font-size:1.5rem;margin-bottom:.5rem}
+.demo-cta-box p{color:#ccc;font-size:.95rem;margin-bottom:1.5rem;line-height:1.5}
+.demo-cta-box .demo-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:#aaa;font-size:1.4rem;cursor:pointer}
+.demo-cta-price{font-size:2rem;font-weight:900;color:#27AE60;margin-bottom:1.2rem}
+.demo-cta-price small{font-size:1rem;color:#aaa}
 .land-footer{background:#2D2D2D;padding:2rem 5%;text-align:center;color:rgba(255,255,255,.4);font-size:.85rem}
 
 /* ── LOGIN MODAL ── */
@@ -321,6 +337,7 @@ footer strong{color:var(--primary)}
           <div class="land-feat" data-i18n="land_feat5">Novas receitas adicionadas todo mês</div>
         </div>
         <a href="https://pay.hotmart.com/M106116851N" class="btn-assinar" style="display:inline-flex;align-items:center;gap:.5rem;text-decoration:none;padding:1rem 2rem;width:auto" data-i18n="land_cta_btn">🔓 Quero acessar por R$19,90/mês</a>
+        <button class="btn-demo" onclick="abrirDemo()" data-i18n="land_demo_btn">🔍 Ver demonstração gratuita</button>
       </div>
       <div class="land-price-box">
         <div class="land-price-badge" data-i18n="land_price_badge">⭐ Assinatura Mensal</div>
@@ -399,6 +416,25 @@ footer strong{color:var(--primary)}
 
 <!-- ─── MAIN APP (membros) ────────────────────────────────── -->
 <div id="main-app">
+  <!-- DEMO BANNER -->
+  <div id="demo-banner">
+    🔍 <span data-i18n="demo_banner_text">Modo Demonstração · 20 de 614 receitas disponíveis</span>
+    <a href="https://pay.hotmart.com/M106116851N" data-i18n="demo_banner_link">Assine para acessar tudo →</a>
+  </div>
+
+  <!-- DEMO CTA MODAL -->
+  <div id="demo-cta-modal">
+    <div class="demo-cta-box">
+      <button class="demo-close" onclick="fecharCTADemo()">✕</button>
+      <div style="font-size:2.5rem;margin-bottom:.5rem">🔒</div>
+      <h2 data-i18n="demo_cta_h2">Receita bloqueada no demo</h2>
+      <p data-i18n="demo_cta_p">Você está no modo demonstração com 20 receitas de amostra. Assine para acessar todas as <strong>614 receitas</strong> + planner completo + lista de compras.</p>
+      <div class="demo-cta-price">R$19<small>,90/mês</small></div>
+      <a href="https://pay.hotmart.com/M106116851N" class="btn-assinar" data-i18n="demo_cta_btn">🚀 Assinar Agora →</a>
+      <div style="margin-top:1rem;font-size:.8rem;color:#888" data-i18n="demo_cta_cancel">Cancele quando quiser · Sem fidelidade</div>
+    </div>
+  </div>
+
   <div class="user-bar" id="user-bar">
     <span id="user-email-display" data-i18n="app_loading">Carregando...</span>
     <button class="btn-logout" onclick="fazerLogout()" data-i18n="app_logout">Sair</button>
@@ -555,6 +591,8 @@ footer strong{color:var(--primary)}
 // === ESTADO GLOBAL ===
 let VOLUMES = [];
 let ALL_RECIPES = [];
+var isDemoMode = false;
+var DEMO_LIMIT = 20;
 let filtered = [];
 let displayed = 0;
 const PER_PAGE = 24;
@@ -657,31 +695,66 @@ function renderRecipes() {
   const grid = document.getElementById('recipe-grid');
   const count = document.getElementById('results-count');
   const loadBtn = document.getElementById('load-more');
-  
+
   if (displayed === 0) grid.innerHTML = '';
-  
+
   const slice = filtered.slice(displayed, displayed + PER_PAGE);
-  slice.forEach(r => {
+  slice.forEach((r, i) => {
+    const globalIndex = displayed + i;
+    const isLocked = isDemoMode && globalIndex >= DEMO_LIMIT;
     const card = document.createElement('div');
-    card.className = 'recipe-card';
+    card.className = 'recipe-card' + (isLocked ? ' recipe-card-locked' : '');
     const hasIng = r.ingredients && r.ingredients.length > 0;
-    card.innerHTML = `
-      <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
-      <div class="recipe-card-name">${r.name}</div>
-      <div class="recipe-card-meta">
-        ${hasIng ? `<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>` : ''}
-        ${r.steps && r.steps.length > 1 ? `<span class="recipe-tag">${r.steps.length} ${I18N[_lang].js_steps}</span>` : ''}
-      </div>`;
-    card.onclick = () => openRecipe(r);
+    if (isLocked) {
+      card.innerHTML = `
+        <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
+        <div class="recipe-card-name">${r.name}</div>
+        <div class="recipe-card-meta">
+          ${hasIng ? `<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>` : ''}
+        </div>
+        <div class="lock-overlay"><span>🔒</span>${_lang === 'pt' ? 'Assine para desbloquear' : 'Subscribe to unlock'}</div>`;
+      card.onclick = () => mostrarCTADemo();
+    } else {
+      card.innerHTML = `
+        <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
+        <div class="recipe-card-name">${r.name}</div>
+        <div class="recipe-card-meta">
+          ${hasIng ? `<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>` : ''}
+          ${r.steps && r.steps.length > 1 ? `<span class="recipe-tag">${r.steps.length} ${I18N[_lang].js_steps}</span>` : ''}
+        </div>`;
+      card.onclick = () => openRecipe(r);
+    }
     grid.appendChild(card);
   });
-  
+
   displayed += slice.length;
-  count.innerHTML = `${I18N[_lang].js_showing} <strong>${displayed}</strong> ${I18N[_lang].js_of} <strong>${filtered.length}</strong> ${I18N[_lang].js_showing_suffix}`;
+  count.innerHTML = `${I18N[_lang].js_showing} <strong>${Math.min(displayed, isDemoMode ? DEMO_LIMIT : displayed)}</strong> ${I18N[_lang].js_of} <strong>${filtered.length}</strong> ${I18N[_lang].js_showing_suffix}`;
   loadBtn.style.display = displayed >= filtered.length ? 'none' : 'block';
 }
 
 function loadMore() { renderRecipes(); }
+
+function abrirDemo() {
+  isDemoMode = true;
+  const loading = document.getElementById('auth-loading');
+  const landing = document.getElementById('landing');
+  const mainApp = document.getElementById('main-app');
+  const userBar = document.getElementById('user-bar');
+  const demoBanner = document.getElementById('demo-banner');
+  landing.style.display = 'none';
+  if (userBar) userBar.style.display = 'none';
+  demoBanner.style.display = 'block';
+  loading.style.opacity = '0';
+  setTimeout(() => { loading.style.display = 'none'; mainApp.style.display = 'block'; }, 200);
+}
+
+function mostrarCTADemo() {
+  document.getElementById('demo-cta-modal').classList.add('show');
+}
+
+function fecharCTADemo() {
+  document.getElementById('demo-cta-modal').classList.remove('show');
+}
 
 // --- MODAL ---
 function openRecipe(r) {
@@ -869,7 +942,8 @@ auth.onAuthStateChanged(async (user) => {
     await auth.signOut();
   }
 
-  // Não logado ou assinatura inativa — mostra landing
+  // Não logado ou assinatura inativa — mostra landing (exceto se demo ativo)
+  if (isDemoMode) return;
   loading.style.opacity = '0';
   setTimeout(() => { loading.style.display = 'none'; landing.style.display = 'block'; }, 400);
 });
@@ -995,6 +1069,13 @@ var I18N = {
     // Footer
     land_footer_copy: '© 2025 NuvLev · saudenaturall.online · Todos os direitos reservados',
     land_footer_sub: 'Já é assinante? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Clique aqui para entrar</a>',
+    land_demo_btn: '🔍 Ver demonstração gratuita',
+    demo_banner_text: 'Modo Demonstração · 20 de 614 receitas disponíveis',
+    demo_banner_link: 'Assine para acessar tudo →',
+    demo_cta_h2: 'Receita bloqueada no demo',
+    demo_cta_p: 'Você está no modo demonstração com 20 receitas de amostra. Assine para acessar todas as <strong>614 receitas</strong> + planner completo + lista de compras.',
+    demo_cta_btn: '🚀 Assinar Agora →',
+    demo_cta_cancel: 'Cancele quando quiser · Sem fidelidade',
     // Login
     login_h2: 'Entrar no NuvLev',
     login_p: 'Use o e-mail e senha que você definiu ao assinar',
@@ -1107,135 +1188,17 @@ var I18N = {
     cta_big_btn: 'SUBSCRIBE NOW →',
     land_footer_copy: '© 2025 NuvLev · saudenaturall.online · All rights reserved',
     land_footer_sub: 'Already a subscriber? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Click here to log in</a>',
+    land_demo_btn: '🔍 Try free demo',
+    demo_banner_text: 'Demo Mode · 20 of 614 recipes available',
+    demo_banner_link: 'Subscribe to unlock everything →',
+    demo_cta_h2: 'Recipe locked in demo',
+    demo_cta_p: 'You\'re in demo mode with 20 sample recipes. Subscribe to access all <strong>614 recipes</strong> + full planner + shopping list.',
+    demo_cta_btn: '🚀 Subscribe Now →',
+    demo_cta_cancel: 'Cancel anytime · No commitment',
     login_h2: 'Sign in to NuvLev',
     login_p: 'Use the email and password you set when subscribing',
     login_pwd_ph: 'Your password',
     login_error: 'Incorrect email or password. Please check and try again.',
     login_btn: 'Sign in →',
     login_forgot: 'Forgot password? <a onclick="recuperarSenha()">Reset access</a>',
-    login_no_sub: 'Not subscribed yet? <a href="https://pay.hotmart.com/M106116851N">Subscribe for R$19.90/mo</a>',
-    app_loading: 'Loading...',
-    app_logout: 'Log out',
-    nav_recipes: 'Recipes',
-    nav_planner: 'Planner',
-    nav_shop: 'Shopping List',
-    nav_access: 'Access Now →',
-    app_hero_badge: '✦ Complete Nutrition System',
-    app_hero_h1: '614 organized recipes + a system that <em>plans your meals</em> every day.',
-    app_hero_p: 'Stop wasting energy deciding what to eat. NuvLev organizes breakfast, lunch, dinner, snacks, drinks and more — all in one place.',
-    app_vols_h2: 'What\'s inside NuvLev',
-    app_vols_p: '7 complete volumes covering all meals and goals',
-    lib_tag: '📖 Recipe Library',
-    lib_h2: 'Explore all recipes',
-    lib_sub: 'Search by name, ingredient or filter by volume',
-    search_ph: '🔍  Search recipe or ingredient...',
-    vol_all: 'All volumes',
-    load_more: 'Load more recipes ↓',
-    plan_tag: '📅 Weekly Planner',
-    plan_h2: 'Plan your week',
-    plan_sub: 'Add recipes to your planner and generate the shopping list automatically',
-    plan_gen_btn: '🛒 Generate Shopping List',
-    plan_clear_btn: '🗑 Clear Planner',
-    shop_tag: '🛒 Shopping List',
-    shop_h2: 'Your smart list',
-    shop_sub: 'Auto-generated from your weekly planner',
-    proof_tag: '⭐ Testimonials',
-    proof_h2: 'Who already uses NuvLev',
-    t1: '"Finally a system that works in my busy routine. The recipes are practical and I don\'t have to think about what to make."',
-    t2: '"The weekly planner changed my life. I make my shopping list in 5 minutes and already know what to eat all week."',
-    t3: '"I bought it thinking it was just another e-book. I was surprised by the quality and variety. Worth way more than the price."',
-    final_h2: 'Ready to transform your diet?',
-    final_p: '614 organized recipes + planner + shopping list — all for R$ 29.00',
-    final_btn: '🚀 I want NuvLev Now',
-    footer_tagline: 'Nutrition that works in real life',
-    footer_copy: '© 2025 NuvLev. All rights reserved.',
-    modal_ing: '🥘 Ingredients',
-    modal_steps: '👨‍🍳 Preparation Method',
-    modal_benefit: '💡 Benefit:',
-    modal_add_plan: '📅 Add to Planner',
-    modal_add_shop: '🛒 Add Ingredients to List',
-    // JS dynamic strings
-    js_days: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-    js_add: '+ Add',
-    js_added_plan: ' added to planner!',
-    js_no_recipe: 'No recipe found',
-    js_plan_cleared: 'Planner cleared!',
-    js_clear_confirm: 'Clear the entire planner?',
-    js_search_prompt: 'Search recipe by name:',
-    js_day_prompt: 'Which day? (Mon, Tue, Wed, Thu, Fri, Sat, Sun)',
-    js_day_invalid: 'Day not recognized. Use: Mon, Tue, Wed...',
-    js_no_steps: 'Check the e-book for the full preparation method.',
-    js_all_vols: 'All Volumes',
-    js_items: 'items',
-    js_recipes: 'recipes',
-    js_ingredients: 'ingredients',
-    js_steps: 'steps',
-    js_showing: 'Showing',
-    js_of: 'of',
-    js_showing_suffix: 'recipes',
-    js_empty_shop: 'Add recipes to the planner and click "Generate Shopping List"',
-    js_clear_shop: '🗑 Clear List',
-    js_added_shop: ' added to list!',
-    js_added_plan_ok: 'Added to planner!',
-  }
-};
-
-// ─── APPLY LANGUAGE ──────────────────────────────────────────────────────────
-var _lang = localStorage.getItem('nuvlev-lang') || 'pt';
-
-function applyI18n(lang) {
-  const T = I18N[lang];
-  if (!T) return;
-  _lang = lang;
-  localStorage.setItem('nuvlev-lang', lang);
-  document.getElementById('html-root').lang = lang === 'pt' ? 'pt-BR' : 'en';
-
-  // Update static text
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    if (T[key] !== undefined) el.innerHTML = T[key];
-  });
-
-  // Update placeholders
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-    const key = el.dataset.i18nPh;
-    if (T[key] !== undefined) el.placeholder = T[key];
-  });
-
-  // Update day names in DAYS array
-  if (typeof DAYS !== 'undefined') {
-    const dayKeys = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    T.js_days.forEach((label, i) => { DAYS[i][1] = label; });
-    if (typeof renderPlanner === 'function') renderPlanner();
-  }
-
-  // Update toggle button
-  const btn = document.getElementById('lang-toggle');
-  if (btn) btn.textContent = lang === 'pt' ? '🇺🇸 EN' : '🇧🇷 PT';
-
-  // Update vol cards if loaded
-  if (typeof renderVolCards === 'function') renderVolCards();
-
-  // Update recipe count text
-  if (typeof renderRecipes === 'function' && typeof displayed !== 'undefined' && displayed > 0) {
-    const count = document.getElementById('results-count');
-    if (count) count.innerHTML = `${T.js_showing} <strong>${displayed}</strong> ${T.js_of} <strong>${typeof filtered !== 'undefined' ? filtered.length : 0}</strong> ${T.js_showing_suffix}`;
-  }
-}
-
-function toggleLang() {
-  applyI18n(_lang === 'pt' ? 'en' : 'pt');
-}
-
-// Apply stored/default language on load
-document.addEventListener('DOMContentLoaded', () => {
-  if (_lang === 'en') applyI18n('en');
-});
-
-// Also apply after recipes load (override renderRecipes to use translated strings)
-const _origRenderRecipes = typeof renderRecipes !== 'undefined' ? renderRecipes : null;
-</script>
-<!-- ═══════════════════════════════════════════════════════════════════════════ -->
-
-</body>
-</html>       
+    login_no_sub: 'Not subscribed yet? <a href="h
