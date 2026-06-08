@@ -745,7 +745,18 @@ function abrirDemo() {
   if (userBar) userBar.style.display = 'none';
   demoBanner.style.display = 'block';
   loading.style.opacity = '0';
-  setTimeout(() => { loading.style.display = 'none'; mainApp.style.display = 'block'; }, 200);
+  setTimeout(() => {
+    loading.style.display = 'none';
+    mainApp.style.display = 'block';
+    // Inicializa receitas se já carregadas
+    if (ALL_RECIPES.length > 0) {
+      filtered = [...ALL_RECIPES];
+      initVolFilter();
+      renderVolCards();
+      applyFilter();
+      renderPlanner();
+    }
+  }, 200);
 }
 
 function mostrarCTADemo() {
@@ -1198,7 +1209,4 @@ var I18N = {
     login_h2: 'Sign in to NuvLev',
     login_p: 'Use the email and password you set when subscribing',
     login_pwd_ph: 'Your password',
-    login_error: 'Incorrect email or password. Please check and try again.',
-    login_btn: 'Sign in →',
-    login_forgot: 'Forgot password? <a onclick="recuperarSenha()">Reset access</a>',
-    login_no_sub: 'Not subscribed yet? <a href="h
+    login_error: 'In
