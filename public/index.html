@@ -8,10 +8,10 @@
 <style>
 :root{
   --primary:#E76F51;
-  --primary-dark:#C85A3C;h
+  --primary-dark:#C85A3C;
   --secondary:#F4A261;
   --accent:#FFF3EE;
-  --dark:#2D2D2D;hhh
+  --dark:#2D2D2D;
   --mid:#6B6B6B;
   --light:#F9F9F9;
   --white:#FFFFFF;
@@ -472,12 +472,12 @@ footer strong{color:var(--primary)}
       </div>
     </div>
     <div id="comprar" class="hero-price-box">
-      <div class="price-old">De R$ 540,00</div>
-      <div class="price-main"><span>R$19,90</div>
-      <div class="price-sub">à vista — pagamento único</div>
-      <div class="price-parcela">ou 6x de R$ 5,44 no cartão</div>
-      <a href="#" class="btn-cta" onclick="alert('Link de pagamento — configure aqui com seu checkout!'); return false;">QUERO ACESSAR AGORA →</a>
-      <div class="price-guarantee">🔒 Compra segura · Acesso imediato e vitalício</div>
+      <div class="land-price-badge" style="background:#E76F51;color:#fff;display:inline-block;padding:.3rem .9rem;border-radius:50px;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:1.2rem">⭐ Assinatura Mensal</div>
+      <div class="price-main"><span>R$</span>19,90</div>
+      <div class="price-sub">por mês · cancele quando quiser</div>
+      <div class="price-guarantee" style="color:rgba(255,255,255,.5);font-size:.8rem;margin:.5rem 0 1.5rem">Sem fidelidade · Sem taxa de cancelamento</div>
+      <a href="https://pay.hotmart.com/M106116851N" class="btn-cta">🔓 ASSINAR AGORA →</a>
+      <div class="price-guarantee">🔒 Pagamento seguro via Hotmart · Cartão, Pix ou Boleto</div>
     </div>
   </div>
 </section>
@@ -955,6 +955,8 @@ auth.onAuthStateChanged(async (user) => {
       const doc = await db.collection('assinantes').doc(user.uid).get();
       if (doc.exists && doc.data().ativo === true) {
         // ✅ Assinante ativo — mostra o app
+        isDemoMode = false;
+        document.getElementById('demo-banner').style.display = 'none';
         document.getElementById('user-email-display').textContent = '👤 ' + user.email;
         loading.style.opacity = '0';
         setTimeout(() => { loading.style.display = 'none'; mainApp.style.display = 'block'; }, 400);
