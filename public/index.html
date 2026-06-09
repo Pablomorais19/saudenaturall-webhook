@@ -420,6 +420,8 @@ footer strong{color:var(--primary)}
   <div id="demo-banner">
     🔍 <span data-i18n="demo_banner_text">Modo Demonstração · 20 de 614 receitas disponíveis</span>
     <a href="https://pay.hotmart.com/M106116851N" data-i18n="demo_banner_link">Assine para acessar tudo →</a>
+    <span style="margin-left:1rem;opacity:.8">·</span>
+    <a onclick="abrirLogin();return false" href="#" style="color:#fff;text-decoration:underline;margin-left:.5rem;cursor:pointer">Já sou assinante — Entrar</a>
   </div>
 
   <!-- DEMO CTA MODAL -->
@@ -957,6 +959,9 @@ auth.onAuthStateChanged(async (user) => {
         // ✅ Assinante ativo — mostra o app
         isDemoMode = false;
         document.getElementById('demo-banner').style.display = 'none';
+        mainApp.style.paddingTop = '';
+        const userBar = document.getElementById('user-bar');
+        if (userBar) userBar.style.display = '';
         document.getElementById('user-email-display').textContent = '👤 ' + user.email;
         loading.style.opacity = '0';
         setTimeout(() => { loading.style.display = 'none'; mainApp.style.display = 'block'; }, 400);
