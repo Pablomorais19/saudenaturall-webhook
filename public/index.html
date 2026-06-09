@@ -593,6 +593,17 @@ let VOLUMES = [];
 let ALL_RECIPES = [];
 var isDemoMode = false;
 var DEMO_LIMIT = 20;
+
+// I18N mínimo para uso antes do bloco i18n completo carregar
+var _lang = localStorage.getItem('nuvlev-lang') || 'pt';
+var I18N = {
+  pt: { js_ingredients:'ingredientes', js_steps:'passos', js_items:'itens', js_recipes:'receitas',
+        js_showing:'Mostrando', js_of:'de', js_showing_suffix:'receitas', js_add:'+ Adicionar',
+        js_all_vols:'Todos os Volumes', js_empty_shop:'Adicione receitas ao planejador', js_days:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'] },
+  en:  { js_ingredients:'ingredients', js_steps:'steps', js_items:'items', js_recipes:'recipes',
+        js_showing:'Showing', js_of:'of', js_showing_suffix:'recipes', js_add:'+ Add',
+        js_all_vols:'All Volumes', js_empty_shop:'Add recipes to the planner', js_days:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] }
+};
 let filtered = [];
 let displayed = 0;
 const PER_PAGE = 24;
@@ -1033,7 +1044,8 @@ document.getElementById('login-senha').addEventListener('keydown', e => {
 
 <script>
 // ─── TRANSLATIONS ────────────────────────────────────────────────────────────
-var I18N = {
+// Substitui o I18N mínimo pelo completo
+I18N = {
   pt: {
     // Landing nav
     nav_login: 'Já sou assinante →',
@@ -1197,16 +1209,4 @@ var I18N = {
     cta_p: 'Full access to 614 recipes, planner and shopping list. New recipes every month.',
     cta_price: 'Only <strong>R$19.90</strong>/month · cancel anytime',
     cta_big_btn: 'SUBSCRIBE NOW →',
-    land_footer_copy: '© 2025 NuvLev · saudenaturall.online · All rights reserved',
-    land_footer_sub: 'Already a subscriber? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Click here to log in</a>',
-    land_demo_btn: '🔍 Try free demo',
-    demo_banner_text: 'Demo Mode · 20 of 614 recipes available',
-    demo_banner_link: 'Subscribe to unlock everything →',
-    demo_cta_h2: 'Recipe locked in demo',
-    demo_cta_p: 'You\'re in demo mode with 20 sample recipes. Subscribe to access all <strong>614 recipes</strong> + full planner + shopping list.',
-    demo_cta_btn: '🚀 Subscribe Now →',
-    demo_cta_cancel: 'Cancel anytime · No commitment',
-    login_h2: 'Sign in to NuvLev',
-    login_p: 'Use the email and password you set when subscribing',
-    login_pwd_ph: 'Your password',
-    login_error: 'In
+    land_foo
