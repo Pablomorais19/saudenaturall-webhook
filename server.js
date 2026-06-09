@@ -112,78 +112,78 @@ app.post('/admin/desativar', async (req, res) => {
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
 
-// ââ BLOG âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── BLOG ─────────────────────────────────────────────────────────────────────
 
 const BLOG_POSTS = [
   {
     slug: 'como-planejar-alimentacao-semanal',
-    title: 'Como Planejar a AlimentaÃ§Ã£o da Semana em 30 Minutos',
-    description: 'Pare de chegar em casa sem saber o que jantar. Veja como organizar toda a sua alimentaÃ§Ã£o semanal em menos de meia hora â e nunca mais desperdiÃ§ar comida.',
+    title: 'Como Planejar a Alimentação da Semana em 30 Minutos',
+    description: 'Pare de chegar em casa sem saber o que jantar. Veja como organizar toda a sua alimentação semanal em menos de meia hora — e nunca mais desperdiçar comida.',
     date: '2025-06-01',
     dateFormatted: '1 de junho de 2025',
     category: 'Planejamento',
     readTime: '5 min de leitura',
     content: `
-      <p>VocÃª jÃ¡ chegou em casa depois de um dia longo, abriu a geladeira e ficou olhando para ela sem saber o que fazer? Isso acontece com a maioria das pessoas â e tem um nome: <strong>fadiga de decisÃ£o alimentar</strong>.</p>
-      <p>A boa notÃ­cia Ã© que existe uma soluÃ§Ã£o simples: <strong>planejar a alimentaÃ§Ã£o da semana inteira em um Ãºnico momento</strong>. Funciona, Ã© rÃ¡pido, e vocÃª vai economizar tempo, dinheiro e energia mental todos os dias.</p>
+      <p>Você já chegou em casa depois de um dia longo, abriu a geladeira e ficou olhando para ela sem saber o que fazer? Isso acontece com a maioria das pessoas — e tem um nome: <strong>fadiga de decisão alimentar</strong>.</p>
+      <p>A boa notícia é que existe uma solução simples: <strong>planejar a alimentação da semana inteira em um único momento</strong>. Funciona, é rápido, e você vai economizar tempo, dinheiro e energia mental todos os dias.</p>
 
       <h2>Por que o planejamento alimentar muda tudo</h2>
-      <p>Estudos mostram que pessoas que planejam refeiÃ§Ãµes consomem mais nutrientes, gastam menos no supermercado e tÃªm menos episÃ³dios de alimentaÃ§Ã£o impulsiva. NÃ£o Ã© sobre perfeiÃ§Ã£o â Ã© sobre ter um <em>sistema</em>.</p>
-      <p>Quando vocÃª jÃ¡ sabe o que vai comer na terÃ§a Ã  noite, nÃ£o precisa decidir exausto depois do trabalho. Essa decisÃ£o foi tomada no domingo, com cabeÃ§a fria.</p>
+      <p>Estudos mostram que pessoas que planejam refeições consomem mais nutrientes, gastam menos no supermercado e têm menos episódios de alimentação impulsiva. Não é sobre perfeição — é sobre ter um <em>sistema</em>.</p>
+      <p>Quando você já sabe o que vai comer na terça à noite, não precisa decidir exausto depois do trabalho. Essa decisão foi tomada no domingo, com cabeça fria.</p>
 
-      <h2>O mÃ©todo de 30 minutos (passo a passo)</h2>
+      <h2>O método de 30 minutos (passo a passo)</h2>
 
       <h3>1. Escolha um dia fixo (10 min)</h3>
-      <p>Domingo de manhÃ£ Ã© o favorito de quem pratica. Reserve 30 minutos sem interrupÃ§Ãµes. Abra o cardÃ¡pio da semana â pode ser um caderno, um aplicativo ou um planejador digital.</p>
+      <p>Domingo de manhã é o favorito de quem pratica. Reserve 30 minutos sem interrupções. Abra o cardápio da semana — pode ser um caderno, um aplicativo ou um planejador digital.</p>
 
-      <h3>2. Monte o cardÃ¡pio por refeiÃ§Ã£o (10 min)</h3>
-      <p>Pense em blocos: cafÃ© da manhÃ£, almoÃ§o, jantar e lanches. VocÃª nÃ£o precisa de uma receita diferente para cada dia â repetir pratos Ã© inteligente, nÃ£o preguiÃ§oso.</p>
+      <h3>2. Monte o cardápio por refeição (10 min)</h3>
+      <p>Pense em blocos: café da manhã, almoço, jantar e lanches. Você não precisa de uma receita diferente para cada dia — repetir pratos é inteligente, não preguiçoso.</p>
       <ul>
-        <li><strong>CafÃ© da manhÃ£:</strong> 2 a 3 opÃ§Ãµes que vocÃª rotaciona durante a semana</li>
-        <li><strong>AlmoÃ§o:</strong> 1 proteÃ­na + 1 carboidrato + vegetais (muda sÃ³ o tempero)</li>
-        <li><strong>Jantar:</strong> algo leve â sopa, omelete, salada com proteÃ­na</li>
+        <li><strong>Café da manhã:</strong> 2 a 3 opções que você rotaciona durante a semana</li>
+        <li><strong>Almoço:</strong> 1 proteína + 1 carboidrato + vegetais (muda só o tempero)</li>
+        <li><strong>Jantar:</strong> algo leve — sopa, omelete, salada com proteína</li>
         <li><strong>Lanches:</strong> frutas, iogurte, ovos cozidos</li>
       </ul>
 
       <h3>3. Gere a lista de compras (5 min)</h3>
-      <p>Com o cardÃ¡pio definido, liste os ingredientes necessÃ¡rios. Organize por seÃ§Ã£o do mercado: hortifrÃºti, proteÃ­nas, laticÃ­nios, grÃ£os. VocÃª vai passar pelo mercado com eficiÃªncia e sem compras por impulso.</p>
+      <p>Com o cardápio definido, liste os ingredientes necessários. Organize por seção do mercado: hortifrúti, proteínas, laticínios, grãos. Você vai passar pelo mercado com eficiência e sem compras por impulso.</p>
 
-      <h3>4. FaÃ§a as compras e um mini prÃ©-preparo (5 min de planejamento)</h3>
-      <p>Ao chegar em casa do mercado, separe 20 a 30 minutos para lavar verduras, cozinhar ovos, temperar proteÃ­nas. Esse prÃ©-preparo reduz o tempo de cozinhar nos dias seguintes para menos de 10 minutos.</p>
+      <h3>4. Faça as compras e um mini pré-preparo (5 min de planejamento)</h3>
+      <p>Ao chegar em casa do mercado, separe 20 a 30 minutos para lavar verduras, cozinhar ovos, temperar proteínas. Esse pré-preparo reduz o tempo de cozinhar nos dias seguintes para menos de 10 minutos.</p>
 
       <h2>O erro mais comum (e como evitar)</h2>
-      <p>A maioria das pessoas planeja refeiÃ§Ãµes muito elaboradas para a semana toda â e desiste no terceiro dia. O segredo Ã© <strong>planejar simples</strong>. Receitas com no mÃ¡ximo 5 a 7 ingredientes e 20 minutos de preparo sÃ£o as mais sustentÃ¡veis.</p>
+      <p>A maioria das pessoas planeja refeições muito elaboradas para a semana toda — e desiste no terceiro dia. O segredo é <strong>planejar simples</strong>. Receitas com no máximo 5 a 7 ingredientes e 20 minutos de preparo são as mais sustentáveis.</p>
 
       <h2>Como o NuvLev facilita isso</h2>
-      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde vocÃª monta toda a semana em minutos e gera a lista de compras com um clique â automaticamente, jÃ¡ organizada por ingredientes. SÃ£o 614 receitas com filtros por refeiÃ§Ã£o, objetivo e tempo de preparo para vocÃª nunca ficar sem ideia.</p>
+      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde você monta toda a semana em minutos e gera a lista de compras com um clique — automticamente, já organizada por ingredientes. São 614 receitas com filtros por refeição, objetivo e tempo de preparo para você nunca ficar sem ideia.</p>
 
       <h2>Recapitulando</h2>
       <ul>
-        <li>Escolha um dia fixo para planejar (domingo Ã© o mais popular)</li>
-        <li>Monte o cardÃ¡pio por blocos de refeiÃ§Ã£o</li>
+        <li>Escolha um dia fixo para planejar (domingo é o mais popular)</li>
+        <li>Monte o cardápio por blocos de refeição</li>
         <li>Prefira receitas simples e repita sem culpa</li>
-        <li>Gere a lista de compras a partir do cardÃ¡pio</li>
-        <li>FaÃ§a um mini prÃ©-preparo ao chegar do mercado</li>
+        <li>Gere a lista de compras a partir do cardápio</li>
+        <li>Faça um mini pré-preparo ao chegar do mercado</li>
       </ul>
-      <p>Com esse mÃ©todo, vocÃª vai para a semana sabendo exatamente o que vai comer â e isso muda o jogo.</p>
+      <p>Com esse método, você vai para a semana sabendo exatamente o que vai comer — e isso muda o jogo.</p>
     `
   },
   {
     slug: 'receitas-cafe-da-manha-saudavel-rapidas',
-    title: '7 Receitas de CafÃ© da ManhÃ£ SaudÃ¡vel para Fazer em 10 Minutos',
-    description: 'CafÃ© da manhÃ£ nutritivo e gostoso nÃ£o precisa de muito tempo. Veja 7 receitas rÃ¡pidas, com ingredientes simples, que vÃ£o transformar sua manhÃ£.',
+    title: '7 Receitas de Café da Manhã Saudável para Fazer em 10 Minutos',
+    description: 'Café da manhã nutritivo e gostoso não precisa de muito tempo. Veja 7 receitas rápidas, com ingredientes simples, que vão transformar sua manhã.',
     date: '2025-06-05',
     dateFormatted: '5 de junho de 2025',
     category: 'Receitas',
     readTime: '7 min de leitura',
     content: `
-      <p>O cafÃ© da manhÃ£ Ã© a refeiÃ§Ã£o que mais pessoas pulam â e o motivo quase sempre Ã© o mesmo: falta de tempo. A soluÃ§Ã£o nÃ£o Ã© acordar mais cedo, Ã© ter receitas rÃ¡pidas e nutritivas que cabem na sua rotina.</p>
-      <p>Separamos 7 opÃ§Ãµes que ficam prontas em atÃ© 10 minutos, com ingredientes fÃ¡ceis de encontrar em qualquer mercado.</p>
+      <p>O café da manhã é a refeição que mais pessoas pulam — e o motivo quase sempre é o mesmo: falta de tempo. A solução não é acordar mais cedo, é ter receitas rápidas e nutritivas que cabem na sua rotina.</p>
+      <p>Separamos 7 opções que ficam prontas em até 10 minutos, com ingredientes fáceis de encontrar em qualquer mercado.</p>
 
       <h2>1. Overnight Oats de Banana e Mel</h2>
       <p><strong>Tempo de preparo:</strong> 5 minutos (prepara na noite anterior)</p>
       <p><strong>Ingredientes:</strong> 4 colheres de aveia em flocos, 150 ml de leite ou bebida vegetal, 1 banana amassada, 1 colher de mel, canela a gosto.</p>
-      <p><strong>Como fazer:</strong> misture tudo em um pote com tampa e deixe na geladeira. Na manhÃ£ seguinte Ã© sÃ³ pegar e comer. Pode adicionar frutas frescas por cima.</p>
+      <p><strong>Como fazer:</strong> misture tudo em um pote com tampa e deixe na geladeira. Na manhã seguinte é só pegar e comer. Pode adicionar frutas frescas por cima.</p>
 
       <h2>2. Omelete de Espinafre com Queijo</h2>
       <p><strong>Tempo de preparo:</strong> 8 minutos</p>
@@ -192,57 +192,57 @@ const BLOG_POSTS = [
 
       <h2>3. Tapioca com Ricota e Tomate</h2>
       <p><strong>Tempo de preparo:</strong> 7 minutos</p>
-      <p><strong>Ingredientes:</strong> 2 colheres de goma de tapioca hidratada, 2 colheres de ricota, 4 fatias de tomate, sal e orÃ©gano.</p>
-      <p><strong>Como fazer:</strong> aqueÃ§a a frigideira e espalhe a tapioca. Quando firmar (1 a 2 minutos), vire. Recheie com ricota e tomate temperado. Dobre e sirva.</p>
+      <p><strong>Ingredientes:</strong> 2 colheres de goma de tapioca hidratada, 2 colheres de ricota, 4 fatias de tomate, sal e orégano.</p>
+      <p><strong>Como fazer:</strong> aqueça a frigideira e espalhe a tapioca. Quando firmar (1 a 2 minutos), vire. Recheie com ricota e tomate temperado. Dobre e sirva.</p>
 
       <h2>4. Vitamina Verde Proteica</h2>
       <p><strong>Tempo de preparo:</strong> 3 minutos</p>
       <p><strong>Ingredientes:</strong> 1 banana congelada, 1 punhado de espinafre, 200 ml de leite, 1 colher de pasta de amendoim, 1 colher de sementes de chia.</p>
-      <p><strong>Como fazer:</strong> bata tudo no liquidificador. Sirva imediatamente. A banana congelada dÃ¡ cremosidade sem precisar de sorvete.</p>
+      <p><strong>Como fazer:</strong> bata tudo no liquidificador. Sirva imediatamente. A banana congelada dá cremosidade sem precisar de sorvete.</p>
 
-      <h2>5. PÃ£o Integral com Abacate e Ovo Mexido</h2>
+      <h2>5. Pão Integral com Abacate e Ovo Mexido</h2>
       <p><strong>Tempo de preparo:</strong> 8 minutos</p>
-      <p><strong>Ingredientes:</strong> 2 fatias de pÃ£o integral, 1/2 abacate maduro, 2 ovos, sal, limÃ£o e pimenta-do-reino.</p>
-      <p><strong>Como fazer:</strong> toste o pÃ£o. Amasse o abacate com limÃ£o e sal. Prepare os ovos mexidos na frigideira. Monte: pÃ£o, pasta de abacate, ovos por cima.</p>
+      <p><strong>Ingredientes:</strong> 2 fatias de pão integral, 1/2 abacate maduro, 2 ovos, sal, limão e pimenta-do-reino.</p>
+      <p><strong>Como fazer:</strong> toste o pão. Amasse o abacate com limão e sal. Prepare os ovos mexidos na frigideira. Monte: pão, pasta de abacate, ovos por cima.</p>
 
       <h2>6. Iogurte Grego com Granola e Frutas Vermelhas</h2>
       <p><strong>Tempo de preparo:</strong> 2 minutos</p>
       <p><strong>Ingredientes:</strong> 1 pote de iogurte grego natural, 3 colheres de granola, frutas vermelhas frescas ou congeladas, mel a gosto.</p>
-      <p><strong>Como fazer:</strong> monte em camadas num bowl ou copo. Nenhum cozimento necessÃ¡rio â ideal para dias corridos.</p>
+      <p><strong>Como fazer:</strong> monte em camadas num bowl ou copo. Nenhum cozimento necessário — ideal para dias corridos.</p>
 
       <h2>7. Panqueca de Banana com Aveia (2 ingredientes)</h2>
       <p><strong>Tempo de preparo:</strong> 10 minutos</p>
       <p><strong>Ingredientes:</strong> 1 banana madura, 2 ovos. Opcional: canela, gotas de chocolate.</p>
-      <p><strong>Como fazer:</strong> amasse a banana com um garfo. Misture os ovos atÃ© formar uma massa. Frite colheradas na frigideira antiaderente com fio de azeite. Vire quando as bordas firmarem.</p>
+      <p><strong>Como fazer:</strong> amasse a banana com um garfo. Misture os ovos até formar uma massa. Frite colheradas na frigideira antiaderente com fio de azeite. Vire quando as bordas firmarem.</p>
 
-      <h2>Dica extra: o prÃ©-preparo salva seu cafÃ© da manhÃ£</h2>
-      <p>Prepare os overnight oats e a vitamina do dia seguinte na noite anterior. Cozinhe ovos cozidos para a semana inteira num domingo. Esses pequenos hÃ¡bitos reduzem o tempo de cafÃ© da manhÃ£ para menos de 5 minutos nos dias mais corridos.</p>
-      <p>No <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> vocÃª encontra essas e mais 86 receitas sÃ³ de cafÃ© da manhÃ£, com instruÃ§Ãµes completas, ingredientes e dicas de substituiÃ§Ã£o.</p>
+      <h2>Dica extra: o pré-preparo salva seu café da manhã</h2>
+      <p>Prepare os overnight oats e a vitamina do dia seguinte na noite anterior. Cozinhe ovos cozidos para a semana inteira num domingo. Esses pequenos hábitos reduzem o tempo de café da manhã para menos de 5 minutos nos dias mais corridos.</p>
+      <p>No <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> você encontra essas e mais 86 receitas só de café da manhã, com instruções completas, ingredientes e dicas de substituição.</p>
     `
   },
   {
     slug: 'lista-de-compras-saudavel',
-    title: 'Como Montar uma Lista de Compras SaudÃ¡vel (e Economizar no Mercado)',
-    description: 'Uma lista de compras bem feita Ã© a base de uma alimentaÃ§Ã£o saudÃ¡vel. Saiba como organizar suas compras por categoria, evitar desperdÃ­cio e gastar menos.',
+    title: 'Como Montar uma Lista de Compras Saudável (e Economizar no Mercado)',
+    description: 'Uma lista de compras bem feita é a base de uma alimentação saudável. Saiba como organizar suas compras por categoria, evitar desperdício e gastar menos.',
     date: '2025-06-09',
     dateFormatted: '9 de junho de 2025',
-    category: 'OrganizaÃ§Ã£o',
+    category: 'Organização',
     readTime: '6 min de leitura',
     content: `
-      <p>Ir ao mercado sem lista Ã© o caminho mais rÃ¡pido para duas coisas: gastar mais do que o planejado e chegar em casa sem os ingredientes que vocÃª realmente precisava. A lista de compras saudÃ¡vel resolve os dois problemas de uma vez.</p>
+      <p>Ir ao mercado sem lista é o caminho mais rápido para duas coisas: gastar mais do que o planejado e chegar em casa sem os ingredientes que você realmente precisava. A lista de compras saudável resolve os dois problemas de uma vez.</p>
 
       <h2>Por que sua lista de compras importa tanto</h2>
-      <p>Pesquisas mostram que pessoas que fazem compras com lista gastam em mÃ©dia 23% menos do que as que vÃ£o sem planejamento. AlÃ©m disso, compram mais alimentos frescos e menos produtos ultraprocessados â simplesmente porque nÃ£o estÃ£o tomando decisÃµes com fome ou sem critÃ©rio.</p>
+      <p>Pesquisas mostram que pessoas que fazem compras com lista gastam em média 23% menos do que as que vão sem planejamento. Além disso, compram mais alimentos frescos e menos produtos ultraprocessados — simplesmente porque não estão tomando decisões com fome ou sem critério.</p>
 
-      <h2>O mÃ©todo das 5 categorias</h2>
-      <p>Organize sua lista em 5 seÃ§Ãµes que correspondem Ã s seÃ§Ãµes do mercado. VocÃª vai economizar tempo e evitar voltar em corredores que jÃ¡ passou.</p>
+      <h2>O método das 5 categorias</h2>
+      <p>Organize sua lista em 5 seções que correspondem às seções do mercado. Você vai economizar tempo e evitar voltar em corredores que já passou.</p>
 
-      <h3>1. ProteÃ­nas</h3>
+      <h3>1. Proteínas</h3>
       <ul>
-        <li>Ovos (compre sempre em quantidade â duram a semana toda)</li>
-        <li>Frango (filÃ© ou sobrecoxa para mais sabor)</li>
-        <li>Peixe (atum em lata Ã© prÃ¡tico e barato)</li>
-        <li>Leguminosas: feijÃ£o, lentilha, grÃ£o-de-bico</li>
+        <li>Ovos (compre sempre em quantidade — duram a semana toda)</li>
+        <li>Frango (filé ou sobrecoxa para mais sabor)</li>
+        <li>Peixe (atum em lata é prático e barato)</li>
+        <li>Leguminosas: feijão, lentilha, grão-de-bico</li>
         <li>Iogurte grego e queijo cottage</li>
       </ul>
 
@@ -251,55 +251,55 @@ const BLOG_POSTS = [
         <li>Arroz integral ou branco</li>
         <li>Batata-doce e mandioca</li>
         <li>Aveia em flocos</li>
-        <li>PÃ£o integral (verifique se tem fibras no rÃ³tulo)</li>
-        <li>MacarrÃ£o integral</li>
+        <li>Pão integral (verifique se tem fibras no rótulo)</li>
+        <li>Macarrão integral</li>
       </ul>
 
-      <h3>3. HortifrÃºti</h3>
+      <h3>3. Hortifrúti</h3>
       <ul>
-        <li>Folhas: espinafre, rÃºcula, alface</li>
-        <li>Legumes: abobrinha, cenoura, brÃ³colis, tomate</li>
-        <li>Frutas da estaÃ§Ã£o (mais baratas e mais nutritivas)</li>
-        <li>Temperos frescos: alho, cebola, limÃ£o</li>
+        <li>Folhas: espinafre, rúcula, alface</li>
+        <li>Legumes: abobrinha, cenoura, brócolis, tomate</li>
+        <li>Frutas da estação (mais baratas e mais nutritivas)</li>
+        <li>Temperos frescos: alho, cebola, limão</li>
       </ul>
 
       <h3>4. Gorduras boas</h3>
       <ul>
         <li>Azeite de oliva extravirgem</li>
-        <li>Pasta de amendoim natural (sem aÃ§Ãºcar adicionado)</li>
+        <li>Pasta de amendoim natural (sem açúcar adicionado)</li>
         <li>Abacate (compre verde e deixe amadurecer em casa)</li>
-        <li>Sementes: chia, linhaÃ§a, girassol</li>
+        <li>Sementes: chia, linhaça, girassol</li>
       </ul>
 
-      <h3>5. Praticidade saudÃ¡vel</h3>
+      <h3>5. Praticidade saudável</h3>
       <ul>
         <li>Atum e sardinha em lata</li>
-        <li>Leite ou bebida vegetal (aveia, amÃªndoa, coco)</li>
-        <li>Iogurte natural sem aÃ§Ãºcar</li>
+        <li>Leite ou bebida vegetal (aveia, amêndoa, coco)</li>
+        <li>Iogurte natural sem açúcar</li>
         <li>Castanhas e nozes para lanches</li>
       </ul>
 
-      <h2>Regras de ouro para economizar sem abrir mÃ£o da qualidade</h2>
+      <h2>Regras de ouro para economizar sem abrir mão da qualidade</h2>
 
-      <h3>Compre a estaÃ§Ã£o</h3>
-      <p>Frutas e verduras fora de estaÃ§Ã£o custam atÃ© 3 vezes mais. Pergunte ao feirante o que estÃ¡ na safra â e adapte suas receitas.</p>
+      <h3>Compre a estação</h3>
+      <p>Frutas e verduras fora de estação custam até 3 vezes mais. Pergunte ao feirante o que está na safra — e adapte suas receitas.</p>
 
-      <h3>ProteÃ­nas congeladas sÃ£o aliadas</h3>
-      <p>Comprar frango, peixe e carne em quantidade e congelar em porÃ§Ãµes individuais reduz o custo por refeiÃ§Ã£o significativamente.</p>
+      <h3>Proteínas congeladas são aliadas</h3>
+      <p>Comprar frango, peixe e carne em quantidade e congelar em porções individuais reduz o custo por refeição significativamente.</p>
 
       <h3>Evite ir ao mercado com fome</h3>
-      <p>Ã um clichÃª porque Ã© verdade. Com fome, tudo parece necessÃ¡rio â especialmente os produtos ultraprocessados nas gondolas no nÃ­vel dos olhos.</p>
+      <p>É um clichê porque é verdade. Com fome, tudo parece necessário — especialmente os produtos ultraprocessados nas gondolas no nível dos olhos.</p>
 
-      <h3>Leia os rÃ³tulos de 3 em 3</h3>
-      <p>Para produtos como pÃ£o, granola e iogurte, sempre compare 3 marcas. Os ingredientes no inÃ­cio da lista sÃ£o os mais presentes â prefira os que tÃªm nomes que vocÃª reconhece.</p>
+      <h3>Leia os rótulos de 3 em 3</h3>
+      <p>Para produtos como pão, granola e iogurte, sempre compare 3 marcas. Os ingredientes no início da lista são os mais presentes — prefira os que têm nomes que você reconhece.</p>
 
       <h2>Como automatizar sua lista de compras</h2>
-      <p>O mÃ©todo mais eficiente Ã© gerar a lista diretamente do cardÃ¡pio da semana. Se vocÃª sabe o que vai comer, sabe exatamente o que precisa comprar â sem sobras e sem falta.</p>
-      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> faz isso automaticamente: vocÃª monta o planejador semanal com as receitas que quer fazer, clica em "Gerar Lista de Compras" e recebe todos os ingredientes organizados. Sem esforÃ§o, sem esquecimento.</p>
+      <p>O método mais eficiente é gerar a lista diretamente do cardápio da semana. Se você sabe o que vai comer, sabe exatamente o que precisa comprar — sem sobras e sem falta.</p>
+      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> faz isso automaticamente: você monta o planejador semanal com as receitas que quer fazer, clica em "Gerar Lista de Compras" e recebe todos os ingredientes organizados. Sem esforço, sem esquecimento.</p>
 
       <h2>Resumo da lista base semanal</h2>
-      <p>Para uma pessoa (adapte as quantidades para sua famÃ­lia): 12 ovos, 1 kg de frango, 500 g de atum em lata, 1 kg de arroz integral, 500 g de batata-doce, 1 maÃ§o de espinafre, 1 maÃ§o de brÃ³colis, 4 tomates, 6 frutas variadas, 1 litro de iogurte natural, azeite, alho e cebola.</p>
-      <p>Com essa base vocÃª consegue montar mais de 15 refeiÃ§Ãµes diferentes durante a semana â variando o tempero, o modo de preparo e as combinaÃ§Ãµes.</p>
+      <p>Para uma pessoa (adapte as quantidades para sua família): 12 ovos, 1 kg de frango, 500 g de atum em lata, 1 kg de arroz integral, 500 g de batata-doce, 1 maço de espinafre, 1 maço de brócolis, 4 tomates, 6 frutas variadas, 1 litro de iogurte natural, azeite, alho e cebola.</p>
+      <p>Com essa base você consegue montar mais de 15 refeições diferentes durante a semana — variando o tempero, o modo de preparo e as combinações.</p>
     `
   }
 ];
@@ -307,12 +307,12 @@ const BLOG_POSTS = [
 function renderBlogIndex(posts) {
   const cards = posts.map(p => `
     <article class="post-card">
-      <div class="post-meta"><span class="post-cat">${p.category}</span> Â· ${p.readTime}</div>
+      <div class="post-meta"><span class="post-cat">${p.category}</span> · ${p.readTime}</div>
       <h2 class="post-title"><a href="/blog/${p.slug}">${p.title}</a></h2>
       <p class="post-excerpt">${p.description}</p>
       <div class="post-footer">
         <span class="post-date">${p.dateFormatted}</span>
-        <a href="/blog/${p.slug}" class="post-read-more">Ler artigo â</a>
+        <a href="/blog/${p.slug}" class="post-read-more">Ler artigo →</a>
       </div>
     </article>
   `).join('');
@@ -322,11 +322,11 @@ function renderBlogIndex(posts) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog NuvLev â NutriÃ§Ã£o, Receitas e Planejamento Alimentar</title>
-  <meta name="description" content="Dicas prÃ¡ticas de nutriÃ§Ã£o, receitas saudÃ¡veis e planejamento alimentar. ConteÃºdo gratuito do NuvLev para te ajudar a comer melhor todos os dias.">
+  <title>Blog NuvLev — Nutrição, Receitas e Planejamento Alimentar</title>
+  <meta name="description" content="Dicas práticas de nutrição, receitas saudáveis e planejamento alimentar. Conteúdo gratuito do NuvLev para te ajudar a comer melhor todos os dias.">
   <link rel="canonical" href="https://saudenaturall.online/blog">
-  <meta property="og:title" content="Blog NuvLev â NutriÃ§Ã£o e Receitas SaudÃ¡veis">
-  <meta property="og:description" content="Dicas prÃ¡ticas de nutriÃ§Ã£o, receitas saudÃ¡veis e planejamento alimentar.">
+  <meta property="og:title" content="Blog NuvLev — Nutrição e Receitas Saudáveis">
+  <meta property="og:description" content="Dicas práticas de nutrição, receitas saudáveis e planejamento alimentar.">
   <meta property="og:url" content="https://saudenaturall.online/blog">
   <meta property="og:type" content="website">
   <style>
@@ -381,28 +381,28 @@ function renderBlogIndex(posts) {
       <div class="blog-nav-links">
         <a href="/blog">Blog</a>
         <a href="/#receitas">Receitas</a>
-        <a href="https://pay.hotmart.com/M106116851N" class="btn-nav-cta">Assinar â R$19,90/mÃªs</a>
+        <a href="https://pay.hotmart.com/M106116851N" class="btn-nav-cta">Assinar — R$19,90/mês</a>
       </div>
     </div>
   </nav>
   <header class="blog-hero">
     <div class="blog-hero-inner">
-      <div class="blog-hero-tag">â¦ Blog NuvLev</div>
-      <h1>NutriÃ§Ã£o que funciona na vida real</h1>
-      <p>Receitas, planejamento alimentar e dicas prÃ¡ticas para vocÃª comer melhor todo dia.</p>
+      <div class="blog-hero-tag">✦ Blog NuvLev</div>
+      <h1>Nutrição que funciona na vida real</h1>
+      <p>Receitas, planejamento alimentar e dicas práticas para você comer melhor todo dia.</p>
     </div>
   </header>
   <main class="blog-main">
     ${cards}
   </main>
   <section class="blog-cta">
-    <h2>Pronto para organizar sua alimentaÃ§Ã£o?</h2>
-    <p>614 receitas + planejador semanal + lista de compras automÃ¡tica por R$19,90/mÃªs.</p>
-    <a href="https://pay.hotmart.com/M106116851N" class="btn-cta-blog">Quero Assinar Agora â</a>
+    <h2>Pronto para organizar sua alimentação?</h2>
+    <p>614 receitas + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+    <a href="https://pay.hotmart.com/M106116851N" class="btn-cta-blog">Quero Assinar Agora →</a>
   </section>
   <footer class="blog-footer">
-    <p><strong>NuvLev</strong> Â· saudenaturall.online Â· Â© 2025 Todos os direitos reservados</p>
-    <p style="margin-top:.4rem;font-size:.74rem;opacity:.6">âï¸ ConteÃºdo informativo. NÃ£o substitui orientaÃ§Ã£o de nutricionista (CRN).</p>
+    <p><strong>NuvLev</strong> · saudenaturall.online · © 2025 Todos os direitos reservados</p>
+    <p style="margin-top:.4rem;font-size:.74rem;opacity:.6">⚕️ Conteúdo informativo. Não substitui orientação de nutricionista (CRN).</p>
   </footer>
 </body>
 </html>`;
@@ -412,7 +412,7 @@ function renderBlogPost(post, allPosts) {
   const related = allPosts.filter(p => p.slug !== post.slug).slice(0, 2);
   const relatedCards = related.map(p => `
     <div class="related-card">
-      <div class="post-meta"><span class="post-cat">${p.category}</span> Â· ${p.readTime}</div>
+      <div class="post-meta"><span class="post-cat">${p.category}</span> · ${p.readTime}</div>
       <h3><a href="/blog/${p.slug}">${p.title}</a></h3>
       <p>${p.description.substring(0, 100)}...</p>
     </div>
@@ -423,7 +423,7 @@ function renderBlogPost(post, allPosts) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${post.title} â Blog NuvLev</title>
+  <title>${post.title} — Blog NuvLev</title>
   <meta name="description" content="${post.description}">
   <link rel="canonical" href="https://saudenaturall.online/blog/${post.slug}">
   <meta property="og:title" content="${post.title}">
@@ -459,7 +459,7 @@ function renderBlogPost(post, allPosts) {
     .post-cat-badge{background:#FFF3EE;color:#E76F51;padding:.2rem .7rem;border-radius:50px;font-weight:700;font-size:.75rem;text-transform:uppercase}
     .post-wrap h1{font-size:2rem;font-weight:900;line-height:1.2;margin-bottom:1rem;color:#1a1a1a}
     .post-lead{font-size:1.1rem;color:#555;border-left:3px solid #E76F51;padding-left:1rem;margin-bottom:2rem;font-style:italic}
-    .post-body h2{font-size:1.35rem;font-weight:800;margin:2zem 0 .7rem;color:#1a1a1a}
+    .post-body h2{font-size:1.35rem;font-weight:800;margin:2rem 0 .7rem;color:#1a1a1a}
     .post-body h3{font-size:1.1rem;font-weight:700;margin:1.5rem 0 .5rem;color:#2D2D2D}
     .post-body p{margin-bottom:1rem;color:#3a3a3a;font-size:.97rem}
     .post-body ul,.post-body ol{padding-left:1.5rem;margin-bottom:1rem}
@@ -493,34 +493,34 @@ function renderBlogPost(post, allPosts) {
       <div class="blog-nav-links">
         <a href="/blog">Blog</a>
         <a href="/#receitas">Receitas</a>
-        <a href="https://pay.hotmart.com/M106116851N" class="btn-nav-cta">Assinar â R$19,90/mÃªs</a>
+        <a href="https://pay.hotmart.com/M106116851N" class="btn-nav-cta">Assinar — R$19,90/mês</a>
       </div>
     </div>
   </nav>
   <article class="post-wrap">
-    <div class="post-breadcrumb"><a href="/blog">â Blog</a> / ${post.category}</div>
+    <div class="post-breadcrumb"><a href="/blog">← Blog</a> / ${post.category}</div>
     <div class="post-header-meta">
       <span class="post-cat-badge">${post.category}</span>
       <span>${post.dateFormatted}</span>
-      <span>Â·</span>
+      <span>·</span>
       <span>${post.readTime}</span>
     </div>
     <h1>${post.title}</h1>
     <p class="post-lead">${post.description}</p>
     <div class="post-body">${post.content}</div>
     <div class="post-cta">
-      <h3>Gostou? Veja na prÃ¡tica no NuvLev</h3>
-      <p>614 receitas organizadas + planejador semanal + lista de compras automÃ¡tica por R$19,90/mÃªs.</p>
-      <a href="https://pay.hotmart.com/M106116851N" class="btn-post-cta">Quero Assinar Agora â</a>
+      <h3>Gostou? Veja na prática no NuvLev</h3>
+      <p>614 receitas organizadas + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+      <a href="https://pay.hotmart.com/M106116851N" class="btn-post-cta">Quero Assinar Agora →</a>
     </div>
-    <div class="post-disclaimer">âï¸ Este conteÃºdo tem carÃ¡ter informativo e educacional. NÃ£o substitui orientaÃ§Ã£o mÃ©dica ou nutricional profissional. Consulte um nutricionista (CRN) antes de realizar mudanÃ§as na sua alimentaÃ§Ã£o.</div>
+    <div class="post-disclaimer">⚕️ Este conteúdo tem caráter informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN) antes de realizar mudanças na sua alimentação.</div>
     <div class="related-section">
-      <h3>Leia tambÃ©m</h3>
+      <h3>Leia também</h3>
       <div class="related-grid">${relatedCards}</div>
     </div>
   </article>
   <footer class="blog-footer">
-    <p><strong>NuvLev</strong> Â· saudenaturall.online Â· Â© 2025 Todos os direitos reservados</p>
+    <p><strong>NuvLev</strong> · saudenaturall.online · © 2025 Todos os direitos reservados</p>
   </footer>
 </body>
 </html>`;
