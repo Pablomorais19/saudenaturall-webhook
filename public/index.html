@@ -11,7 +11,7 @@
   --primary-dark:#C85A3C;
   --secondary:#F4A261;
   --accent:#FFF3EE;
-  --dark:#2D2D2D;
+  --dark:#2D2D2D;h
   --mid:#6B6B6B;
   --light:#F9F9F9;
   --white:#FFFFFF;
@@ -259,7 +259,7 @@ footer strong{color:var(--primary)}
 /* ── DEMO MODE ── */
 .btn-demo{display:inline-flex;align-items:center;gap:.5rem;background:transparent;color:#E76F51;border:2px solid #E76F51;padding:.85rem 2rem;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s;font-family:inherit;margin-top:.75rem}
 .btn-demo:hover{background:#E76F51;color:#fff;transform:translateY(-2px)}
-#demo-banner{background:linear-gradient(90deg,#E76F51,#f4a261);color:#fff;text-align:center;padding:.6rem 1rem;font-size:.9rem;font-weight:600;position:sticky;top:0;z-index:200;display:none}
+#demo-banner{background:linear-gradient(90deg,#E76F51,#f4a261);color:#fff;text-align:center;padding:.6rem 1rem;font-size:.9rem;font-weight:600;position:fixed;top:0;left:0;right:0;z-index:300;display:none}
 #demo-banner a{color:#fff;text-decoration:underline;cursor:pointer;margin-left:.5rem}
 .recipe-card-locked{position:relative;cursor:pointer;filter:none}
 .recipe-card-locked .lock-overlay{position:absolute;inset:0;background:rgba(30,30,40,.7);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;color:#fff;font-size:.85rem;font-weight:600;backdrop-filter:blur(3px)}
@@ -755,10 +755,13 @@ function abrirDemo() {
   landing.style.display = 'none';
   if (userBar) userBar.style.display = 'none';
   demoBanner.style.display = 'block';
+  const landNav = document.querySelector('.land-nav');
+  if (landNav) landNav.style.top = '44px';
   loading.style.opacity = '0';
   setTimeout(() => {
     loading.style.display = 'none';
     mainApp.style.display = 'block';
+    mainApp.style.paddingTop = '104px';
     // Inicializa receitas se já carregadas
     if (ALL_RECIPES.length > 0) {
       filtered = [...ALL_RECIPES];
