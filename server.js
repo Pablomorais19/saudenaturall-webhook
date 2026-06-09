@@ -111,5 +111,432 @@ app.post('/admin/desativar', async (req, res) => {
 
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
+
+// ââ BLOG âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+const BLOG_POSTS = [
+  {
+    slug: 'como-planejar-alimentacao-semanal',
+    title: 'Como Planejar a AlimentaÃ§Ã£o da Semana em 30 Minutos',
+    description: 'Pare de chegar em casa sem saber o que jantar. Veja como organizar toda a sua alimentaÃ§Ã£o semanal em menos de meia hora â e nunca mais desperdiÃ§ar comida.',
+    date: '2025-06-01',
+    dateFormatted: '1 de junho de 2025',
+    category: 'Planejamento',
+    readTime: '5 min de leitura',
+    content: `
+      <p>VocÃª jÃ¡ chegou em casa depois de um dia longo, abriu a geladeira e ficou olhando para ela sem saber o que fazer? Isso acontece com a maioria das pessoas â e tem um nome: <strong>fadiga de decisÃ£o alimentar</strong>.</p>
+      <p>A boa notÃ­cia Ã© que existe uma soluÃ§Ã£o simples: <strong>planejar a alimentaÃ§Ã£o da semana inteira em um Ãºnico momento</strong>. Funciona, Ã© rÃ¡pido, e vocÃª vai economizar tempo, dinheiro e energia mental todos os dias.</p>
+
+      <h2>Por que o planejamento alimentar muda tudo</h2>
+      <p>Estudos mostram que pessoas que planejam refeiÃ§Ãµes consomem mais nutrientes, gastam menos no supermercado e tÃªm menos episÃ³dios de alimentaÃ§Ã£o impulsiva. NÃ£o Ã© sobre perfeiÃ§Ã£o â Ã© sobre ter um <em>sistema</em>.</p>
+      <p>Quando vocÃª jÃ¡ sabe o que vai comer na terÃ§a Ã  noite, nÃ£o precisa decidir exausto depois do trabalho. Essa decisÃ£o foi tomada no domingo, com cabeÃ§a fria.</p>
+
+      <h2>O mÃ©todo de 30 minutos (passo a passo)</h2>
+
+      <h3>1. Escolha um dia fixo (10 min)</h3>
+      <p>Domingo de manhÃ£ Ã© o favorito de quem pratica. Reserve 30 minutos sem interrupÃ§Ãµes. Abra o cardÃ¡pio da semana â pode ser um caderno, um aplicativo ou um planejador digital.</p>
+
+      <h3>2. Monte o cardÃ¡pio por refeiÃ§Ã£o (10 min)</h3>
+      <p>Pense em blocos: cafÃ© da manhÃ£, almoÃ§o, jantar e lanches. VocÃª nÃ£o precisa de uma receita diferente para cada dia â repetir pratos Ã© inteligente, nÃ£o preguiÃ§oso.</p>
+      <ul>
+        <li><strong>CafÃ© da manhÃ£:</strong> 2 a 3 opÃ§Ãµes que vocÃª rotaciona durante a semana</li>
+        <li><strong>AlmoÃ§o:</strong> 1 proteÃ­na + 1 carboidrato + vegetais (muda sÃ³ o tempero)</li>
+        <li><strong>Jantar:</strong> algo leve â sopa, omelete, salada com proteÃ­na</li>
+        <li><strong>Lanches:</strong> frutas, iogurte, ovos cozidos</li>
+      </ul>
+
+      <h3>3. Gere a lista de compras (5 min)</h3>
+      <p>Com o cardÃ¡pio definido, liste os ingredientes necessÃ¡rios. Organize por seÃ§Ã£o do mercado: hortifrÃºti, proteÃ­nas, laticÃ­nios, grÃ£os. VocÃª vai passar pelo mercado com eficiÃªncia e sem compras por impulso.</p>
+
+      <h3>4. FaÃ§a as compras e um mini prÃ©-preparo (5 min de planejamento)</h3>
+      <p>Ao chegar em casa do mercado, separe 20 a 30 minutos para lavar verduras, cozinhar ovos, temperar proteÃ­nas. Esse prÃ©-preparo reduz o tempo de cozinhar nos dias seguintes para menos de 10 minutos.</p>
+
+      <h2>O erro mais comum (e como evitar)</h2>
+      <p>A maioria das pessoas planeja refeiÃ§Ãµes muito elaboradas para a semana toda â e desiste no terceiro dia. O segredo Ã© <strong>planejar simples</strong>. Receitas com no mÃ¡ximo 5 a 7 ingredientes e 20 minutos de preparo sÃ£o as mais sustentÃ¡veis.</p>
+
+      <h2>Como o NuvLev facilita isso</h2>
+      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde vocÃª monta toda a semana em minutos e gera a lista de compras com um clique â automaticamente, jÃ¡ organizada por ingredientes. SÃ£o 614 receitas com filtros por refeiÃ§Ã£o, objetivo e tempo de preparo para vocÃª nunca ficar sem ideia.</p>
+
+      <h2>Recapitulando</h2>
+      <ul>
+        <li>Escolha um dia fixo para planejar (domingo Ã© o mais popular)</li>
+        <li>Monte o cardÃ¡pio por blocos de refeiÃ§Ã£o</li>
+        <li>Prefira receitas simples e repita sem culpa</li>
+        <li>Gere a lista de compras a partir do cardÃ¡pio</li>
+        <li>FaÃ§a um mini prÃ©-preparo ao chegar do mercado</li>
+      </ul>
+      <p>Com esse mÃ©todo, vocÃª vai para a semana sabendo exatamente o que vai comer â e isso muda o jogo.</p>
+    `
+  },
+  {
+    slug: 'receitas-cafe-da-manha-saudavel-rapidas',
+    title: '7 Receitas de CafÃ© da ManhÃ£ SaudÃ¡vel para Fazer em 10 Minutos',
+    description: 'CafÃ© da manhÃ£ nutritivo e gostoso nÃ£o precisa de muito tempo. Veja 7 receitas rÃ¡pidas, com ingredientes simples, que vÃ£o transformar sua manhÃ£.',
+    date: '2025-06-05',
+    dateFormatted: '5 de junho de 2025',
+    category: 'Receitas',
+    readTime: '7 min de leitura',
+    content: `
+      <p>O cafÃ© da manhÃ£ Ã© a refeiÃ§Ã£o que mais pessoas pulam â e o motivo quase sempre Ã© o mesmo: falta de tempo. A soluÃ§Ã£o nÃ£o Ã© acordar mais cedo, Ã© ter receitas rÃ¡pidas e nutritivas que cabem na sua rotina.</p>
+      <p>Separamos 7 opÃ§Ãµes que ficam prontas em atÃ© 10 minutos, com ingredientes fÃ¡ceis de encontrar em qualquer mercado.</p>
+
+      <h2>1. Overnight Oats de Banana e Mel</h2>
+      <p><strong>Tempo de preparo:</strong> 5 minutos (prepara na noite anterior)</p>
+      <p><strong>Ingredientes:</strong> 4 colheres de aveia em flocos, 150 ml de leite ou bebida vegetal, 1 banana amassada, 1 colher de mel, canela a gosto.</p>
+      <p><strong>Como fazer:</strong> misture tudo em um pote com tampa e deixe na geladeira. Na manhÃ£ seguinte Ã© sÃ³ pegar e comer. Pode adicionar frutas frescas por cima.</p>
+
+      <h2>2. Omelete de Espinafre com Queijo</h2>
+      <p><strong>Tempo de preparo:</strong> 8 minutos</p>
+      <p><strong>Ingredientes:</strong> 2 ovos, 1 punhado de espinafre, 2 fatias de queijo branco, sal e pimenta.</p>
+      <p><strong>Como fazer:</strong> bata os ovos com sal e pimenta. Refogue o espinafre rapidamente numa frigideira antiaderente com fio de azeite. Adicione os ovos e o queijo. Dobre ao meio quando firmar.</p>
+
+      <h2>3. Tapioca com Ricota e Tomate</h2>
+      <p><strong>Tempo de preparo:</strong> 7 minutos</p>
+      <p><strong>Ingredientes:</strong> 2 colheres de goma de tapioca hidratada, 2 colheres de ricota, 4 fatias de tomate, sal e orÃ©gano.</p>
+      <p><strong>Como fazer:</strong> aqueÃ§a a frigideira e espalhe a tapioca. Quando firmar (1 a 2 minutos), vire. Recheie com ricota e tomate temperado. Dobre e sirva.</p>
+
+      <h2>4. Vitamina Verde Proteica</h2>
+      <p><strong>Tempo de preparo:</strong> 3 minutos</p>
+      <p><strong>Ingredientes:</strong> 1 banana congelada, 1 punhado de espinafre, 200 ml de leite, 1 colher de pasta de amendoim, 1 colher de sementes de chia.</p>
+      <p><strong>Como fazer:</strong> bata tudo no liquidificador. Sirva imediatamente. A banana congelada dÃ¡ cremosidade sem precisar de sorvete.</p>
+
+      <h2>5. PÃ£o Integral com Abacate e Ovo Mexido</h2>
+      <p><strong>Tempo de preparo:</strong> 8 minutos</p>
+      <p><strong>Ingredientes:</strong> 2 fatias de pÃ£o integral, 1/2 abacate maduro, 2 ovos, sal, limÃ£o e pimenta-do-reino.</p>
+      <p><strong>Como fazer:</strong> toste o pÃ£o. Amasse o abacate com limÃ£o e sal. Prepare os ovos mexidos na frigideira. Monte: pÃ£o, pasta de abacate, ovos por cima.</p>
+
+      <h2>6. Iogurte Grego com Granola e Frutas Vermelhas</h2>
+      <p><strong>Tempo de preparo:</strong> 2 minutos</p>
+      <p><strong>Ingredientes:</strong> 1 pote de iogurte grego natural, 3 colheres de granola, frutas vermelhas frescas ou congeladas, mel a gosto.</p>
+      <p><strong>Como fazer:</strong> monte em camadas num bowl ou copo. Nenhum cozimento necessÃ¡rio â ideal para dias corridos.</p>
+
+      <h2>7. Panqueca de Banana com Aveia (2 ingredientes)</h2>
+      <p><strong>Tempo de preparo:</strong> 10 minutos</p>
+      <p><strong>Ingredientes:</strong> 1 banana madura, 2 ovos. Opcional: canela, gotas de chocolate.</p>
+      <p><strong>Como fazer:</strong> amasse a banana com um garfo. Misture os ovos atÃ© formar uma massa. Frite colheradas na frigideira antiaderente com fio de azeite. Vire quando as bordas firmarem.</p>
+
+      <h2>Dica extra: o prÃ©-preparo salva seu cafÃ© da manhÃ£</h2>
+      <p>Prepare os overnight oats e a vitamina do dia seguinte na noite anterior. Cozinhe ovos cozidos para a semana inteira num domingo. Esses pequenos hÃ¡bitos reduzem o tempo de cafÃ© da manhÃ£ para menos de 5 minutos nos dias mais corridos.</p>
+      <p>No <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> vocÃª encontra essas e mais 86 receitas sÃ³ de cafÃ© da manhÃ£, com instruÃ§Ãµes completas, ingredientes e dicas de substituiÃ§Ã£o.</p>
+    `
+  },
+  {
+    slug: 'lista-de-compras-saudavel',
+    title: 'Como Montar uma Lista de Compras SaudÃ¡vel (e Economizar no Mercado)',
+    description: 'Uma lista de compras bem feita Ã© a base de uma alimentaÃ§Ã£o saudÃ¡vel. Saiba como organizar suas compras por categoria, evitar desperdÃ­cio e gastar menos.',
+    date: '2025-06-09',
+    dateFormatted: '9 de junho de 2025',
+    category: 'OrganizaÃ§Ã£o',
+    readTime: '6 min de leitura',
+    content: `
+      <p>Ir ao mercado sem lista Ã© o caminho mais rÃ¡pido para duas coisas: gastar mais do que o planejado e chegar em casa sem os ingredientes que vocÃª realmente precisava. A lista de compras saudÃ¡vel resolve os dois problemas de uma vez.</p>
+
+      <h2>Por que sua lista de compras importa tanto</h2>
+      <p>Pesquisas mostram que pessoas que fazem compras com lista gastam em mÃ©dia 23% menos do que as que vÃ£o sem planejamento. AlÃ©m disso, compram mais alimentos frescos e menos produtos ultraprocessados â simplesmente porque nÃ£o estÃ£o tomando decisÃµes com fome ou sem critÃ©rio.</p>
+
+      <h2>O mÃ©todo das 5 categorias</h2>
+      <p>Organize sua lista em 5 seÃ§Ãµes que correspondem Ã s seÃ§Ãµes do mercado. VocÃª vai economizar tempo e evitar voltar em corredores que jÃ¡ passou.</p>
+
+      <h3>1. ProteÃ­nas</h3>
+      <ul>
+        <li>Ovos (compre sempre em quantidade â duram a semana toda)</li>
+        <li>Frango (filÃ© ou sobrecoxa para mais sabor)</li>
+        <li>Peixe (atum em lata Ã© prÃ¡tico e barato)</li>
+        <li>Leguminosas: feijÃ£o, lentilha, grÃ£o-de-bico</li>
+        <li>Iogurte grego e queijo cottage</li>
+      </ul>
+
+      <h3>2. Carboidratos de qualidade</h3>
+      <ul>
+        <li>Arroz integral ou branco</li>
+        <li>Batata-doce e mandioca</li>
+        <li>Aveia em flocos</li>
+        <li>PÃ£o integral (verifique se tem fibras no rÃ³tulo)</li>
+        <li>MacarrÃ£o integral</li>
+      </ul>
+
+      <h3>3. HortifrÃºti</h3>
+      <ul>
+        <li>Folhas: espinafre, rÃºcula, alface</li>
+        <li>Legumes: abobrinha, cenoura, brÃ³colis, tomate</li>
+        <li>Frutas da estaÃ§Ã£o (mais baratas e mais nutritivas)</li>
+        <li>Temperos frescos: alho, cebola, limÃ£o</li>
+      </ul>
+
+      <h3>4. Gorduras boas</h3>
+      <ul>
+        <li>Azeite de oliva extravirgem</li>
+        <li>Pasta de amendoim natural (sem aÃ§Ãºcar adicionado)</li>
+        <li>Abacate (compre verde e deixe amadurecer em casa)</li>
+        <li>Sementes: chia, linhaÃ§a, girassol</li>
+      </ul>
+
+      <h3>5. Praticidade saudÃ¡vel</h3>
+      <ul>
+        <li>Atum e sardinha em lata</li>
+        <li>Leite ou bebida vegetal (aveia, amÃªndoa, coco)</li>
+        <li>Iogurte natural sem aÃ§Ãºcar</li>
+        <li>Castanhas e nozes para lanches</li>
+      </ul>
+
+      <h2>Regras de ouro para economizar sem abrir mÃ£o da qualidade</h2>
+
+      <h3>Compre a estaÃ§Ã£o</h3>
+      <p>Frutas e verduras fora de estaÃ§Ã£o custam atÃ© 3 vezes mais. Pergunte ao feirante o que estÃ¡ na safra â e adapte suas receitas.</p>
+
+      <h3>ProteÃ­nas congeladas sÃ£o aliadas</h3>
+      <p>Comprar frango, peixe e carne em quantidade e congelar em porÃ§Ãµes individuais reduz o custo por refeiÃ§Ã£o significativamente.</p>
+
+      <h3>Evite ir ao mercado com fome</h3>
+      <p>Ã um clichÃª porque Ã© verdade. Com fome, tudo parece necessÃ¡rio â especialmente os produtos ultraprocessados nas gondolas no nÃ­vel dos olhos.</p>
+
+      <h3>Leia os rÃ³tulos de 3 em 3</h3>
+      <p>Para produtos como pÃ£o, granola e iogurte, sempre compare 3 marcas. Os ingredientes no inÃ­cio da lista sÃ£o os mais presentes â prefira os que tÃªm nomes que vocÃª reconhece.</p>
+
+      <h2>Como automatizar sua lista de compras</h2>
+      <p>O mÃ©todo mais eficiente Ã© gerar a lista diretamente do cardÃ¡pio da semana. Se vocÃª sabe o que vai comer, sabe exatamente o que precisa comprar â sem sobras e sem falta.</p>
+      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> faz isso automaticamente: vocÃª monta o planejador semanal com as receitas que quer fazer, clica em "Gerar Lista de Compras" e recebe todos os ingredientes organizados. Sem esforÃ§o, sem esquecimento.</p>
+
+      <h2>Resumo da lista base semanal</h2>
+      <p>Para uma pessoa (adapte as quantidades para sua famÃ­lia): 12 ovos, 1 kg de frango, 500 g de atum em lata, 1 kg de arroz integral, 500 g de batata-doce, 1 maÃ§o de espinafre, 1 maÃ§o de brÃ³colis, 4 tomates, 6 frutas variadas, 1 litro de iogurte natural, azeite, alho e cebola.</p>
+      <p>Com essa base vocÃª consegue montar mais de 15 refeiÃ§Ãµes diferentes durante a semana â variando o tempero, o modo de preparo e as combinaÃ§Ãµes.</p>
+    `
+  }
+];
+
+function renderBlogIndex(posts) {
+  const cards = posts.map(p => `
+    <article class="post-card">
+      <div class="post-meta"><span class="post-cat">${p.category}</span> Â· ${p.readTime}</div>
+      <h2 class="post-title"><a href="/blog/${p.slug}">${p.title}</a></h2>
+      <p class="post-excerpt">${p.description}</p>
+      <div class="post-footer">
+        <span class="post-date">${p.dateFormatted}</span>
+        <a href="/blog/${p.slug}" class="post-read-more">Ler artigo â</a>
+      </div>
+    </article>
+  `).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog NuvLev â NutriÃ§Ã£o, Receitas e Planejamento Alimentar</title>
+  <meta name="description" content="Dicas prÃ¡ticas de nutriÃ§Ã£o, receitas saudÃ¡veis e planejamento alimentar. ConteÃºdo gratuito do NuvLev para te ajudar a comer melhor todos os dias.">
+  <link rel="canonical" href="https://saudenaturall.online/blog">
+  <meta property="og:title" content="Blog NuvLev â NutriÃ§Ã£o e Receitas SaudÃ¡veis">
+  <meta property="og:description" content="Dicas prÃ¡ticas de nutriÃ§Ã£o, receitas saudÃ¡veis e planejamento alimentar.">
+  <meta property="og:url" content="https://saudenaturall.online/blog">
+  <meta property="og:type" content="website">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',system-ui,sans-serif;color:#2D2D2D;background:#fff;line-height:1.6}
+    a{text-decoration:none;color:inherit}
+    /* NAV */
+    .blog-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-bottom:1px solid #f0e8e4;padding:0 5%}
+    .blog-nav-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+    .blog-logo{font-size:1.4rem;font-weight:900;color:#E76F51}
+    .blog-logo span{color:#2D2D2D}
+    .blog-nav-links{display:flex;gap:1.5rem;align-items:center;font-size:.9rem}
+    .blog-nav-links a{color:#6B6B6B;transition:.2s}
+    .blog-nav-links a:hover{color:#E76F51}
+    .btn-nav-cta{background:#E76F51;color:#fff!important;padding:.4rem 1.1rem;border-radius:50px;font-weight:600;transition:.2s}
+    .btn-nav-cta:hover{background:#C85A3C!important}
+    /* HERO */
+    .blog-hero{background:linear-gradient(135deg,#2D2D2D,#3d3d3d);padding:4rem 5% 3rem;text-align:center}
+    .blog-hero-inner{max-width:640px;margin:0 auto}
+    .blog-hero-tag{display:inline-block;background:rgba(231,111,81,.2);border:1px solid rgba(231,111,81,.4);color:#F4A261;padding:.3rem .9rem;border-radius:50px;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem}
+    .blog-hero h1{font-size:2.2rem;font-weight:900;color:#fff;margin-bottom:.8rem;line-height:1.2}
+    .blog-hero p{color:rgba(255,255,255,.7);font-size:1rem}
+    /* POSTS */
+    .blog-main{max-width:860px;margin:0 auto;padding:3rem 5%}
+    .post-card{border-bottom:1px solid #f0ebe8;padding:2rem 0}
+    .post-card:last-child{border-bottom:none}
+    .post-meta{font-size:.78rem;color:#E76F51;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem}
+    .post-title{font-size:1.5rem;font-weight:800;margin-bottom:.6rem;line-height:1.25}
+    .post-title a{color:#2D2D2D;transition:.2s}
+    .post-title a:hover{color:#E76F51}
+    .post-excerpt{color:#6B6B6B;font-size:.95rem;margin-bottom:1rem;line-height:1.6}
+    .post-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+    .post-date{font-size:.82rem;color:#aaa}
+    .post-read-more{color:#E76F51;font-weight:600;font-size:.9rem;transition:.2s}
+    .post-read-more:hover{color:#C85A3C}
+    /* CTA BANNER */
+    .blog-cta{background:linear-gradient(135deg,#E76F51,#C85A3C);padding:3rem 5%;text-align:center;margin-top:2rem}
+    .blog-cta h2{color:#fff;font-size:1.6rem;font-weight:900;margin-bottom:.5rem}
+    .blog-cta p{color:rgba(255,255,255,.85);margin-bottom:1.5rem;font-size:.95rem}
+    .btn-cta-blog{display:inline-block;background:#fff;color:#E76F51;padding:.85rem 2.5rem;border-radius:50px;font-weight:800;font-size:1rem;transition:.2s}
+    .btn-cta-blog:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.2)}
+    /* FOOTER */
+    .blog-footer{background:#1a1a1a;padding:1.5rem 5%;text-align:center;color:rgba(255,255,255,.4);font-size:.82rem}
+    .blog-footer strong{color:#E76F51}
+    @media(max-width:600px){.blog-hero h1{font-size:1.6rem}.post-title{font-size:1.2rem}.blog-nav-links{display:none}}
+  </style>
+</head>
+<body>
+  <nav class="blog-nav">
+    <div class="blog-nav-inner">
+      <a href="/" class="blog-logo">Nuv<span>Lev</span></a>
+      <div class="blog-nav-links">
+        <a href="/blog">Blog</a>
+        <a href="/#receitas">Receitas</a>
+        <a href="https://pay.hotmart.com/M106116851N" class="btn-nav-cta">Assinar â R$19,90/mÃªs</a>
+      </div>
+    </div>
+  </nav>
+  <header class="blog-hero">
+    <div class="blog-hero-inner">
+      <div class="blog-hero-tag">â¦ Blog NuvLev</div>
+      <h1>NutriÃ§Ã£o que funciona na vida real</h1>
+      <p>Receitas, planejamento alimentar e dicas prÃ¡ticas para vocÃª comer melhor todo dia.</p>
+    </div>
+  </header>
+  <main class="blog-main">
+    ${cards}
+  </main>
+  <section class="blog-cta">
+    <h2>Pronto para organizar sua alimentaÃ§Ã£o?</h2>
+    <p>614 receitas + planejador semanal + lista de compras automÃ¡tica por R$19,90/mÃªs.</p>
+    <a href="https://pay.hotmart.com/M106116851N" class="btn-cta-blog">Quero Assinar Agora â</a>
+  </section>
+  <footer class="blog-footer">
+    <p><strong>NuvLev</strong> Â· saudenaturall.online Â· Â© 2025 Todos os direitos reservados</p>
+    <p style="margin-top:.4rem;font-size:.74rem;opacity:.6">âï¸ ConteÃºdo informativo. NÃ£o substitui orientaÃ§Ã£o de nutricionista (CRN).</p>
+  </footer>
+</body>
+</html>`;
+}
+
+function renderBlogPost(post, allPosts) {
+  const related = allPosts.filter(p => p.slug !== post.slug).slice(0, 2);
+  const relatedCards = related.map(p => `
+    <div class="related-card">
+      <div class="post-meta"><span class="post-cat">${p.category}</span> Â· ${p.readTime}</div>
+      <h3><a href="/blog/${p.slug}">${p.title}</a></h3>
+      <p>${p.description.substring(0, 100)}...</p>
+    </div>
+  `).join('');
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${post.title} â Blog NuvLev</title>
+  <meta name="description" content="${post.description}">
+  <link rel="canonical" href="https://saudenaturall.online/blog/${post.slug}">
+  <meta property="og:title" content="${post.title}">
+  <meta property="og:description" content="${post.description}">
+  <meta property="og:url" content="https://saudenaturall.online/blog/${post.slug}">
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="${post.date}">
+  <script type="application/ld+json">${JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.title,
+    "description": post.description,
+    "datePublished": post.date,
+    "author": {"@type": "Organization", "name": "NuvLev"},
+    "publisher": {"@type": "Organization", "name": "NuvLev", "url": "https://saudenaturall.online"}
+  })}</script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',system-ui,sans-serif;color:#2D2D2D;background:#fff;line-height:1.7}
+    a{text-decoration:none;color:inherit}
+    .blog-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-bottom:1px solid #f0e8e4;padding:0 5%}
+    .blog-nav-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+    .blog-logo{font-size:1.4rem;font-weight:900;color:#E76F51}
+    .blog-logo span{color:#2D2D2D}
+    .blog-nav-links{display:flex;gap:1.5rem;align-items:center;font-size:.9rem}
+    .blog-nav-links a{color:#6B6B6B;transition:.2s}
+    .blog-nav-links a:hover{color:#E76F51}
+    .btn-nav-cta{background:#E76F51;color:#fff!important;padding:.4rem 1.1rem;border-radius:50px;font-weight:600}
+    .post-wrap{max-width:700px;margin:0 auto;padding:3rem 5%}
+    .post-breadcrumb{font-size:.82rem;color:#aaa;margin-bottom:1.5rem}
+    .post-breadcrumb a{color:#E76F51}
+    .post-header-meta{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;font-size:.82rem;color:#aaa}
+    .post-cat-badge{background:#FFF3EE;color:#E76F51;padding:.2rem .7rem;border-radius:50px;font-weight:700;font-size:.75rem;text-transform:uppercase}
+    .post-wrap h1{font-size:2rem;font-weight:900;line-height:1.2;margin-bottom:1rem;color:#1a1a1a}
+    .post-lead{font-size:1.1rem;color:#555;border-left:3px solid #E76F51;padding-left:1rem;margin-bottom:2rem;font-style:italic}
+    .post-body h2{font-size:1.35rem;font-weight:800;margin:2zem 0 .7rem;color:#1a1a1a}
+    .post-body h3{font-size:1.1rem;font-weight:700;margin:1.5rem 0 .5rem;color:#2D2D2D}
+    .post-body p{margin-bottom:1rem;color:#3a3a3a;font-size:.97rem}
+    .post-body ul,.post-body ol{padding-left:1.5rem;margin-bottom:1rem}
+    .post-body li{margin-bottom:.4rem;color:#3a3a3a;font-size:.97rem}
+    .post-body strong{color:#1a1a1a}
+    .post-body a{color:#E76F51;text-decoration:underline}
+    .post-cta{background:linear-gradient(135deg,#E76F51,#C85A3C);border-radius:16px;padding:2rem;text-align:center;margin:2.5rem 0}
+    .post-cta h3{color:#fff;font-size:1.3rem;font-weight:900;margin-bottom:.5rem}
+    .post-cta p{color:rgba(255,255,255,.85);margin-bottom:1.2rem;font-size:.92rem}
+    .btn-post-cta{display:inline-block;background:#fff;color:#E76F51;padding:.8rem 2rem;border-radius:50px;font-weight:800;font-size:.95rem;transition:.2s}
+    .btn-post-cta:hover{transform:translateY(-2px)}
+    .post-disclaimer{background:#f9f9f9;border-radius:8px;padding:1rem 1.2rem;margin-top:2rem;font-size:.8rem;color:#888;line-height:1.5}
+    .related-section{border-top:1px solid #f0ebe8;padding-top:2rem;margin-top:2rem}
+    .related-section h3{font-size:1rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:1.5rem}
+    .related-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+    .related-card{background:#f9f6f4;border-radius:12px;padding:1.2rem}
+    .related-card h3{font-size:.95rem;font-weight:700;margin:.4rem 0 .5rem;line-height:1.3}
+    .related-card h3 a{color:#2D2D2D;transition:.2s}
+    .related-card h3 a:hover{color:#E76F51}
+    .related-card p{font-size:.82rem;color:#888}
+    .post-meta{font-size:.75rem;color:#E76F51;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+    .blog-footer{background:#1a1a1a;padding:1.5rem 5%;text-align:center;color:rgba(255,255,255,.4);font-size:.82rem;margin-top:3rem}
+    .blog-footer strong{color:#E76F51}
+    @media(max-width:600px){.post-wrap h1{font-size:1.5rem}.related-grid{grid-template-columns:1fr}.blog-nav-links{display:none}}
+  </style>
+</head>
+<body>
+  <nav class="blog-nav">
+    <div class="blog-nav-inner">
+      <a href="/" class="blog-logo">Nuv<span>Lev</span></a>
+      <div class="blog-nav-links">
+        <a href="/blog">Blog</a>
+        <a href="/#receitas">Receitas</a>
+        <a href="https://pay.hotmart.com/M106116851N" class="btn-nav-cta">Assinar â R$19,90/mÃªs</a>
+      </div>
+    </div>
+  </nav>
+  <article class="post-wrap">
+    <div class="post-breadcrumb"><a href="/blog">â Blog</a> / ${post.category}</div>
+    <div class="post-header-meta">
+      <span class="post-cat-badge">${post.category}</span>
+      <span>${post.dateFormatted}</span>
+      <span>Â·</span>
+      <span>${post.readTime}</span>
+    </div>
+    <h1>${post.title}</h1>
+    <p class="post-lead">${post.description}</p>
+    <div class="post-body">${post.content}</div>
+    <div class="post-cta">
+      <h3>Gostou? Veja na prÃ¡tica no NuvLev</h3>
+      <p>614 receitas organizadas + planejador semanal + lista de compras automÃ¡tica por R$19,90/mÃªs.</p>
+      <a href="https://pay.hotmart.com/M106116851N" class="btn-post-cta">Quero Assinar Agora â</a>
+    </div>
+    <div class="post-disclaimer">âï¸ Este conteÃºdo tem carÃ¡ter informativo e educacional. NÃ£o substitui orientaÃ§Ã£o mÃ©dica ou nutricional profissional. Consulte um nutricionista (CRN) antes de realizar mudanÃ§as na sua alimentaÃ§Ã£o.</div>
+    <div class="related-section">
+      <h3>Leia tambÃ©m</h3>
+      <div class="related-grid">${relatedCards}</div>
+    </div>
+  </article>
+  <footer class="blog-footer">
+    <p><strong>NuvLev</strong> Â· saudenaturall.online Â· Â© 2025 Todos os direitos reservados</p>
+  </footer>
+</body>
+</html>`;
+}
+
+// Blog routes
+app.get('/blog', (req, res) => {
+  res.send(renderBlogIndex(BLOG_POSTS));
+});
+
+app.get('/blog/:slug', (req, res) => {
+  const post = BLOG_POSTS.find(p => p.slug === req.params.slug);
+  if (!post) return res.status(404).redirect('/blog');
+  res.send(renderBlogPost(post, BLOG_POSTS));
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor na porta ${PORT}`));
