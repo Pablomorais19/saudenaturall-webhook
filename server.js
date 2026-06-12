@@ -538,5 +538,24 @@ app.get('/blog/:slug', (req, res) => {
 });
 
 
+// ── SEO: sitemap + robots ───────────────────────────────────────────────────
+app.get('/sitemap.xml', (req, res) => {
+  const base = 'https://saudenaturall.online';
+  const urls = [
+    { loc: base + '/', priority: '1.0' },
+    { loc: base + '/blog', priority: '0.8' },
+    ...BLOG_POSTS.map(p => ({ loc: `${base}/blog/${p.slug}`, lastmod: p.date, priority: '0.7' }))
+  ];
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls.map(u => `  <url><loc>${u.loc}</loc>${u.lastmod ? '<lastmod>' + u.lastmod + '</lastmod>' : ''}<priority>${u.priority}</priority></url>`).join('\n') +
+    '\n</urlset>';
+  res.type('application/xml').send(xml);
+});
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send('User-agent: *\nAllow: /\n\nSitemap: https://saudenaturall.online/sitemap.xml\n');
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor na porta ${PORT}`));
