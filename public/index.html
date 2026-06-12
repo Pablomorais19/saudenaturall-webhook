@@ -305,6 +305,62 @@ footer strong{color:var(--primary)}
 }
 </style>
 
+
+<style>
+/* ── NuvLev UX upgrade ── */
+body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is-member .btn-nav{display:none!important}
+.fav-btn{position:absolute;top:.7rem;right:.7rem;background:rgba(255,255,255,.92);border:none;border-radius:50%;width:34px;height:34px;font-size:1.05rem;cursor:pointer;color:#ccc;box-shadow:0 1px 4px rgba(0,0,0,.12);transition:.15s;line-height:1;z-index:2}
+.fav-btn:hover{transform:scale(1.15)}
+.fav-btn.active{color:#E76F51}
+.recipe-card{position:relative}
+.filter-chips{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0 .3rem}
+.chip{background:#fff;border:2px solid #e8e4dd;border-radius:50px;padding:.45rem 1.1rem;font-size:.85rem;font-weight:700;cursor:pointer;color:#555;transition:.15s;font-family:inherit}
+.chip:hover{border-color:#E76F51;color:#E76F51}
+.chip.active{background:#E76F51;border-color:#E76F51;color:#fff}
+.nl-blur{filter:blur(5px);user-select:none;pointer-events:none}
+#modal-demo-cta{display:none;text-align:center;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:14px;padding:1.6rem 1.2rem;margin-top:1.2rem}
+#modal-demo-cta p{color:#ddd;font-size:.92rem;margin-bottom:1rem}
+#modal-demo-cta a{display:inline-block;background:#27AE60;color:#fff;font-weight:800;text-decoration:none;padding:.85rem 1.8rem;border-radius:50px;font-size:1rem}
+.nl-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9000;align-items:center;justify-content:center;padding:1rem}
+.nl-overlay.show{display:flex}
+.nl-box{background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;padding:1.6rem;position:relative}
+.nl-box h3{margin-bottom:1rem;color:#2a2a35}
+.nl-close{position:absolute;top:.9rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:#999}
+.picker-search{width:100%;padding:.8rem 1rem;border:2px solid #e8e4dd;border-radius:12px;font-size:1rem;margin-bottom:.9rem;font-family:inherit}
+.picker-item{display:flex;gap:.7rem;align-items:center;padding:.65rem .5rem;border-radius:10px;cursor:pointer}
+.picker-item:hover{background:#faf6ef}
+.picker-item span{font-size:1.4rem}
+.picker-item strong{display:block;font-size:.92rem;color:#2a2a35}
+.picker-item small{color:#999;font-size:.78rem}
+.picker-empty{text-align:center;color:#999;padding:1.5rem}
+.daypick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:.6rem}
+.daypick-grid button{padding:.9rem .4rem;border:2px solid #e8e4dd;background:#fff;border-radius:12px;font-weight:700;cursor:pointer;font-size:.95rem;font-family:inherit;transition:.15s}
+.daypick-grid button:hover{border-color:#E76F51;color:#E76F51}
+#kitchen-mode{display:none;position:fixed;inset:0;background:#fffdf8;z-index:9500;overflow-y:auto;padding:1.2rem 1rem 4rem}
+#kitchen-mode.show{display:block}
+.km-inner{max-width:760px;margin:0 auto}
+.km-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.2rem;position:sticky;top:0;background:#fffdf8;padding:.6rem 0;z-index:2}
+.km-top h2{font-size:1.45rem;color:#2a2a35;line-height:1.25}
+.km-exit{background:#E76F51;color:#fff;border:none;border-radius:50px;padding:.7rem 1.4rem;font-weight:800;cursor:pointer;font-size:.95rem;white-space:nowrap;font-family:inherit}
+#kitchen-mode h4{font-size:1.05rem;color:#E76F51;margin:1.4rem 0 .7rem;text-transform:uppercase;letter-spacing:1px}
+#km-ings li,#km-steps li{font-size:1.25rem;line-height:1.55;padding:.85rem 1rem;background:#fff;border:2px solid #f0ece4;border-radius:12px;margin-bottom:.6rem;cursor:pointer;list-style-position:inside}
+#km-steps li{font-size:1.3rem}
+#km-ings li.done,#km-steps li.done{opacity:.45;text-decoration:line-through;background:#f6f3ec}
+.shop-actions{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1.2rem}
+.btn-whats{background:#25D366;color:#fff;border:none;border-radius:50px;padding:.8rem 1.5rem;font-weight:800;cursor:pointer;font-size:.92rem;font-family:inherit}
+.btn-copy{background:#2a2a35;color:#fff;border:none;border-radius:50px;padding:.8rem 1.5rem;font-weight:800;cursor:pointer;font-size:.92rem;font-family:inherit}
+.onb-goals{display:grid;gap:.8rem;margin-top:1.2rem}
+.onb-goals button{display:flex;align-items:center;gap:.9rem;padding:1rem 1.1rem;border:2px solid #e8e4dd;background:#fff;border-radius:14px;cursor:pointer;text-align:left;font-family:inherit;transition:.15s}
+.onb-goals button:hover{border-color:#E76F51;background:#fdf7f2}
+.onb-goals .onb-emoji{font-size:1.7rem}
+.onb-goals strong{display:block;font-size:1rem;color:#2a2a35}
+.onb-goals small{color:#888;font-size:.82rem}
+.onb-skip{display:block;margin:1.1rem auto 0;background:none;border:none;color:#999;cursor:pointer;font-size:.85rem;text-decoration:underline;font-family:inherit}
+.btn-kitchen{background:#2a9d8f;color:#fff;border:none;border-radius:50px;padding:.85rem 1.4rem;font-weight:800;cursor:pointer;font-size:.9rem;font-family:inherit}
+.btn-fav-modal{background:#fff;color:#E76F51;border:2px solid #E76F51;border-radius:50px;padding:.85rem 1.4rem;font-weight:800;cursor:pointer;font-size:.9rem;font-family:inherit}
+.btn-fav-modal.active{background:#E76F51;color:#fff}
+@media(max-width:600px){.km-top h2{font-size:1.15rem}#km-ings li,#km-steps li{font-size:1.1rem}}
+</style>
 </head>
 <body>
 
@@ -506,6 +562,10 @@ footer strong{color:var(--primary)}
         <option value="" data-i18n="vol_all">Todos os volumes</option>
       </select>
     </div>
+    <div class="filter-chips">
+      <button class="chip" id="chip-fav" onclick="toggleChip('fav')">&#10084; Favoritas</button>
+      <button class="chip" id="chip-quick" onclick="toggleChip('quick')">&#9889; Rápidas (até 6 ingredientes)</button>
+    </div>
     <div class="results-count" id="results-count"></div>
     <div class="recipe-grid" id="recipe-grid"></div>
     <button class="load-more" id="load-more" onclick="loadMore()" data-i18n="load_more">Carregar mais receitas ↓</button>
@@ -580,10 +640,70 @@ footer strong{color:var(--primary)}
     <div class="modal-benefit" id="modal-benefit-box" style="display:none">
       <strong data-i18n="modal_benefit">💡 Benefício:</strong> <span id="modal-benefit"></span>
     </div>
+    <div id="modal-demo-cta">
+      <p>Você está vendo uma prévia. Assine para ver esta e todas as <strong>614 receitas</strong> completas.</p>
+      <a href="https://pay.hotmart.com/M106116851N">&#128640; Assinar por R$19,90/mês</a>
+    </div>
     <div class="modal-actions">
       <button class="btn-plan" onclick="addToPlanFromModal()" data-i18n="modal_add_plan">📅 Adicionar ao Planejador</button>
       <button class="btn-shop" onclick="addToShopFromModal()" data-i18n="modal_add_shop">🛒 Ingredientes na Lista</button>
+      <button class="btn-kitchen" onclick="abrirModoCozinha()">👨‍🍳 Modo Cozinha</button>
+      <button class="btn-fav-modal" id="modal-fav-btn" onclick="favFromModal()">&#10084; Favoritar</button>
     </div>
+  </div>
+</div>
+
+
+<!-- MODO COZINHA -->
+<div id="kitchen-mode">
+  <div class="km-inner">
+    <div class="km-top">
+      <h2 id="km-title"></h2>
+      <button class="km-exit" onclick="fecharModoCozinha()">&#10005; Sair</button>
+    </div>
+    <p style="color:#999;font-size:.88rem">Toque em um item para marcar como feito. A tela fica grande para usar enquanto cozinha.</p>
+    <h4>&#129368; Ingredientes</h4>
+    <ul id="km-ings" style="list-style:none"></ul>
+    <h4>&#128104;&#8205;&#127859; Preparo</h4>
+    <ol id="km-steps" style="list-style:none"></ol>
+  </div>
+</div>
+
+<!-- PICKER DE RECEITA (planejador) -->
+<div class="nl-overlay" id="picker-modal" onclick="if(event.target===this)closePicker()">
+  <div class="nl-box">
+    <button class="nl-close" onclick="closePicker()">&#10005;</button>
+    <h3 id="picker-title">Adicionar receita</h3>
+    <input class="picker-search" id="picker-search" type="text" placeholder="&#128269; Buscar receita..." oninput="renderPickerResults(this.value)">
+    <div id="picker-results"></div>
+  </div>
+</div>
+
+<!-- ESCOLHER DIA -->
+<div class="nl-overlay" id="daypick-modal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="nl-box" style="max-width:420px">
+    <button class="nl-close" onclick="document.getElementById('daypick-modal').classList.remove('show')">&#10005;</button>
+    <h3>Adicionar a qual dia?</h3>
+    <div class="daypick-grid">
+      <button onclick="pickDay('Mon')">Seg</button><button onclick="pickDay('Tue')">Ter</button>
+      <button onclick="pickDay('Wed')">Qua</button><button onclick="pickDay('Thu')">Qui</button>
+      <button onclick="pickDay('Fri')">Sex</button><button onclick="pickDay('Sat')">S&#225;b</button>
+      <button onclick="pickDay('Sun')">Dom</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="nl-overlay" id="onboarding-modal">
+  <div class="nl-box" style="max-width:460px">
+    <h3>&#127881; Bem-vindo(a) ao NuvLev!</h3>
+    <p style="color:#666;font-size:.95rem">Qual é o seu principal objetivo? Eu já monto sua primeira semana de refeições automaticamente.</p>
+    <div class="onb-goals">
+      <button onclick="onbEscolher('emagrecer')"><span class="onb-emoji">&#9878;&#65039;</span><span><strong>Emagrecer</strong><small>Refeições leves e equilibradas</small></span></button>
+      <button onclick="onbEscolher('pratico')"><span class="onb-emoji">&#9889;</span><span><strong>Praticidade</strong><small>Receitas rápidas com poucos ingredientes</small></span></button>
+      <button onclick="onbEscolher('saude')"><span class="onb-emoji">&#127793;</span><span><strong>Mais saúde e energia</strong><small>Variedade e equilíbrio no dia a dia</small></span></button>
+    </div>
+    <button class="onb-skip" onclick="onbPular()">Pular, quero explorar sozinho(a)</button>
   </div>
 </div>
 
@@ -1325,6 +1445,307 @@ I18N = {
   }
 
   applyI18n();
+</script>
+
+<script>
+/* ════════ NuvLev UX upgrade — overrides ════════ */
+const NL_FAVS='nuvlev-favs', NL_PLAN='nuvlev-plan', NL_SHOP='nuvlev-shop', NL_ONB='nuvlev-onboarded';
+let favs = new Set(JSON.parse(localStorage.getItem(NL_FAVS)||'[]'));
+let filterFav=false, filterQuick=false;
+
+function isDemoUnlocked(r){ return r._id % 31 === 0; } /* 20 receitas espalhadas pelos 7 volumes */
+function isFav(r){ return favs.has(r.name); }
+function saveFavs(){ localStorage.setItem(NL_FAVS, JSON.stringify([...favs])); }
+function toggleFavById(id){
+  const r = ALL_RECIPES[id]; if(!r) return;
+  if(favs.has(r.name)) favs.delete(r.name);
+  else { favs.add(r.name); showNotif('❤ Adicionada às favoritas','success'); }
+  saveFavs(); updateChips();
+  if(filterFav) applyFilter(); else refreshFavHearts();
+  if(currentRecipe && currentRecipe.name===r.name) syncModalFav();
+}
+function refreshFavHearts(){
+  document.querySelectorAll('.fav-btn[data-rid]').forEach(b=>{
+    const r = ALL_RECIPES[parseInt(b.dataset.rid)];
+    b.classList.toggle('active', r && favs.has(r.name));
+  });
+}
+function favFromModal(){ if(currentRecipe) toggleFavById(currentRecipe._id); }
+function syncModalFav(){
+  const b=document.getElementById('modal-fav-btn'); if(!b||!currentRecipe) return;
+  const on=favs.has(currentRecipe.name);
+  b.classList.toggle('active',on);
+  b.innerHTML = on ? '❤ Favoritada' : '❤ Favoritar';
+}
+
+/* ── filtros (chips) ── */
+function toggleChip(which){
+  if(which==='fav') filterFav=!filterFav; else filterQuick=!filterQuick;
+  updateChips(); applyFilter();
+}
+function updateChips(){
+  const cf=document.getElementById('chip-fav'), cq=document.getElementById('chip-quick');
+  if(cf){ cf.classList.toggle('active',filterFav); cf.innerHTML='❤ Favoritas'+(favs.size?` (${favs.size})`:''); }
+  if(cq) cq.classList.toggle('active',filterQuick);
+}
+function applyFilter(){
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  const volIdx = activeVol;
+  filtered = ALL_RECIPES.filter(r => {
+    const matchVol = volIdx === null || r.vol === VOLUMES[volIdx].vol;
+    const matchQ = !q || r.name.toLowerCase().includes(q) ||
+      (r.ingredients || []).some(i => i.toLowerCase().includes(q));
+    const matchFav = !filterFav || favs.has(r.name);
+    const matchQuick = !filterQuick || (r.ingredients||[]).length <= 6;
+    return matchVol && matchQ && matchFav && matchQuick;
+  });
+  displayed = 0;
+  renderRecipes();
+}
+(function(){ /* religa o listener da busca na nova applyFilter */
+  const si=document.getElementById('search-input');
+  const si2=si.cloneNode(true); si.parentNode.replaceChild(si2,si);
+  si2.addEventListener('input', applyFilter);
+})();
+
+/* ── grid de receitas (trava estável no demo + coração) ── */
+function renderRecipes(){
+  const grid=document.getElementById('recipe-grid');
+  const count=document.getElementById('results-count');
+  const loadBtn=document.getElementById('load-more');
+  if(displayed===0) grid.innerHTML='';
+  const slice=filtered.slice(displayed, displayed+PER_PAGE);
+  slice.forEach(r=>{
+    const isLocked = isDemoMode && !isDemoUnlocked(r);
+    const card=document.createElement('div');
+    card.className='recipe-card'+(isLocked?' recipe-card-locked':'');
+    const hasIng=r.ingredients&&r.ingredients.length>0;
+    if(isLocked){
+      card.innerHTML=`
+        <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
+        <div class="recipe-card-name">${r.name}</div>
+        <div class="recipe-card-meta">${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}</div>
+        <div class="lock-overlay"><span>🔒</span>${_lang==='pt'?'Toque para espiar':'Tap to preview'}</div>`;
+      card.onclick=()=>openRecipeLocked(r);
+    } else {
+      card.innerHTML=`
+        <button class="fav-btn${isFav(r)?' active':''}" data-rid="${r._id}" onclick="event.stopPropagation();toggleFavById(${r._id})">❤</button>
+        <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
+        <div class="recipe-card-name">${r.name}</div>
+        <div class="recipe-card-meta">
+          ${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}
+          ${r.steps&&r.steps.length>1?`<span class="recipe-tag">${r.steps.length} ${I18N[_lang].js_steps}</span>`:''}
+        </div>`;
+      card.onclick=()=>openRecipe(r);
+    }
+    grid.appendChild(card);
+  });
+  displayed+=slice.length;
+  count.innerHTML=`${I18N[_lang].js_showing} <strong>${displayed}</strong> ${I18N[_lang].js_of} <strong>${filtered.length}</strong> ${I18N[_lang].js_showing_suffix}`;
+  loadBtn.style.display = displayed>=filtered.length ? 'none':'block';
+}
+
+/* ── modal de receita ── */
+function openRecipe(r){
+  currentRecipe=r;
+  const mc=document.getElementById('modal-content');
+  mc.querySelector('.modal-actions').style.display='';
+  document.getElementById('modal-demo-cta').style.display='none';
+  document.getElementById('modal-vol').textContent=r.emoji+' '+r.volLabel;
+  document.getElementById('modal-title').textContent=r.name;
+  const ingSection=document.getElementById('modal-ing-section');
+  const ingList=document.getElementById('modal-ingredients');
+  if(r.ingredients&&r.ingredients.length){ ingList.innerHTML=r.ingredients.map(i=>`<li>${i}</li>`).join(''); ingSection.style.display=''; }
+  else ingSection.style.display='none';
+  const steps=document.getElementById('modal-steps');
+  steps.innerHTML=(r.steps&&r.steps.length)?r.steps.map(s=>`<li>${s}</li>`).join(''):`<li>${I18N[_lang].js_no_steps||''}</li>`;
+  const benefitBox=document.getElementById('modal-benefit-box');
+  if(r.benefit){ document.getElementById('modal-benefit').textContent=r.benefit; benefitBox.style.display=''; }
+  else benefitBox.style.display='none';
+  syncModalFav();
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+/* prévia borrada no demo */
+function openRecipeLocked(r){
+  currentRecipe=null;
+  const mc=document.getElementById('modal-content');
+  mc.querySelector('.modal-actions').style.display='none';
+  document.getElementById('modal-demo-cta').style.display='block';
+  document.getElementById('modal-vol').textContent=r.emoji+' '+r.volLabel;
+  document.getElementById('modal-title').textContent=r.name;
+  const ingSection=document.getElementById('modal-ing-section');
+  const ingList=document.getElementById('modal-ingredients');
+  const ings=r.ingredients||[];
+  ingList.innerHTML = ings.slice(0,2).map(i=>`<li>${i}</li>`).join('') +
+    ings.slice(2).map(()=>'<li class="nl-blur">ingrediente secreto da receita</li>').join('');
+  ingSection.style.display = ings.length ? '' : 'none';
+  document.getElementById('modal-steps').innerHTML =
+    '<li class="nl-blur">O modo de preparo completo desta receita fica disponível para assinantes. Assine para ver o passo a passo inteiro com todos os detalhes e dicas.</li>';
+  document.getElementById('modal-benefit-box').style.display='none';
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+/* ── persistência ── */
+function savePlan(){ const o={}; DAYS.forEach(([k])=>o[k]=plan[k].map(r=>r.name)); localStorage.setItem(NL_PLAN, JSON.stringify(o)); }
+function saveShop(){ localStorage.setItem(NL_SHOP, JSON.stringify(shopList)); }
+function restoreState(){
+  try{
+    const o=JSON.parse(localStorage.getItem(NL_PLAN)||'null');
+    if(o){ const map={}; ALL_RECIPES.forEach(r=>map[r.name]=r);
+      DAYS.forEach(([k])=>{ plan[k]=(o[k]||[]).map(n=>map[n]).filter(Boolean); });
+      renderPlanner(); }
+    const s=JSON.parse(localStorage.getItem(NL_SHOP)||'null');
+    if(s&&s.length){ shopList=s; renderShopList(); }
+  }catch(e){}
+  updateChips();
+}
+(function wait(){ if(ALL_RECIPES.length){ restoreState(); applyFilter(); } else setTimeout(wait,200); })();
+
+/* ── planejador: picker em vez de prompt() ── */
+let _pickerDay=null;
+function openAddMeal(day){
+  _pickerDay=day;
+  const lbl=(DAYS.find(d=>d[0]===day)||[])[1]||'';
+  document.getElementById('picker-title').textContent='Adicionar receita — '+lbl;
+  document.getElementById('picker-modal').classList.add('show');
+  const inp=document.getElementById('picker-search'); inp.value='';
+  renderPickerResults('');
+  setTimeout(()=>inp.focus(),60);
+}
+function closePicker(){ document.getElementById('picker-modal').classList.remove('show'); }
+function renderPickerResults(q){
+  q=(q||'').toLowerCase().trim();
+  const list=ALL_RECIPES.filter(r=>(!isDemoMode||isDemoUnlocked(r)) && (!q||r.name.toLowerCase().includes(q)||(r.ingredients||[]).some(i=>i.toLowerCase().includes(q)))).slice(0,30);
+  const box=document.getElementById('picker-results');
+  box.innerHTML='';
+  if(!list.length){ box.innerHTML='<div class="picker-empty">Nenhuma receita encontrada</div>'; return; }
+  list.forEach(r=>{
+    const d=document.createElement('div'); d.className='picker-item';
+    d.innerHTML=`<span>${r.emoji}</span><div><strong>${r.name}</strong><small>${r.volLabel}</small></div>`;
+    d.onclick=()=>{ plan[_pickerDay].push(r); savePlan(); renderPlanner(); closePicker(); showNotif(r.name+' adicionada!','success'); };
+    box.appendChild(d);
+  });
+}
+function addToPlanFromModal(){ if(!currentRecipe) return; document.getElementById('daypick-modal').classList.add('show'); }
+function pickDay(key){
+  if(!currentRecipe) return;
+  plan[key].push(currentRecipe); savePlan(); renderPlanner();
+  document.getElementById('daypick-modal').classList.remove('show');
+  showNotif('Adicionada ao planejador!','success');
+}
+function removeMeal(day,idx){ plan[day].splice(idx,1); savePlan(); renderPlanner(); }
+function clearPlan(){
+  if(confirm(I18N[_lang].js_clear_confirm||'Limpar planejador?')){
+    DAYS.forEach(([k])=>plan[k]=[]); savePlan(); renderPlanner();
+    showNotif(I18N[_lang].js_plan_cleared||'Planejador limpo');
+  }
+}
+
+/* ── lista de compras: WhatsApp / copiar / persistência ── */
+function addToShopFromModal(){
+  if(!currentRecipe||!currentRecipe.ingredients) return;
+  currentRecipe.ingredients.forEach(ing=>{ if(!shopList.find(i=>i.text===ing)) shopList.push({text:ing,checked:false}); });
+  saveShop(); renderShopList(); showNotif('Ingredientes adicionados à lista!','success');
+}
+function generateShopList(){
+  shopList=[];
+  DAYS.forEach(([key])=>{ plan[key].forEach(r=>{ if(r.ingredients) r.ingredients.forEach(ing=>{ if(!shopList.find(i=>i.text===ing)) shopList.push({text:ing,checked:false}); }); }); });
+  saveShop(); renderShopList();
+  document.getElementById('lista').scrollIntoView({behavior:'smooth'});
+  showNotif(shopList.length+' ingredientes gerados!','success');
+}
+function renderShopList(){
+  const container=document.getElementById('shop-list-container');
+  if(!shopList.length){ container.innerHTML='<div class="empty-shop">Adicione receitas ao planejador e clique em "Gerar Lista de Compras"</div>'; return; }
+  container.innerHTML=`<ul class="shop-list">${shopList.map((item,i)=>`
+    <li class="shop-item${item.checked?' checked':''}">
+      <input type="checkbox" id="si${i}" ${item.checked?'checked':''} onchange="toggleShop(${i})">
+      <label for="si${i}">${item.text}</label>
+    </li>`).join('')}</ul>
+    <div class="shop-actions">
+      <button class="btn-whats" onclick="enviarWhats()">📲 Enviar no WhatsApp</button>
+      <button class="btn-copy" onclick="copiarLista()">📋 Copiar lista</button>
+      <button class="btn-secondary" onclick="clearShop()">🗑 Limpar</button>
+    </div>`;
+}
+function toggleShop(i){ shopList[i].checked=!shopList[i].checked; saveShop(); renderShopList(); }
+function clearShop(){ shopList=[]; saveShop(); renderShopList(); }
+function buildShopText(){
+  return '🛒 *Lista de Compras — NuvLev*\n\n' + shopList.map(i=>(i.checked?'✅ ':'• ')+i.text).join('\n');
+}
+function enviarWhats(){ window.open('https://wa.me/?text='+encodeURIComponent(buildShopText()),'_blank'); }
+function copiarLista(){
+  const t=buildShopText();
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(()=>showNotif('Lista copiada!','success'),()=>showNotif('Não foi possível copiar'));
+  else showNotif('Não foi possível copiar');
+}
+
+/* ── modo cozinha ── */
+function abrirModoCozinha(){
+  if(!currentRecipe) return;
+  const r=currentRecipe;
+  document.getElementById('km-title').textContent=r.name;
+  document.getElementById('km-ings').innerHTML=(r.ingredients||[]).map(i=>`<li onclick="this.classList.toggle('done')">⬜ ${i}</li>`).join('');
+  document.getElementById('km-steps').innerHTML=(r.steps||[]).map((s,n)=>`<li onclick="this.classList.toggle('done')"><strong>${n+1}.</strong> ${s}</li>`).join('');
+  document.getElementById('kitchen-mode').classList.add('show');
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='hidden';
+  if(navigator.wakeLock&&navigator.wakeLock.request) navigator.wakeLock.request('screen').then(l=>window._nlWake=l).catch(()=>{});
+}
+function fecharModoCozinha(){
+  document.getElementById('kitchen-mode').classList.remove('show');
+  document.body.style.overflow='';
+  if(window._nlWake){ try{window._nlWake.release();}catch(e){} window._nlWake=null; }
+}
+
+/* ── área de membro + onboarding ── */
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){ document.body.classList.remove('is-member'); return; }
+  try{
+    const doc=await db.collection('assinantes').doc(user.uid).get();
+    if(doc.exists && doc.data().ativo===true){
+      document.body.classList.add('is-member');
+      if(!localStorage.getItem(NL_ONB)) setTimeout(()=>document.getElementById('onboarding-modal').classList.add('show'),900);
+    }
+  }catch(e){}
+});
+function onbPular(){ localStorage.setItem(NL_ONB,'skip'); document.getElementById('onboarding-modal').classList.remove('show'); }
+function onbEscolher(goal){
+  localStorage.setItem(NL_ONB,goal);
+  document.getElementById('onboarding-modal').classList.remove('show');
+  montarSemana(goal);
+}
+function montarSemana(goal){
+  if(!ALL_RECIPES.length){ setTimeout(()=>montarSemana(goal),300); return; }
+  const used=new Set();
+  function pick(volNo){
+    let pool=ALL_RECIPES.filter(r=>r.vol===volNo&&!used.has(r.name));
+    if(goal==='emagrecer'){
+      const lighter=pool.filter(r=>/salada|legume|light|sopa|grelhad|vapor|assad|abobrinha|berinjela|frango|peixe|omelete/i.test(r.name));
+      if(lighter.length>=7) pool=lighter;
+    }
+    if(goal==='pratico'){
+      const quick=pool.filter(r=>(r.ingredients||[]).length<=6);
+      if(quick.length>=7) pool=quick;
+    }
+    const r=pool[Math.floor(Math.random()*pool.length)];
+    if(r) used.add(r.name);
+    return r;
+  }
+  DAYS.forEach(([k])=>{ plan[k]=[pick(1),pick(2),pick(3)].filter(Boolean); });
+  savePlan(); renderPlanner();
+  document.getElementById('planejador').scrollIntoView({behavior:'smooth'});
+  showNotif('🎉 Sua primeira semana está montada! Ajuste como quiser.','success');
+}
+
+/* Esc fecha os novos overlays */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  fecharModoCozinha(); closePicker();
+  document.getElementById('daypick-modal').classList.remove('show');
+});
 </script>
 </body>
 </html>
