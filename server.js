@@ -526,25 +526,71 @@ function renderBlogPost(post, allPosts) {
 </html>`;
 }
 
+// Posts dinâmicos (Firestore) + estáticos do código
+async function getAllPosts() {
+  let dyn = [];
+  try {
+    const snap = await db.collection('blog_posts').get();
+    dyn = snap.docs.map(d => d.data());
+  } catch (e) { console.error('Erro ao ler blog_posts:', e.message); }
+  const statics = BLOG_POSTS.filter(p => !dyn.find(d => d.slug === p.slug));
+  return [...statics, ...dyn].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+}
+
 // Blog routes
-app.get('/blog', (req, res) => {
-  res.send(renderBlogIndex(BLOG_POSTS));
+app.get('/blog', async (req, res) => {
+  res.send(renderBlogIndex(await getAllPosts()));
 });
 
-app.get('/blog/:slug', (req, res) => {
-  const post = BLOG_POSTS.find(p => p.slug === req.params.slug);
+app.get('/blog/:slug', async (req, res) => {
+  const posts = await getAllPosts();
+  const post = posts.find(p => p.slug === req.params.slug);
   if (!post) return res.status(404).redirect('/blog');
-  res.send(renderBlogPost(post, BLOG_POSTS));
+  res.send(renderBlogPost(post, posts));
+});
+
+// ── Admin do blog (protegido por ADMIN_TOKEN) ───────────────────────────────
+function checkAdmin(req, res) {
+  if (req.headers['x-admin-token'] !== ADMIN_TOKEN) {
+    res.status(401).json({ error: 'Não autorizado' });
+    return false;
+  }
+  return true;
+}
+
+app.get('/admin/blog/list', async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  res.json({ posts: await getAllPosts() });
+});
+
+app.post('/admin/blog', async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  try {
+    const p = req.body || {};
+    if (!p.slug || !p.title || !p.content)
+      return res.status(400).json({ error: 'slug, title e content são obrigatórios' });
+    await db.collection('blog_posts').doc(p.slug).set(p, { merge: true });
+    console.log('📝 Post publicado/atualizado:', p.slug);
+    res.json({ ok: true, url: '/blog/' + p.slug });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/admin/blog/delete', async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  try {
+    await db.collection('blog_posts').doc((req.body || {}).slug).delete();
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 
 // ── SEO: sitemap + robots ───────────────────────────────────────────────────
-app.get('/sitemap.xml', (req, res) => {
+app.get('/sitemap.xml', async (req, res) => {
   const base = 'https://saudenaturall.online';
   const urls = [
     { loc: base + '/', priority: '1.0' },
     { loc: base + '/blog', priority: '0.8' },
-    ...BLOG_POSTS.map(p => ({ loc: `${base}/blog/${p.slug}`, lastmod: p.date, priority: '0.7' }))
+    ...(await getAllPosts()).map(p => ({ loc: `${base}/blog/${p.slug}`, lastmod: p.date, priority: '0.7' }))
   ];
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +

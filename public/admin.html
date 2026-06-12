@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>NuvLev — Painel do Blog</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{background:#f6f3ec;color:#2a2a35;padding:1.5rem}
+.wrap{max-width:980px;margin:0 auto}
+h1{font-size:1.5rem;margin-bottom:.3rem}
+h1 span{color:#E76F51}
+.sub{color:#888;font-size:.9rem;margin-bottom:1.5rem}
+.card{background:#fff;border-radius:16px;padding:1.5rem;margin-bottom:1.2rem;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+label{display:block;font-weight:700;font-size:.85rem;margin:.9rem 0 .35rem}
+input,textarea,select{width:100%;padding:.7rem .9rem;border:2px solid #e8e4dd;border-radius:10px;font-size:.95rem;font-family:inherit}
+textarea{min-height:320px;font-family:ui-monospace,Consolas,monospace;font-size:.9rem;line-height:1.5}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:640px){.row{grid-template-columns:1fr}}
+button{background:#E76F51;color:#fff;border:none;border-radius:50px;padding:.8rem 1.6rem;font-weight:800;cursor:pointer;font-size:.95rem;font-family:inherit}
+button.sec{background:#2a2a35}
+button.danger{background:#c0392b;padding:.45rem 1rem;font-size:.8rem}
+button.mini{background:#2a9d8f;padding:.45rem 1rem;font-size:.8rem}
+button:disabled{opacity:.5;cursor:wait}
+.hint{font-size:.78rem;color:#999;margin-top:.3rem}
+.post-item{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.8rem 0;border-bottom:1px solid #f0ece4;flex-wrap:wrap}
+.post-item strong{font-size:.95rem}
+.post-item small{color:#999;display:block}
+.badge{background:#eee;color:#777;font-size:.7rem;padding:.15rem .6rem;border-radius:50px;font-weight:700}
+.msg{padding:.9rem 1.1rem;border-radius:10px;margin-top:1rem;font-size:.9rem;display:none}
+.msg.ok{background:#e8f8ef;color:#1e7e46;display:block}
+.msg.err{background:#fdecea;color:#c0392b;display:block}
+#preview{border:2px dashed #e8e4dd;border-radius:10px;padding:1.2rem;margin-top:1rem;display:none}
+#preview h2{color:#E76F51;margin:1rem 0 .5rem}
+#preview h3{margin:.8rem 0 .4rem}
+#preview p{margin-bottom:.8rem;line-height:1.6}
+#preview ul{margin:0 0 .8rem 1.3rem}
+.actions{display:flex;gap:.7rem;margin-top:1.2rem;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Nuv<span>Lev</span> · Painel do Blog</h1>
+  <p class="sub">Escreva e publique artigos sem mexer em código. <a href="/blog" style="color:#E76F51">Ver blog →</a></p>
+
+  <div class="card" id="auth-card">
+    <label>Senha do painel (token de admin)</label>
+    <input type="password" id="token" placeholder="Cole aqui o ADMIN_TOKEN configurado no Railway">
+    <p class="hint">Fica salva só neste navegador.</p>
+    <div class="actions"><button onclick="entrar()">Entrar →</button></div>
+    <div class="msg" id="auth-msg"></div>
+  </div>
+
+  <div id="panel" style="display:none">
+    <div class="card">
+      <h2 style="font-size:1.1rem;margin-bottom:.5rem">✍️ Novo artigo / editar</h2>
+      <label>Título *</label>
+      <input id="f-title" placeholder="Ex: 10 Jantares Saudáveis em 20 Minutos" oninput="autoSlug()">
+      <div class="row">
+        <div>
+          <label>Endereço (slug)</label>
+          <input id="f-slug" placeholder="gerado automaticamente">
+          <p class="hint">Vira a URL: /blog/<b id="slug-echo">…</b></p>
+        </div>
+        <div>
+          <label>Categoria</label>
+          <input id="f-cat" placeholder="Ex: Receitas, Planejamento, Review" value="Nutrição">
+        </div>
+      </div>
+      <label>Descrição (aparece no Google e na lista do blog) *</label>
+      <input id="f-desc" maxlength="170" placeholder="1-2 frases que convençam a clicar (máx. 170 caracteres)">
+      <label>Conteúdo *</label>
+      <textarea id="f-content" placeholder="Escreva normalmente. Formatação:
+
+## Título de seção
+### Subtítulo
+**negrito** e *itálico*
+- item de lista
+[texto do link](https://endereco.com)
+
+Linha em branco separa parágrafos."></textarea>
+      <div class="actions">
+        <button class="mini" type="button" onclick="togglePreview()">👁 Pré-visualizar</button>
+        <button id="btn-pub" onclick="publicar()">🚀 Publicar artigo</button>
+        <button class="sec" type="button" onclick="limpar()">Limpar</button>
+      </div>
+      <div id="preview"></div>
+      <div class="msg" id="pub-msg"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:1.1rem;margin-bottom:.5rem">📚 Artigos publicados</h2>
+      <div id="post-list">Carregando…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let TOKEN = localStorage.getItem('nuvlev-admin-token') || '';
+
+function headers(){ return {'Content-Type':'application/json','x-admin-token':TOKEN}; }
+
+async function entrar(){
+  TOKEN = $('token').value.trim();
+  const r = await fetch('/admin/blog/list',{headers:headers()});
+  const m = $('auth-msg');
+  if(r.status===401){ m.className='msg err'; m.textContent='Senha incorreta.'; return; }
+  localStorage.setItem('nuvlev-admin-token',TOKEN);
+  $('auth-card').style.display='none'; $('panel').style.display='block';
+  renderList((await r.json()).posts);
+}
+
+function slugify(s){
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);
+}
+function autoSlug(){
+  if($('f-slug').dataset.locked!=='1') $('f-slug').value = slugify($('f-title').value);
+  $('slug-echo').textContent = $('f-slug').value || '…';
+}
+$('f-slug').addEventListener('input',()=>{ $('f-slug').dataset.locked='1'; $('slug-echo').textContent=$('f-slug').value; });
+
+function mdToHtml(src){
+  let html='', inList=false, para=[];
+  const esc = t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const inline = t=>esc(t)
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/\[(.+?)\]\((https?:[^)\s]+)\)/g,'<a href="$2" style="color:#E76F51">$1</a>');
+  const endList=()=>{ if(inList){html+='</ul>\n';inList=false;} };
+  const flush=()=>{ if(para.length){ html+='<p>'+inline(para.join(' '))+'</p>\n'; para=[]; } };
+  for(const l of src.replace(/\r/g,'').split('\n')){
+    if(/^###\s/.test(l)){ flush(); endList(); html+='<h3>'+inline(l.slice(4))+'</h3>\n'; }
+    else if(/^##\s/.test(l)){ flush(); endList(); html+='<h2>'+inline(l.slice(3))+'</h2>\n'; }
+    else if(/^[-*]\s/.test(l)){ flush(); if(!inList){html+='<ul>\n';inList=true;} html+='<li>'+inline(l.slice(2))+'</li>\n'; }
+    else if(!l.trim()){ flush(); endList(); }
+    else para.push(l.trim());
+  }
+  flush(); endList();
+  return html;
+}
+
+function togglePreview(){
+  const p=$('preview');
+  if(p.style.display==='block'){ p.style.display='none'; return; }
+  p.innerHTML = mdToHtml($('f-content').value) || '<p style="color:#999">Nada para mostrar ainda.</p>';
+  p.style.display='block';
+}
+
+async function publicar(){
+  const title=$('f-title').value.trim(), slug=$('f-slug').value.trim()||slugify(title),
+        desc=$('f-desc').value.trim(), raw=$('f-content').value.trim();
+  const m=$('pub-msg');
+  if(!title||!desc||!raw){ m.className='msg err'; m.textContent='Preencha título, descrição e conteúdo.'; return; }
+  const words = raw.split(/\s+/).length;
+  const now = new Date();
+  const post = {
+    slug, title, description: desc,
+    category: $('f-cat').value.trim()||'Nutrição',
+    content: mdToHtml(raw),
+    date: now.toISOString().slice(0,10),
+    dateFormatted: now.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'}),
+    readTime: Math.max(2, Math.round(words/200)) + ' min de leitura'
+  };
+  $('btn-pub').disabled=true;
+  try{
+    const r = await fetch('/admin/blog',{method:'POST',headers:headers(),body:JSON.stringify(post)});
+    const j = await r.json();
+    if(j.ok){ m.className='msg ok'; m.innerHTML='✅ Publicado! <a href="'+j.url+'" target="_blank" style="color:#1e7e46;font-weight:700">Ver artigo →</a>'; carregarLista(); }
+    else { m.className='msg err'; m.textContent='Erro: '+(j.error||r.status); }
+  }catch(e){ m.className='msg err'; m.textContent='Erro de conexão: '+e.message; }
+  $('btn-pub').disabled=false;
+}
+
+function limpar(){
+  ['f-title','f-slug','f-desc','f-content'].forEach(i=>$(i).value='');
+  $('f-slug').dataset.locked=''; $('slug-echo').textContent='…';
+  $('preview').style.display='none'; $('pub-msg').className='msg';
+}
+
+async function carregarLista(){
+  const r = await fetch('/admin/blog/list',{headers:headers()});
+  if(r.ok) renderList((await r.json()).posts);
+}
+
+function renderList(posts){
+  const box=$('post-list');
+  if(!posts.length){ box.innerHTML='<p style="color:#999">Nenhum artigo ainda.</p>'; return; }
+  box.innerHTML='';
+  posts.forEach(p=>{
+    const d=document.createElement('div'); d.className='post-item';
+    d.innerHTML=`<div><strong>${p.title}</strong><small>/blog/${p.slug} · ${p.dateFormatted||p.date||''} · ${p.category||''}</small></div>`;
+    const btns=document.createElement('div');
+    btns.style.cssText='display:flex;gap:.5rem';
+    const ed=document.createElement('button'); ed.className='mini'; ed.textContent='Editar';
+    ed.onclick=()=>{ $('f-title').value=p.title; $('f-slug').value=p.slug; $('f-slug').dataset.locked='1';
+      $('slug-echo').textContent=p.slug; $('f-desc').value=p.description||''; $('f-cat').value=p.category||'';
+      $('f-content').value=p._raw || htmlBack(p.content||''); window.scrollTo({top:0,behavior:'smooth'}); };
+    const del=document.createElement('button'); del.className='danger'; del.textContent='Excluir';
+    del.onclick=async()=>{ if(!confirm('Excluir "'+p.title+'"?'))return;
+      const r=await fetch('/admin/blog/delete',{method:'POST',headers:headers(),body:JSON.stringify({slug:p.slug})});
+      const j=await r.json(); if(j.ok) carregarLista(); else alert(j.error||'Erro'); };
+    btns.appendChild(ed); btns.appendChild(del); d.appendChild(btns);
+    box.appendChild(d);
+  });
+}
+/* converte HTML de volta para o formato de edição (aproximado) */
+function htmlBack(h){
+  return h.replace(/<h2>(.*?)<\/h2>/g,'\n## $1\n').replace(/<h3>(.*?)<\/h3>/g,'\n### $1\n')
+    .replace(/<li>(.*?)<\/li>/g,'- $1').replace(/<\/?[uo]l>/g,'')
+    .replace(/<strong>(.*?)<\/strong>/g,'**$1**').replace(/<em>(.*?)<\/em>/g,'*$1*')
+    .replace(/<a href="([^"]+)"[^>]*>(.*?)<\/a>/g,'[$2]($1)')
+    .replace(/<p>/g,'\n').replace(/<\/p>/g,'\n').replace(/&amp;/g,'&').replace(/&lt;/g,'<')
+    .split('\n').map(s=>s.trim()).join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+if(TOKEN){ $('token').value=TOKEN; entrar(); }
+</script>
+</body>
+</html>
