@@ -588,7 +588,17 @@ app.post('/admin/blog/delete', async (req, res) => {
 
 
 // ── RECEITAS PÚBLICAS (SEO) + CAPTURA DE LEADS ──────────────────────────────
-const PUBLIC_RECIPES = require('./public-recipes.json');
+function normalizeRecipe(r) {
+  let ings = r.ingredients || [];
+  if (ings.length === 1 && ings[0].includes(';'))
+    ings = ings[0].split(';').map(s => s.trim()).filter(Boolean);
+  let steps = r.steps || [];
+  if (steps.length === 1 && /\d\)/.test(steps[0]))
+    steps = steps[0].split(/\s*\d+\)\s*/).map(s => s.trim()).filter(Boolean);
+  const name = r.name.replace(/^Receita \d+ — /, '').replace(/\s*Tempo total:.*$/i, '').trim();
+  return { ...r, name, ingredients: ings, steps };
+}
+const PUBLIC_RECIPES = require('./public-recipes.json').map(normalizeRecipe);
 const LEAD_PDF = '/downloads/10-jantares-saudaveis-15-minutos.pdf';
 
 function leadBox(origem) {
@@ -681,7 +691,7 @@ function renderRecipeIndex() {
   const body = Object.keys(groups).map(label => `
     <h2 class="vol-h">${groups[label][0].emoji} ${label}</h2>
     <div class="grid">${groups[label].map(r =>
-      `<a href="/receitas/${r.slug}">${r.name}<small>${(r.ingredients||[]).length} ingredientes</small></a>`).join('')}
+      `<a href="/receitas/${r.slug}">${r.name}<small>${(r.ingredients||[]).length} ${(r.ingredients||[]).length===1?'ingrediente':'ingredientes'}</small></a>`).join('')}
     </div>`).join('');
   return renderRecipeHead(
     'Receitas Saudáveis Grátis — Café, Almoço, Jantar e Lanches | NuvLev',
