@@ -558,6 +558,8 @@ function checkAdmin(req, res) {
   return true;
 }
 
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+
 app.get('/admin/blog/list', async (req, res) => {
   if (!checkAdmin(req, res)) return;
   res.json({ posts: await getAllPosts() });
