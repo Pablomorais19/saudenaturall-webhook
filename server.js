@@ -763,6 +763,17 @@ app.post('/lead', async (req, res) => {
     }, { merge: true });
     console.log('📧 Novo lead:', email);
   } catch (e) { console.error('Erro ao salvar lead:', e.message); }
+  // Envia para a Brevo (lista Leads NuvLev → dispara a sequência de boas-vindas)
+  if (process.env.BREVO_API_KEY && typeof fetch === 'function') {
+    try {
+      await fetch('https://api.brevo.com/v3/contacts', {
+        method: 'POST',
+        headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, listIds: [5], updateEnabled: true })
+      });
+      console.log('📨 Lead enviado à Brevo:', email);
+    } catch (e) { console.error('Erro Brevo:', e.message); }
+  }
   res.json({ ok: true, pdf: LEAD_PDF });
 });
 
