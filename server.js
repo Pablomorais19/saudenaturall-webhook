@@ -508,6 +508,7 @@ function renderBlogPost(post, allPosts) {
     <h1>${post.title}</h1>
     <p class="post-lead">${post.description}</p>
     <div class="post-body">${post.content}</div>
+    ${leadBox('blog-post')}
     <div class="post-cta">
       <h3>Gostou? Veja na prática no NuvLev</h3>
       <p>614 receitas organizadas + planejador semanal + lista de compras automática por R$19,90/mês.</p>
@@ -586,12 +587,195 @@ app.post('/admin/blog/delete', async (req, res) => {
 });
 
 
+// ── RECEITAS PÚBLICAS (SEO) + CAPTURA DE LEADS ──────────────────────────────
+const PUBLIC_RECIPES = require('./public-recipes.json');
+const LEAD_PDF = '/downloads/10-jantares-saudaveis-15-minutos.pdf';
+
+function leadBox(origem) {
+  return `
+  <div style="background:linear-gradient(135deg,#fdf3ec,#fbe8dd);border:2px solid #E76F51;border-radius:18px;padding:1.8rem 1.5rem;margin:2.5rem 0;text-align:center">
+    <h3 style="color:#2a2a35;font-size:1.25rem;margin-bottom:.4rem">🎁 Grátis: 10 Jantares Saudáveis de 15 Minutos</h3>
+    <p style="color:#666;font-size:.92rem;margin-bottom:1rem">Deixe seu e-mail e baixe agora o PDF com 10 receitas práticas de jantar para a semana.</p>
+    <form onsubmit="return nlLead(this,'${origem}')" style="display:flex;gap:.6rem;max-width:430px;margin:0 auto;flex-wrap:wrap;justify-content:center">
+      <input type="email" name="email" required placeholder="Seu melhor e-mail" style="flex:1;min-width:200px;padding:.8rem 1rem;border:2px solid #e8d5c8;border-radius:50px;font-size:.95rem;font-family:inherit">
+      <button type="submit" style="background:#E76F51;color:#fff;border:none;border-radius:50px;padding:.8rem 1.5rem;font-weight:800;cursor:pointer;font-size:.92rem;font-family:inherit">Quero o PDF →</button>
+    </form>
+    <p class="nl-lead-ok" style="display:none;margin-top:1rem;font-weight:700"><a href="${LEAD_PDF}" style="color:#1e7e46" download>✅ Pronto! Clique aqui para baixar seu PDF →</a></p>
+  </div>
+  <script>
+  if (typeof nlLead === 'undefined') {
+    async function nlLead(f, origem) {
+      const btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'Enviando...';
+      try {
+        await fetch('/lead', { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ email: f.email.value, origem }) });
+        f.style.display = 'none';
+        f.parentElement.querySelector('.nl-lead-ok').style.display = 'block';
+      } catch(e) { btn.disabled = false; btn.textContent = 'Quero o PDF →'; alert('Erro de conexão, tente de novo.'); }
+      return false;
+    }
+    window.nlLead = nlLead;
+  }
+  </script>`;
+}
+
+function recipeDesc(r) {
+  const ing = (r.ingredients || []).length;
+  return `Receita de ${r.name}: ${ing} ingredientes, passo a passo simples e benefício explicado. Veja como fazer — grátis no NuvLev.`.slice(0, 158);
+}
+
+function renderRecipeHead(title, desc, url, jsonld) {
+  return `<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <meta name="description" content="${desc}">
+  <link rel="canonical" href="${url}">
+  <meta property="og:title" content="${title}"><meta property="og:description" content="${desc}">
+  <meta property="og:url" content="${url}"><meta property="og:type" content="article">
+  ${jsonld ? `<script type="application/ld+json">${jsonld}</scr` + `ipt>` : ''}
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#faf7f2;color:#2D2D2D;line-height:1.65}
+    .r-nav{background:#fff;padding:1rem 5%;box-shadow:0 1px 8px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+    .r-logo{font-size:1.3rem;font-weight:900;color:#2a2a35;text-decoration:none}.r-logo span{color:#E76F51}
+    .r-nav a{text-decoration:none}
+    .r-links a{color:#555;font-size:.9rem;margin-left:1.1rem;font-weight:600}
+    .r-cta-nav{background:#E76F51;color:#fff!important;padding:.5rem 1.1rem;border-radius:50px;font-weight:700}
+    .wrap{max-width:760px;margin:0 auto;padding:2.5rem 1.2rem}
+    h1{font-size:1.9rem;line-height:1.25;margin:.5rem 0 1rem}
+    .crumb{font-size:.85rem;color:#999}.crumb a{color:#E76F51;text-decoration:none}
+    .badge{display:inline-block;background:#fdeee7;color:#E76F51;font-size:.75rem;font-weight:800;padding:.3rem .9rem;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem}
+    h2{font-size:1.25rem;color:#E76F51;margin:1.8rem 0 .8rem}
+    ul,ol{margin:0 0 1rem 1.4rem}li{margin-bottom:.5rem}
+    .benefit{background:#eef7f0;border-left:4px solid #27AE60;border-radius:0 12px 12px 0;padding:1rem 1.2rem;margin:1.5rem 0;font-size:.95rem}
+    .cta{background:#1a1a2e;border-radius:18px;padding:2rem 1.5rem;text-align:center;margin:2.5rem 0}
+    .cta h3{color:#fff;font-size:1.3rem;margin-bottom:.5rem}.cta p{color:#bbb;font-size:.92rem;margin-bottom:1.2rem}
+    .cta a{display:inline-block;background:#27AE60;color:#fff;text-decoration:none;font-weight:800;padding:.9rem 2rem;border-radius:50px}
+    .rel{margin-top:2.5rem}.rel h3{margin-bottom:.8rem}
+    .rel a{display:block;background:#fff;border-radius:12px;padding:.9rem 1.1rem;margin-bottom:.6rem;color:#2D2D2D;text-decoration:none;font-weight:600;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+    .rel a:hover{color:#E76F51}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:.8rem;margin-top:1rem}
+    .grid a{background:#fff;border-radius:14px;padding:1.1rem 1.2rem;color:#2D2D2D;text-decoration:none;font-weight:600;box-shadow:0 1px 5px rgba(0,0,0,.05);font-size:.95rem}
+    .grid a:hover{color:#E76F51}
+    .grid small{display:block;color:#999;font-weight:400;font-size:.78rem;margin-top:.2rem}
+    .vol-h{font-size:1.15rem;margin:2rem 0 .3rem;color:#2a2a35}
+    .foot{background:#1a1a1a;padding:1.5rem 5%;text-align:center;color:rgba(255,255,255,.45);font-size:.8rem;margin-top:3rem;line-height:1.6}
+    .foot strong{color:#E76F51}
+    .disc{font-size:.78rem;color:#999;margin-top:2rem;line-height:1.5}
+  </style></head><body>
+  <nav class="r-nav">
+    <a href="/" class="r-logo">Nuv<span>Lev</span></a>
+    <div class="r-links">
+      <a href="/receitas">Receitas Grátis</a><a href="/blog">Blog</a>
+      <a href="https://pay.hotmart.com/M106116851N" class="r-cta-nav">Assinar — R$19,90/mês</a>
+    </div>
+  </nav>`;
+}
+
+const RECIPE_FOOT = `<footer class="foot"><p><strong>NuvLev</strong> · saudenaturall.online · © 2025 Todos os direitos reservados</p></footer></body></html>`;
+
+function renderRecipeIndex() {
+  const base = 'https://saudenaturall.online';
+  const groups = {};
+  PUBLIC_RECIPES.forEach(r => { (groups[r.volLabel] = groups[r.volLabel] || []).push(r); });
+  const body = Object.keys(groups).map(label => `
+    <h2 class="vol-h">${groups[label][0].emoji} ${label}</h2>
+    <div class="grid">${groups[label].map(r =>
+      `<a href="/receitas/${r.slug}">${r.name}<small>${(r.ingredients||[]).length} ingredientes</small></a>`).join('')}
+    </div>`).join('');
+  return renderRecipeHead(
+    'Receitas Saudáveis Grátis — Café, Almoço, Jantar e Lanches | NuvLev',
+    '40 receitas saudáveis grátis com passo a passo completo: café da manhã, almoço, jantar e lanches rápidos. Sem cadastro, direto do NuvLev.',
+    base + '/receitas', null) + `
+  <div class="wrap">
+    <div class="crumb"><a href="/">Início</a> / Receitas grátis</div>
+    <h1>Receitas saudáveis grátis, com passo a passo completo</h1>
+    <p>Uma amostra aberta das <strong>614 receitas</strong> da plataforma NuvLev — escolhidas entre as mais práticas, com poucos ingredientes.</p>
+    ${body}
+    ${leadBox('pagina-receitas')}
+    <div class="cta">
+      <h3>Gostou? Isso é só 6% do acervo.</h3>
+      <p>614 receitas organizadas + planejador semanal + lista de compras automática.</p>
+      <a href="https://pay.hotmart.com/M106116851N">Assinar por R$19,90/mês →</a>
+    </div>
+  </div>` + RECIPE_FOOT;
+}
+
+function renderRecipePage(r) {
+  const base = 'https://saudenaturall.online';
+  const url = `${base}/receitas/${r.slug}`;
+  const others = PUBLIC_RECIPES.filter(x => x.slug !== r.slug && x.vol === r.vol).slice(0, 3);
+  const jsonld = JSON.stringify({
+    '@context': 'https://schema.org', '@type': 'Recipe',
+    name: r.name, author: { '@type': 'Organization', name: 'NuvLev' },
+    recipeCategory: r.category || 'Saudável', recipeCuisine: 'Brasileira',
+    recipeIngredient: r.ingredients,
+    recipeInstructions: (r.steps || []).map(s => ({ '@type': 'HowToStep', text: s })),
+    description: recipeDesc(r), url
+  });
+  return renderRecipeHead(`${r.name} — Receita | NuvLev`, recipeDesc(r), url, jsonld) + `
+  <div class="wrap">
+    <div class="crumb"><a href="/receitas">← Receitas grátis</a></div>
+    <div style="margin-top:1rem"><span class="badge">${r.emoji} ${r.volLabel}</span></div>
+    <h1>${r.name}</h1>
+    <h2>🥘 Ingredientes</h2>
+    <ul>${(r.ingredients || []).map(i => `<li>${i}</li>`).join('')}</ul>
+    <h2>👨‍🍳 Modo de preparo</h2>
+    <ol>${(r.steps || []).map(s => `<li>${s}</li>`).join('')}</ol>
+    ${r.benefit ? `<div class="benefit"><strong>💡 Por que essa receita funciona:</strong> ${r.benefit}</div>` : ''}
+    ${leadBox('receita-' + r.slug)}
+    <div class="cta">
+      <h3>Essa é 1 das 614 receitas do NuvLev</h3>
+      <p>Todas organizadas por refeição e objetivo, com planejador semanal e lista de compras automática.</p>
+      <a href="https://pay.hotmart.com/M106116851N">Quero as 614 receitas →</a>
+    </div>
+    ${others.length ? `<div class="rel"><h3>Veja também</h3>${others.map(o => `<a href="/receitas/${o.slug}">${o.emoji} ${o.name}</a>`).join('')}</div>` : ''}
+    <p class="disc">⚕️ Conteúdo informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN).</p>
+  </div>` + RECIPE_FOOT;
+}
+
+app.get('/receitas', (req, res) => res.send(renderRecipeIndex()));
+app.get('/receitas/:slug', (req, res) => {
+  const r = PUBLIC_RECIPES.find(x => x.slug === req.params.slug);
+  if (!r) return res.status(404).redirect('/receitas');
+  res.send(renderRecipePage(r));
+});
+
+// Captura de leads
+app.post('/lead', async (req, res) => {
+  const email = ((req.body || {}).email || '').trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+    return res.status(400).json({ error: 'E-mail inválido' });
+  try {
+    await db.collection('leads').doc(email).set({
+      email, origem: (req.body.origem || '').slice(0, 100),
+      criadoEm: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    console.log('📧 Novo lead:', email);
+  } catch (e) { console.error('Erro ao salvar lead:', e.message); }
+  res.json({ ok: true, pdf: LEAD_PDF });
+});
+
+// Exportar leads (CSV) — protegido
+app.get('/admin/leads', async (req, res) => {
+  if (!checkAdmin(req, res)) return;
+  try {
+    const snap = await db.collection('leads').orderBy('criadoEm', 'desc').get();
+    const rows = snap.docs.map(d => d.data());
+    const csv = 'email;origem;data\n' + rows.map(r =>
+      `${r.email};${r.origem || ''};${r.criadoEm && r.criadoEm.toDate ? r.criadoEm.toDate().toISOString().slice(0, 10) : ''}`).join('\n');
+    res.type('text/csv').send(csv);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── SEO: sitemap + robots ───────────────────────────────────────────────────
 app.get('/sitemap.xml', async (req, res) => {
   const base = 'https://saudenaturall.online';
   const urls = [
     { loc: base + '/', priority: '1.0' },
     { loc: base + '/blog', priority: '0.8' },
+    { loc: base + '/receitas', priority: '0.8' },
+    ...PUBLIC_RECIPES.map(r => ({ loc: `${base}/receitas/${r.slug}`, priority: '0.6' })),
     ...(await getAllPosts()).map(p => ({ loc: `${base}/blog/${p.slug}`, lastmod: p.date, priority: '0.7' }))
   ];
   const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +

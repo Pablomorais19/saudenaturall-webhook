@@ -1,0 +1,764 @@
+[
+ {
+  "slug": "receita-21-acai-bowl-caseiro-banana-e-granola-smoothie-bowl",
+  "name": "Receita 21 — Açaí bowl caseiro (banana e granola)Smoothie bowl ·",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "profissional",
+  "ingredients": [
+   "200 g de polpa de açaí congelada (sem xarope, preferencialmente)",
+   "1 banana (≈90 g)",
+   "2 colheres (sopa) de granola (30 g)",
+   "1 colher (sopa) de castanhas (10–15 g) (opcional)"
+  ],
+  "steps": [
+   "Bata açaí + banana com mínima água (só para girar).",
+   "Coloque na tigela e finalize com granola/castanhas."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "tapioca-recheada-de-tomate-ricota-e-oregano",
+  "name": "Tapioca recheada de tomate, ricota e orégano",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "estrategico",
+  "ingredients": [
+   "2 colheres (sopa) de goma de tapioca",
+   "2 colheres (sopa) de ricota light",
+   "2 tomates cereja em rodelas",
+   "Orégano e sal a gosto"
+  ],
+  "steps": [
+   "Aqueça uma frigideira e espalhe a goma de tapioca, formando um disco. Deixe cozinhar até unir. Vire, recheie com a ricota e os tomates e tempere com orégano e sal. Dobre ao meio e sirva."
+  ],
+  "benefit": "A tapioca é naturalmente sem glúten e fornece energia rápida; a ricota é fonte de proteína magra; o tomate adiciona licopeno antioxidante."
+ },
+ {
+  "slug": "receita-4-tapioca-de-queijo-minas-e-tomate",
+  "name": "Receita 4 — Tapioca de queijo minas e tomate",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "profissional",
+  "ingredients": [
+   "3 colheres (sopa) de goma de tapioca peneirada (≈40 g)",
+   "40 g de queijo minas",
+   "1/2 tomate (≈60 g), em rodelas finas",
+   "Orégano e sal a gosto"
+  ],
+  "steps": [
+   "Aqueça frigideira (fogo médio).",
+   "Espalhe a goma peneirada em camada uniforme.",
+   "Quando “unir”, vire e recheie com queijo e tomate.",
+   "Dobre, tampe 1 min e sirva."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "iogurte-proteico-com-frutas",
+  "name": "Iogurte Proteico com Frutas",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "bonus",
+  "ingredients": [
+   "Iogurte natural",
+   "Frutas picadas",
+   "1 colher de chia ou aveia"
+  ],
+  "steps": [
+   "Monte em camadas"
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "cafe-proteico-com-colageno-e-oleo-de-coco",
+  "name": "Café proteico com colágeno e óleo de coco",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "estrategico",
+  "ingredients": [
+   "1 xícara de café coado forte",
+   "1 colher (sopa) de colágeno hidrolisado em pó",
+   "1 colher (chá) de óleo de coco",
+   "Canela a gosto"
+  ],
+  "steps": [
+   "Bata o café quente com o colágeno e o óleo de coco no liquidificador até espumar. Polvilhe canela antes de servir."
+  ],
+  "benefit": "O colágeno fornece proteína que ajuda na saciedade; o óleo de coco adiciona triglicerídeos de cadeia média, que são rapidamente metabolizados como energia; a canela tem efeito termogênico."
+ },
+ {
+  "slug": "smoothie-bowl-de-melancia-e-coco",
+  "name": "Smoothie bowl de melancia e coco",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "estrategico",
+  "ingredients": [
+   "2 xícaras de melancia congelada em cubos",
+   "¼ xícara de leite de coco",
+   "2 colheres (sopa) de coco ralado sem açúcar",
+   "Sementes de chia para decorar"
+  ],
+  "steps": [
+   "Bata a melancia congelada com o leite de coco até obter textura cremosa. Coloque em uma tigela e cubra com coco ralado e chia."
+  ],
+  "benefit": "A melancia hidrata e é pobre em calorias; o leite de coco fornece gorduras de cadeia média; o coco ralado e a chia adicionam fibras e gorduras boas."
+ },
+ {
+  "slug": "receita-5-tapioca-doce-de-banana-com-coco-e-canela",
+  "name": "Receita 5 — Tapioca doce de banana com coco e canela",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "profissional",
+  "ingredients": [
+   "3 colheres (sopa) de goma de tapioca (≈40 g)",
+   "1 banana pequena (≈90 g), amassada",
+   "1 colher (sopa) de coco ralado (≈10 g)",
+   "Canela a gosto"
+  ],
+  "steps": [
+   "Prepare a tapioca na frigideira como na Receita 4.",
+   "Recheie com banana amassada + coco + canela.",
+   "Dobre e aqueça rapidamente (30–60 s) para “firmar” o recheio."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "receita-20-smoothie-de-mamao-com-aveia-e-linhacasmoothie",
+  "name": "Receita 20 — Smoothie de mamão com aveia e linhaçaSmoothie ·",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "profissional",
+  "ingredients": [
+   "1 xícara (chá) de mamão (≈150 g)",
+   "200 ml de leite (ou bebida vegetal)",
+   "2 colheres (sopa) de aveia (≈20 g)",
+   "1 colher (sopa) de linhaça (≈10 g)"
+  ],
+  "steps": [
+   "Bata tudo no liquidificador até cremoso.",
+   "Ajuste consistência com gelo/água."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "parfait-de-iogurte-granola-sem-gluten-e-pessego",
+  "name": "Parfait de iogurte, granola sem glúten e pêssego",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "estrategico",
+  "ingredients": [
+   "1 pote de iogurte natural",
+   "½ xícara de granola sem glúten",
+   "1 pêssego em fatias",
+   "1 colher (chá) de mel"
+  ],
+  "steps": [
+   "Em um copo, intercale camadas de iogurte, granola e pêssego. Finalize com um fio de mel."
+  ],
+  "benefit": "Combina proteína do iogurte com fibras da granola e vitaminas do pêssego; prática de montar e ótima para levar."
+ },
+ {
+  "slug": "bowl-de-kefir-com-mirtilos-e-nozes",
+  "name": "Bowl de kefir com mirtilos e nozes",
+  "emoji": "☀️",
+  "vol": 1,
+  "volLabel": "Vol. 1 – Café da Manhã",
+  "category": "estrategico",
+  "ingredients": [
+   "1 xícara de kefir de leite",
+   "½ xícara de mirtilos (blueberries)",
+   "2 colheres (sopa) de nozes picadas",
+   "1 colher (chá) de mel"
+  ],
+  "steps": [
+   "Coloque o kefir em uma tigela, acrescente os mirtilos e as nozes. Regue com mel se desejar."
+  ],
+  "benefit": "O kefir é fonte de probióticos e proteínas; os mirtilos são ricos em antocianinas antioxidantes; as nozes fornecem ômega3 e minerais."
+ },
+ {
+  "slug": "almondegas-assadas-molho-de-tomate-arroz-integral-familia-freezer",
+  "name": "Almôndegas assadas + molho de tomate + arroz integral (família, freezer)",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "marmitas",
+  "ingredients": [
+   "carne moída 150 g",
+   "ovo 1/2 un (ou 1 pequeno)",
+   "cebola 1 colher (sopa) ralada",
+   "alho 1/2 dente",
+   "sal/pimenta",
+   "molho de tomate 1/2 xícara",
+   "arroz integral cozido 120 g",
+   "azeite 1 colher (chá)."
+  ],
+  "steps": [
+   "Misture carne+ovo+cebola+temperos.",
+   "Modele bolinhas e asse 20–25 min a 200 °C.",
+   "Aqueça molho de tomate.",
+   "Monte com arroz; molho por cima."
+  ],
+  "benefit": "dá para congelar as almôndegas separadas e montar marmitas depois; a ideia de congelar componentes e finalizar (ex.: airfryer) aparece em listas brasileiras de marmitas."
+ },
+ {
+  "slug": "cremoso-de-ervilha-com-hortela-e-raspas-de-laranja",
+  "name": "Cremoso de ervilha com hortelã e raspas de laranja",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "almoco",
+  "ingredients": [
+   "2 xícaras de ervilhas frescas ou congeladas",
+   "1 cebola pequena picada",
+   "1 dente de alho",
+   "2 xícaras de caldo de legumes caseiro",
+   "Folhas de hortelã a gosto",
+   "Raspas de ½ laranja e suco (opcional)",
+   "1 colher (sopa) de azeite",
+   "Sal e pimenta a gosto"
+  ],
+  "steps": [
+   "Refogue a cebola e o alho no azeite até murchar. Adicione as ervilhas e o caldo; cozinhe por 10 minutos.",
+   "Bata no liquidificador até obter creme homogêneo. Volte para a panela, adicione hortelã picada e as raspas de laranja. Ajuste temperos.",
+   "Sirva quente com croutons de grão-de-bico ou sementes de abóbora."
+  ],
+  "benefit": "As ervilhas são ricas em proteína vegetal e fibras, a hortelã ajuda na digestão e as raspas de laranja adicionam vitamina C."
+ },
+ {
+  "slug": "arroz-negro-com-camarao-ervilhas-e-limao-siciliano",
+  "name": "Arroz negro com camarão, ervilhas e limão-siciliano",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "almoco",
+  "ingredients": [
+   "1 xícara de arroz negro (ou integral) cozido",
+   "200 g de camarões limpos",
+   "½ xícara de ervilhas frescas ou congeladas",
+   "Suco e raspas de 1 limão-siciliano",
+   "2 dentes de alho picados",
+   "1 colher (sopa) de azeite",
+   "Sal, pimenta e salsinha a gosto"
+  ],
+  "steps": [
+   "Tempere os camarões com sal, pimenta e metade do suco de limão. Em frigideira, aqueça o azeite e doure o alho. Acrescente os camarões e salteie até ficarem rosados.",
+   "Adicione as ervilhas e o restante do suco e raspas de limão. Cozinhe por mais 2 minutos.",
+   "Misture o arroz negro cozido e ajuste o tempero. Sirva quente, polvilhado com salsinha."
+  ],
+  "benefit": "O arroz negro é rico em antioxidantes (antocianinas) e fibras. Camarão fornece proteína magra e a combinação com limão e ervilhas confere frescor."
+ },
+ {
+  "slug": "carne-moida-com-abobora-e-couve-economica-e-proteica",
+  "name": "Carne moída com abóbora e couve (econômica e proteica)",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "marmitas",
+  "ingredients": [
+   "carne moída 120 g",
+   "abóbora cabotiá em cubos 200 g",
+   "couve fatiada 1 xícara",
+   "cebola 2 colheres (sopa)",
+   "alho 1 dente",
+   "azeite 1 colher (chá)",
+   "sal, páprica e pimenta",
+   "arroz cozido 100 g (opcional)."
+  ],
+  "steps": [
+   "Cozinhe abóbora até ficar macia (vapor/pouca água).",
+   "Refogue cebola/alho; doure carne.",
+   "Junte abóbora e amasse parte para “encorpar”.",
+   "Salteie couve 2–3 min.",
+   "Monte a marmita."
+  ],
+  "benefit": "couve por cima (não “some” no fundo). Se congelar, prefira sem arroz (cozinhe arroz fresco depois) para melhorar textura."
+ },
+ {
+  "slug": "macarrao-de-grao-de-bico-ao-pesto-de-manjericao-e-tomates-secos",
+  "name": "Macarrão de grão-de-bico ao pesto de manjericão e tomates secos",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "almoco",
+  "ingredients": [
+   "200 g de macarrão de grão-de-bico",
+   "2 xícaras de folhas de manjericão frescas",
+   "¼ de xícara de amêndoas ou castanhas de caju",
+   "1 dente de alho",
+   "¼ de xícara de azeite de oliva",
+   "¼ de xícara de queijo parmesão ralado (opcional)",
+   "½ xícara de tomates secos picados",
+   "Sal e pimenta a gosto"
+  ],
+  "steps": [
+   "Cozinhe o macarrão de grão-de-bico conforme instruções do pacote.",
+   "No processador, bata o manjericão, as amêndoas, o alho e o azeite até obter um pesto. Adicione o parmesão, se desejar.",
+   "Escorra o macarrão, misture com o pesto e incorpore os tomates secos. Ajuste temperos."
+  ],
+  "benefit": "O macarrão de grão-de-bico é rico em proteínas e fibras, sendo alternativa ao trigo. O pesto de manjericão fornece antioxidantes e gorduras saudáveis."
+ },
+ {
+  "slug": "sopa-de-abobora-com-frango-e-gengibre-marmita-para-congelar",
+  "name": "Sopa de abóbora com frango e gengibre (marmita para congelar)",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "marmitas",
+  "ingredients": [
+   "abóbora 300 g",
+   "frango desfiado 120 g",
+   "cebola 2 colheres (sopa)",
+   "alho 1/2 dente",
+   "gengibre 1 fatia",
+   "água/caldo 3 xícaras",
+   "azeite 1 colher (chá)",
+   "sal e pimenta."
+  ],
+  "steps": [
+   "Refogue cebola/alho; junte abóbora e gengibre.",
+   "Cubra com água e cozinhe até macia.",
+   "Bata e volte à panela.",
+   "Acrescente frango; ajuste sal."
+  ],
+  "benefit": "congele em potes próprios, deixando “espaço” para expansão. Etiquetar com data é obrigatório na rotina de freezer."
+ },
+ {
+  "slug": "lasanha-de-berinjela-com-ricota-de-amendoas",
+  "name": "Lasanha de berinjela com ricota de amêndoas",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "almoco",
+  "ingredients": [
+   "2 berinjelas médias em fatias longitudinais",
+   "200 g de ricota de amêndoas (ou ricota tradicional)",
+   "1 xícara de molho de tomate caseiro",
+   "1 xícara de espinafre picado",
+   "2 colheres (sopa) de azeite de oliva",
+   "Sal, pimenta e orégano a gosto"
+  ],
+  "steps": [
+   "Grelhe as fatias de berinjela em frigideira untada até ficarem macias.",
+   "Misture a ricota com o espinafre e tempere com sal e pimenta.",
+   "Em uma travessa, monte camadas alternadas de berinjela, ricota com espinafre e molho de tomate. Finalize com orégano e azeite.",
+   "Leve ao forno preaquecido a 180 °C por 20 minutos. Sirva com salada verde."
+  ],
+  "benefit": "A berinjela substitui a massa, reduzindo calorias e carboidratos. A ricota de amêndoas fornece proteína e gorduras boas."
+ },
+ {
+  "slug": "frango-xadrez-com-legumes-arroz-integral-fitness-rotina-corrida",
+  "name": "Frango xadrez com legumes + arroz integral (fitness, rotina corrida)",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "marmitas",
+  "ingredients": [
+   "frango em cubos 120 g",
+   "cenoura 1/2 un",
+   "pimentão 1/2 un",
+   "cebola 1/2 un",
+   "shoyu 1 colher (sopa) (ou sal + limão)",
+   "amido 1 colher (chá) (opcional)",
+   "azeite 1 colher (chá)",
+   "arroz integral cozido 120 g."
+  ],
+  "steps": [
+   "Sele frango no azeite.",
+   "Salteie legumes.",
+   "Junte shoyu; se usar amido, dissolva em 2 colheres (sopa) de água e adicione para engrossar.",
+   "Monte com arroz."
+  ],
+  "benefit": "molho separado em pote pequeno ajuda a manter legumes mais firmes."
+ },
+ {
+  "slug": "almondegas-de-lentilha-com-molho-de-tomate-rustico",
+  "name": "Almôndegas de lentilha com molho de tomate rústico",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "almoco",
+  "ingredients": [
+   "1 ½ xícara de lentilhas cozidas",
+   "½ xícara de farinha de aveia",
+   "1 ovo (ou 1 colher de chia hidratada para versão vegana)",
+   "2 colheres (sopa) de cebola picada",
+   "1 dente de alho amassado",
+   "1 colher (sopa) de salsinha picada",
+   "2 xícaras de molho de tomate caseiro com pedaços",
+   "Sal e pimenta a gosto"
+  ],
+  "steps": [
+   "Em um processador, bata rapidamente as lentilhas até obter uma pasta com alguns pedaços. Misture a farinha, o ovo, a cebola, o alho e a salsinha. Tempere.",
+   "Modele bolinhas e disponha em assadeira untada. Asse a 200 °C por 20 minutos, virando na metade do tempo.",
+   "Aqueça o molho de tomate e adicione as almôndegas assadas. Cozinhe por 5 minutos para incorporar. Sirva com espaguete integral ou purê de batata-doce."
+  ],
+  "benefit": "As lentilhas são ricas em fibras e proteínas vegetais, ajudando a reduzir o consumo de carne. O molho de tomate caseiro garante menos sódio e aditivos."
+ },
+ {
+  "slug": "assadeira-unica-de-frango-legumes-marmita-familiar-e-para-semana",
+  "name": "Assadeira única de frango + legumes (marmita familiar e para semana)",
+  "emoji": "🥗",
+  "vol": 2,
+  "volLabel": "Vol. 2 – Almoços Inteligentes",
+  "category": "marmitas",
+  "ingredients": [
+   "frango 180 g (peito/sobrecoxa sem pele)",
+   "batata‑doce 150 g (ou abóbora)",
+   "cenoura 1/2",
+   "cebola 1/2",
+   "abobrinha 1/2",
+   "azeite 1 colher (chá)",
+   "sal",
+   "páprica/ervas."
+  ],
+  "steps": [
+   "Corte legumes em tamanhos parecidos.",
+   "Misture tudo com azeite e temperos.",
+   "Espalhe na assadeira e asse 35–45 min a 200 °C, virando na metade."
+  ],
+  "benefit": "porcione já na assadeira (peso/volume igual) para facilitar a semana; ótima estratégia “cozinhar uma vez e comer várias”, alinhada ao “cozinhar a mais, propositalmente”."
+ },
+ {
+  "slug": "wrap-de-alface-com-frango-e-molho-de-iogurte-low-carb",
+  "name": "Wrap de alface com frango e molho de iogurte (low carb)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "3–4 folhas grandes de alface; frango desfiado 120 g; iogurte natural 2 colheres (sopa); mostarda 1 colher (chá); limão 1/2; pepino em tiras (opcional); sal e pimenta."
+  ],
+  "steps": [
+   "1) Misture iogurte + mostarda + limão + sal. 2) Misture frango no molho. 3) Recheie folhas e enrole."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "omelete-caprese-de-frigideira-rapido-leve-low-carb",
+  "name": "Omelete caprese de frigideira (rápido, leve, low carb)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "2 ovos; 1 tomate pequeno (≈100 g) em cubos; 30 g de muçarela ou queijo minas; 1 colher (chá) de azeite (5 g); manjericão (ou orégano) a gosto; sal e pimenta."
+  ],
+  "steps": [
+   "1) Bata os ovos com sal e pimenta. 2) Aqueça azeite e salteie o tomate 1 min. 3) Despeje ovos, reduza o fogo e cozinhe 2–3 min. 4) Adicione queijo e manjericão; dobre e tampe 1 min."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "caldo-verde-leve-com-couve-e-frango",
+  "name": "Caldo verde leve com couve e frango",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "batata 200 g; couve fatiada 1 xícara; frango desfiado 100 g; cebola 2 colheres (sopa); alho 1 dente; água 3 xícaras; sal; azeite 1 colher (chá)."
+  ],
+  "steps": [
+   "1) Cozinhe batata com cebola e alho até desmanchar. 2) Bata e volte à panela. 3) Acrescente frango, ferva 3 min. 4) Junte couve e cozinhe 2 min."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "salada-completa-de-atum-com-feijao-fradinho-e-ovo-marmita-fria",
+  "name": "Salada completa de atum com feijão-fradinho e ovo (marmita fria)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "feijão-fradinho cozido 180 g; atum (drenado) 80 g; 1 ovo cozido; 1/2 tomate; 2 colheres (sopa) de cebola roxa; limão 1/2; 1 colher (chá) azeite (opcional); sal; cheiro-verde."
+  ],
+  "steps": [
+   "1) Misture feijão + tomate + cebola + cheiro-verde. 2) Tempere com limão, sal e azeite. 3) Finalize com atum e ovo."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "frango-grelhado-com-vinagrete-e-salada-de-repolho-leve-marmita",
+  "name": "Frango grelhado com vinagrete e salada de repolho (leve, marmita)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "frango 150 g; repolho fatiado 2 xícaras; cenoura ralada 2 colheres (sopa); tomate 1/2; cebola 2 colheres (sopa); limão 1/2; azeite 1 colher (chá); sal e pimenta."
+  ],
+  "steps": [
+   "1) Grelhe frango. 2) Faça salada de repolho + cenoura com limão, sal e azeite. 3) Faça vinagrete (tomate+cebola+limão). 4) Sirva."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "refogado-economico-de-repolho-com-ovos-rapido-low-carb-opcional",
+  "name": "Refogado econômico de repolho com ovos (rápido, low carb opcional)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "repolho fatiado 2 xícaras (≈200 g); 2 ovos; 1/2 cebola; 1/2 dente de alho; 1 colher (chá) óleo/azeite; sal e pimenta."
+  ],
+  "steps": [
+   "1) Refogue cebola/alho. 2) Junte repolho e salteie até murchar. 3) Abra espaço na panela e mexa os ovos; misture tudo."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "bowl-de-quinoa-com-legumes-assados-e-molho-citrico-vegano",
+  "name": "Bowl de quinoa com legumes assados e molho cítrico (vegano)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "quinoa cozida 120 g; legumes assados 1 xícara (≈200 g); grão-de-bico cozido 120 g; limão 1/2; azeite 1 colher (chá); sal; salsinha."
+  ],
+  "steps": [
+   "1) Monte quinoa + legumes + grão-de-bico. 2) Tempere com limão, azeite, sal e salsinha."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "abobrinha-salteada-com-frango-desfiado-e-limao-510-min",
+  "name": "Abobrinha salteada com frango desfiado e limão (5–10 min)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "abobrinha 1 grande (≈250 g) em meia-lua; frango desfiado 120 g; 1 dente de alho; 1 colher (chá) azeite; limão 1/2; sal; pimenta."
+  ],
+  "steps": [
+   "1) Aqueça azeite e doure alho. 2) Salteie abobrinha 3–4 min (não cozinhe demais). 3) Junte frango, aqueça e finalize com limão."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "berinjela-grelhada-com-ricota-temperada-low-carb-economico",
+  "name": "Berinjela grelhada com ricota temperada (low carb, econômico)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "1 berinjela pequena fatiada (≈300 g); ricota 80 g; 1/2 limão; azeite 1 colher (chá); sal, pimenta e orégano; tomate picado opcional."
+  ],
+  "steps": [
+   "1) Grelhe berinjela em frigideira quente (2–3 min por lado). 2) Misture ricota com limão, sal e orégano. 3) Sirva ricota sobre a berinjela."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "panqueca-de-aveia-salgada-recheada-de-espinafre-vegetariana",
+  "name": "Panqueca de aveia salgada recheada de espinafre (vegetariana)",
+  "emoji": "🌙",
+  "vol": 3,
+  "volLabel": "Vol. 3 – Jantares Leves",
+  "category": "jantar_prof",
+  "ingredients": [
+   "aveia 40 g; 1 ovo; leite 60 ml (ou água); sal; espinafre 1 xícara (≈30 g); 30 g de queijo (opcional); 1 colher (chá) azeite."
+  ],
+  "steps": [
+   "1) Bata aveia + ovo + leite + sal. 2) Faça 1–2 discos na frigideira. 3) Salteie espinafre rapidamente e recheie (com queijo se usar)."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "brownie-de-cacau-com-abacate",
+  "name": "Brownie de Cacau com Abacate",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "sobremesas",
+  "ingredients": [
+   "2 abacates maduros amassados, 2 ovos, ½ xícara de cacau em pó 100%, ½ xícara de farinha de amêndoas, ¼ xícara de xilitol",
+   "colh",
+   "1 colher (chá) de fermento, essência de baunilha."
+  ],
+  "steps": [
+   "Misture todos os ingredientes até formar massa homogênea",
+   "Despeje em forma forrada e asse a 180 °C por 20 min",
+   "Deixe esfriar antes de cortar."
+  ],
+  "benefit": "O xilitol fornece doçura similar ao açúcar, porém com menos calorias; o abacate adiciona cremosidade e gorduras saudáveis."
+ },
+ {
+  "slug": "pudim-de-chia-com-manga",
+  "name": "Pudim de Chia com Manga",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "sobremesas",
+  "ingredients": [
+   "3 colheres (sopa) de sementes de chia, 200 mL de leite de amêndoas, ½ colher (chá) de stevia em pó, 1 manga madura em cubos, raspas de limão."
+  ],
+  "steps": [
+   "Misture chia, leite de amêndoas e stevia e deixe descansar 4 horas na geladeira, até obter consistência de pudim",
+   "Sirva em taças com manga e raspas de limão."
+  ],
+  "benefit": "A chia fornece fibras e ômega3; a stevia adoça sem calorias e é estável em temperatura ambiente."
+ },
+ {
+  "slug": "barrinha-de-cereais-com-nozes-e-cacau",
+  "name": "Barrinha de Cereais com Nozes e Cacau",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "sobremesas",
+  "ingredients": [
+   "1 xícara de flocos de aveia sem glúten, ½ xícara de nozes picadas, ¼ xícara de sementes de abóbora, ¼ xícara de cacau em pó",
+   "colh",
+   "3 colheres (sopa) de xilitol, ½ xícara de óleo de coco, ½ xícara de manteiga de amendoim natural."
+  ],
+  "steps": [
+   "Misture todos os ingredientes, espalhe em assadeira forrada e leve à geladeira até firmar",
+   "Corte em barras."
+  ],
+  "benefit": "Adoçantes naturais mantêm o índice glicêmico baixo; fibras e gorduras boas favorecem saciedade."
+ },
+ {
+  "slug": "iogurte-congelado-em-cubinhos-com-frutas-meal-prep-doce-leve-tempo-total-10-min-",
+  "name": "Iogurte congelado em cubinhos com frutas (meal prep doce leve)Tempo total: 10 min + freezer | Dificuldade: muito fácil",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "lanches_prof",
+  "ingredients": [
+   "(rende ~10 cubinhos): iogurte natural 170 g",
+   "morango picado 1/2 xícara (ou manga)",
+   "mel opcional 1 colher (chá)."
+  ],
+  "steps": [
+   "Misture iogurte e fruta.",
+   "Coloque em forminhas de gelo/silicone.",
+   "Congele 3–4 h."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "gelatina-natural-de-hibisco-com-frutas",
+  "name": "Gelatina Natural de Hibisco com Frutas",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "sobremesas",
+  "ingredients": [
+   "2 xícaras de chá de hibisco concentrado",
+   "colh",
+   "1 colher (sopa) de gelatina sem sabor, adoçante xilitol a gosto, morangos e uvas em cubos."
+  ],
+  "steps": [
+   "Hidrate a gelatina conforme instruções",
+   "Misture ao chá de hibisco com xilitol e despeje em forma",
+   "Adicione frutas e leve à geladeira até firmar."
+  ],
+  "benefit": "O hibisco tem propriedades antioxidantes e diuréticas; o xilitol adoça sem grandes calorias."
+ },
+ {
+  "slug": "mousse-de-maracuja-com-tofu",
+  "name": "Mousse de Maracujá com Tofu",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "sobremesas",
+  "ingredients": [
+   "300 g de tofu soft, polpa de 3 maracujás, ¼ xícara de eritritol, ½ xícara de água",
+   "colh",
+   "1 colher (sopa) de gelatina sem sabor."
+  ],
+  "steps": [
+   "Bata o tofu com a polpa de maracujá e o eritritol",
+   "Hidrate a gelatina na água, aqueça e adicione à mistura",
+   "Bata novamente e leve à geladeira até firmar."
+  ],
+  "benefit": "Receita livre de lactose; o eritritol adoça sem elevar a glicemia."
+ },
+ {
+  "slug": "chips-de-coco-e-cacau",
+  "name": "Chips de coco e cacau",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "lanches",
+  "ingredients": [
+   "1 xícara de lascas de coco sem açúcar",
+   "2 colheres (sopa) de cacau em pó",
+   "1 colher (sopa) de mel ou adoçante natural",
+   "1 pitada de canela"
+  ],
+  "steps": [
+   "Misture o coco com o cacau, a canela e o mel até envolver bem.",
+   "Espalhe em assadeira e asse a 160 °C por 10 minutos, mexendo na metade do tempo. Deixe esfriar para ficar crocante."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "mousse-de-limao-com-creme-de-castanha-de-caju",
+  "name": "Mousse de Limão com Creme de Castanha de Caju",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "sobremesas",
+  "ingredients": [
+   "1 xícara de castanhas de caju cruas deixadas de molho por 4 h, suco de 2 limões, raspas de limão",
+   "colh",
+   "2 colheres (sopa) de frutadomonge em pó, ½ xícara de água."
+  ],
+  "steps": [
+   "Escorra as castanhas e bata no processador com o suco, as raspas, a frutadomonge e a água até ficar cremoso",
+   "Refrigere por 2 h."
+  ],
+  "benefit": "Frutadomonge adoça sem elevar a glicose; castanhas fornecem gorduras insaturadas."
+ },
+ {
+  "slug": "fondue-de-chocolate-70-com-frutas",
+  "name": "Fondue de chocolate 70% com frutas",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "lanches",
+  "ingredients": [
+   "200 g de chocolate 70% cacau",
+   "½ xícara de leite de amêndoas",
+   "Frutas variadas (morango, banana, kiwi, uva)"
+  ],
+  "steps": [
+   "Derreta o chocolate em banhomaria com o leite de amêndoas até obter creme liso.",
+   "Transfira para um pequeno rechaud ou panela de fondue e sirva com as frutas cortadas em pedaços."
+  ],
+  "benefit": ""
+ },
+ {
+  "slug": "mix-de-banana-desidratada-e-castanhas",
+  "name": "Mix de banana desidratada e castanhas",
+  "emoji": "🍓",
+  "vol": 4,
+  "volLabel": "Vol. 4 – Lanches & Sobremesas",
+  "category": "lanches",
+  "ingredients": [
+   "1 xícara de banana desidratada em rodelas",
+   "½ xícara de castanhas (pecã, nozes ou castanha do Pará)",
+   "¼ de xícara de cranberries sem açúcar ou passas",
+   "¼ de xícara de amêndoas"
+  ],
+  "steps": [
+   "Misture todos os ingredientes em uma tigela e armazene em pote hermético. Leve em porções para o trabalho ou lanche rápido."
+  ],
+  "benefit": ""
+ }
+]
