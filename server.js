@@ -1,4 +1,4 @@
-êconst express = require('express');
+const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors');
 const path = require('path');
