@@ -1,4 +1,4 @@
-const express = require('express');
+êconst express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors');
 const path = require('path');
@@ -120,11 +120,43 @@ app.get('/entrar', (req, res) => res.redirect(302, '/#login'));
 const zlib = require('zlib');
 const RECIPES_B64 = require('./recipes-data.js');
 let VOLUMES_CACHE = null, DEMO_CACHE = null;
+// Limpa nomes: remove "Receita N — ", "Tempo total: ...", tags " · " e texto colado após ")"
+function cleanRecipeName(n) {
+  let s = String(n || '').replace(/^Receita\s*\d+\s*[—–-]\s*/i, '');
+  s = s.replace(/\s*Tempo total:[\s\S]*$/i, '');
+  s = s.split(' · ')[0];
+  s = s.replace(/\)(?=[A-ZÀ-Ú])[\s\S]*$/, ')');
+  return s.replace(/\s+/g, ' ').trim();
+}
+// Normaliza: nomes limpos, remove receitas idênticas, diferencia homônimas
+function normalizeVolumes(vols) {
+  const seen = new Set(), byName = new Map();
+  return vols.map(vol => {
+    const recipes = [];
+    for (const r of (vol.recipes || [])) {
+      const name = cleanRecipeName(r.name);
+      const key = name + '|' + JSON.stringify(r.ingredients || []) + '|' + JSON.stringify(r.steps || []);
+      if (seen.has(key)) continue;           // idêntica: descarta
+      seen.add(key);
+      const n = (byName.get(name) || 0) + 1;
+      byName.set(name, n);
+      recipes.push({ ...r, name: n === 1 ? name : name + ' (versão ' + n + ')' });
+    }
+    return { ...vol, recipes, count: recipes.length };
+  });
+}
 function getVolumes() {
-  if (!VOLUMES_CACHE)
-    VOLUMES_CACHE = JSON.parse(zlib.inflateSync(Buffer.from(RECIPES_B64, 'base64')).toString('utf8'));
+  if (!VOLUMES_CACHE) {
+    const raw = JSON.parse(zlib.inflateSync(Buffer.from(RECIPES_B64, 'base64')).toString('utf8'));
+    VOLUMES_CACHE = normalizeVolumes(raw);
+    console.log('🍽️ Receitas carregadas:', VOLUMES_CACHE.reduce((s, v) => s + v.recipes.length, 0));
+  }
   return VOLUMES_CACHE;
 }
+app.get('/api/receitas/stats', (req, res) => {
+  const vols = getVolumes();
+  res.json({ total: vols.reduce((s, v) => s + v.recipes.length, 0), volumes: vols.map(v => ({ vol: v.vol || v.id || v.label, label: v.label || v.name || v.title, count: v.recipes.length })) });
+});
 // Demo: 20 receitas completas (1 a cada 31), o restante só nome (sem ingredientes/passos)
 function getDemoVolumes() {
   if (DEMO_CACHE) return DEMO_CACHE;
