@@ -840,6 +840,7 @@ app.get('/admin/leads', async (req, res) => {
 app.get('/sitemap.xml', async (req, res) => {
   const base = 'https://saudenaturall.online';
   const urls = [
+    { loc: base + '/termos', priority: '0.3' }, { loc: base + '/privacidade', priority: '0.3' },
     { loc: base + '/', priority: '1.0' },
     { loc: base + '/blog', priority: '0.8' },
     { loc: base + '/receitas', priority: '0.8' },
@@ -858,4 +859,71 @@ app.get('/robots.txt', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+// ── PÁGINAS LEGAIS: /termos e /privacidade ───────────────────────────────────────
+const CONTATO_EMAIL = process.env.CONTATO_EMAIL || 'contato@saudenaturall.online';
+const LEGAL_ATUALIZADO = '9 de setembro de 2026';
+function renderLegal(title, desc, body) {
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title} — NuvLev</title><meta name="description" content="${desc}"><link rel="canonical" href="https://saudenaturall.online${title === 'Termos de Uso' ? '/termos' : '/privacidade'}">
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',system-ui,sans-serif;color:#2D2D2D;line-height:1.7;background:#fff}
+nav{border-bottom:1px solid #f0e8e4;padding:0 5%}.nav-inner{max-width:820px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{font-size:1.4rem;font-weight:900;color:#E76F51;text-decoration:none}.logo span{color:#2D2D2D}nav a.lnk{color:#6B6B6B;text-decoration:none;font-size:.9rem;margin-left:1.2rem}
+main{max-width:820px;margin:0 auto;padding:3rem 5% 4rem}h1{font-size:2rem;font-weight:900;margin-bottom:.4rem}.upd{color:#888;font-size:.85rem;margin-bottom:2rem}
+h2{font-size:1.2rem;font-weight:800;margin:2rem 0 .6rem;color:#C85A3C}p,li{font-size:.98rem;margin-bottom:.7rem}ul{padding-left:1.4rem}
+.box{background:#FFF3EE;border-left:4px solid #E76F51;padding:1rem 1.2rem;border-radius:0 10px 10px 0;margin:1.2rem 0}
+footer{background:#1a1a1a;color:rgba(255,255,255,.5);text-align:center;padding:1.5rem 5%;font-size:.85rem}footer a{color:#E76F51;text-decoration:none;margin:0 .5rem}</style></head>
+<body><nav><div class="nav-inner"><a class="logo" href="/">Nuv<span>Lev</span></a><div><a class="lnk" href="/termos">Termos</a><a class="lnk" href="/privacidade">Privacidade</a><a class="lnk" href="/blog">Blog</a></div></div></nav>
+<main><h1>${title}</h1><p class="upd">Última atualização: ${LEGAL_ATUALIZADO}</p>${body}</main>
+<footer>© 2025 NuvLev · saudenaturall.online<br><a href="/termos">Termos de Uso</a>·<a href="/privacidade">Política de Privacidade</a>·<a href="/">Início</a></footer></body></html>`;
+}
+
+app.get('/termos', (req, res) => res.send(renderLegal('Termos de Uso', 'Termos de uso da plataforma NuvLev: assinatura, cancelamento, reembolso e uso do conteúdo.', `
+<p>Estes Termos regulam o uso da plataforma <strong>NuvLev</strong>, disponibilizada em <strong>saudenaturall.online</strong> ("Plataforma"). Ao criar conta, assinar ou utilizar a Plataforma, você concorda com estes Termos.</p>
+<h2>1. O que é a Plataforma</h2>
+<p>A NuvLev é um serviço digital por assinatura que oferece acesso a uma biblioteca de receitas, planejador semanal de refeições, lista de compras automática, materiais em PDF e conteúdos educativos sobre alimentação.</p>
+<h2>2. Cadastro e conta</h2>
+<ul><li>O acesso é pessoal e intransferível. Você é responsável por manter sua senha em sigilo.</li><li>É necessário ter 18 anos ou mais, ou autorização do responsável legal.</li><li>Informações falsas no cadastro podem resultar em suspensão da conta.</li></ul>
+<h2>3. Assinatura, pagamento e renovação</h2>
+<ul><li>Os pagamentos são processados pela <strong>Hotmart</strong>, que emite a cobrança e a nota fiscal.</li><li>A assinatura mensal renova automaticamente a cada 30 dias; a anual, a cada 12 meses, até que seja cancelada.</li><li>Os valores vigentes são os exibidos na página de compra no momento da contratação. Alterações de preço serão comunicadas com antecedência e valem apenas para renovações futuras.</li></ul>
+<h2>4. Cancelamento e reembolso</h2>
+<div class="box"><p><strong>Garantia de 7 dias:</strong> nos termos do art. 49 do Código de Defesa do Consumidor, você pode solicitar o reembolso integral em até 7 dias após a compra, diretamente pela Hotmart, sem necessidade de justificativa.</p></div>
+<ul><li>Você pode cancelar a renovação a qualquer momento pela sua conta Hotmart. O acesso permanece até o fim do período já pago.</li><li>Não há fidelidade nem taxa de cancelamento.</li><li>Após os 7 dias, não há reembolso proporcional de períodos já iniciados.</li></ul>
+<h2>5. Propriedade intelectual</h2>
+<p>Todo o conteúdo da Plataforma (receitas, textos, organização, PDFs, marca e layout) é protegido por direitos autorais. É proibido copiar, redistribuir, revender, compartilhar login ou reproduzir o conteúdo, no todo ou em parte, sem autorização expressa. O uso é exclusivamente pessoal e não comercial.</p>
+<h2>6. Aviso de saúde</h2>
+<div class="box"><p>O conteúdo da NuvLev tem caráter <strong>informativo e educacional</strong>. Não substitui consulta, diagnóstico ou orientação de médico ou nutricionista. Pessoas com condições de saúde, alergias, gestantes, lactantes ou em uso de medicamentos devem consultar um profissional antes de alterar a alimentação. Resultados variam de pessoa para pessoa e não são garantidos.</p></div>
+<h2>7. Disponibilidade e alterações</h2>
+<p>Trabalhamos para manter a Plataforma disponível 24h, mas podem ocorrer interrupções para manutenção ou por fatores externos. Podemos adicionar, alterar ou remover funcionalidades e conteúdos a qualquer momento, mantendo a essência do serviço contratado.</p>
+<h2>8. Programa de afiliados</h2>
+<p>A divulgação por afiliados é feita pela Hotmart e regida pelas regras daquela plataforma. Afiliados não podem fazer promessas de resultados de saúde, usar spam ou anúncios enganosos.</p>
+<h2>9. Suspensão de conta</h2>
+<p>Podemos suspender ou encerrar contas que violem estes Termos, especialmente em casos de compartilhamento de acesso, cópia de conteúdo ou fraude, sem direito a reembolso.</p>
+<h2>10. Legislação e contato</h2>
+<p>Estes Termos são regidos pelas leis da República Federativa do Brasil, em especial o Código de Defesa do Consumidor e o Marco Civil da Internet. Dúvidas: <strong>${CONTATO_EMAIL}</strong>.</p>`)));
+
+app.get('/privacidade', (req, res) => res.send(renderLegal('Política de Privacidade', 'Como a NuvLev coleta, usa e protege seus dados pessoais, conforme a LGPD.', `
+<p>Esta Política explica como a <strong>NuvLev</strong> (saudenaturall.online) trata seus dados pessoais, em conformidade com a <strong>Lei Geral de Proteção de Dados (Lei 13.709/2018 – LGPD)</strong>.</p>
+<h2>1. Quais dados coletamos</h2>
+<ul><li><strong>Cadastro e login:</strong> nome e e-mail.</li><li><strong>Compra:</strong> os dados de pagamento são coletados e processados exclusivamente pela Hotmart; a NuvLev recebe apenas a confirmação da transação, nome e e-mail do comprador.</li><li><strong>Captura de materiais gratuitos:</strong> e-mail informado nos formulários do site e do blog.</li><li><strong>Uso da Plataforma:</strong> receitas favoritas, planejador semanal e lista de compras, armazenados no seu próprio navegador (localStorage) e/ou na sua conta.</li><li><strong>Dados técnicos:</strong> endereço IP, tipo de navegador e registros de acesso, coletados automaticamente pelos servidores para segurança e cumprimento do Marco Civil da Internet.</li></ul>
+<h2>2. Para que usamos</h2>
+<ul><li>Liberar e manter seu acesso à assinatura;</li><li>Enviar o material gratuito solicitado e comunicações sobre a NuvLev (você pode se descadastrar em qualquer e-mail);</li><li>Prestar suporte;</li><li>Cumprir obrigações legais e prevenir fraudes;</li><li>Melhorar a Plataforma.</li></ul>
+<h2>3. Base legal</h2>
+<p>Tratamos seus dados com base na <strong>execução do contrato</strong> (assinatura), no <strong>consentimento</strong> (materiais gratuitos e comunicações), no <strong>cumprimento de obrigação legal</strong> e no <strong>legítimo interesse</strong> (segurança e melhoria do serviço).</p>
+<h2>4. Com quem compartilhamos</h2>
+<p>Não vendemos seus dados. Compartilhamos apenas com fornecedores necessários à operação, que seguem suas próprias políticas de privacidade:</p>
+<ul><li><strong>Hotmart</strong> – processamento de pagamentos e gestão da assinatura;</li><li><strong>Google Firebase</strong> – autenticação e banco de dados;</li><li><strong>Brevo</strong> – envio de e-mails;</li><li><strong>Railway</strong> – hospedagem do site.</li></ul>
+<p>Alguns desses fornecedores podem armazenar dados fora do Brasil, com garantias adequadas de proteção.</p>
+<h2>5. Cookies e armazenamento local</h2>
+<p>Usamos armazenamento local do navegador para manter seu login, suas preferências, favoritos e planejador. Não utilizamos cookies de publicidade de terceiros. Você pode limpar esses dados nas configurações do seu navegador.</p>
+<h2>6. Por quanto tempo guardamos</h2>
+<p>Mantemos seus dados enquanto sua conta estiver ativa e pelo prazo necessário ao cumprimento de obrigações legais (registros de acesso por 6 meses, conforme o Marco Civil; dados fiscais pelo prazo exigido em lei). Dados de e-mail para comunicações são mantidos até o descadastro.</p>
+<h2>7. Seus direitos (LGPD)</h2>
+<p>Você pode, a qualquer momento, solicitar: confirmação e acesso aos dados; correção; anonimização ou exclusão; portabilidade; informação sobre compartilhamento; e revogação do consentimento. Basta escrever para <strong>${CONTATO_EMAIL}</strong>. Responderemos em até 15 dias.</p>
+<h2>8. Segurança</h2>
+<p>Adotamos medidas técnicas como conexão HTTPS, autenticação com senha e controle de acesso ao conteúdo por token. Nenhum sistema é 100% seguro; em caso de incidente relevante, comunicaremos os titulares e a ANPD conforme a lei.</p>
+<h2>9. Menores de idade</h2>
+<p>A Plataforma não é destinada a menores de 18 anos sem autorização dos responsáveis. Se identificarmos dados de menores coletados indevidamente, faremos a exclusão.</p>
+<h2>10. Alterações e contato</h2>
+<p>Esta Política pode ser atualizada; a data da última revisão aparece no topo. Encarregado de dados (DPO) e dúvidas: <strong>${CONTATO_EMAIL}</strong>.</p>`)));
+
 app.listen(PORT, () => console.log(`🚀 Servidor na porta ${PORT}`));
