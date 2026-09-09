@@ -111,6 +111,48 @@ app.post('/admin/desativar', async (req, res) => {
 
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
+// ── API DE RECEITAS (dados fora de /public, protegidos) ─────────────────────
+const zlib = require('zlib');
+const RECIPES_B64 = require('./recipes-data.js');
+let VOLUMES_CACHE = null, DEMO_CACHE = null;
+function getVolumes() {
+  if (!VOLUMES_CACHE)
+    VOLUMES_CACHE = JSON.parse(zlib.inflateSync(Buffer.from(RECIPES_B64, 'base64')).toString('utf8'));
+  return VOLUMES_CACHE;
+}
+// Demo: 20 receitas completas (1 a cada 31), o restante só nome (sem ingredientes/passos)
+function getDemoVolumes() {
+  if (DEMO_CACHE) return DEMO_CACHE;
+  let idx = 0;
+  DEMO_CACHE = getVolumes().map(vol => ({
+    ...vol,
+    recipes: vol.recipes.map(r => {
+      const unlocked = (idx++ % 31) === 0;
+      return unlocked ? r : { ...r, ingredients: [], steps: [], benefit: '', locked: true };
+    })
+  }));
+  return DEMO_CACHE;
+}
+app.get('/api/receitas/demo', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.json(getDemoVolumes());
+});
+app.get('/api/receitas', async (req, res) => {
+  try {
+    const h = req.headers.authorization || '';
+    const token = h.startsWith('Bearer ') ? h.slice(7) : null;
+    if (!token) return res.status(401).json({ error: 'Não autenticado' });
+    const decoded = await auth.verifyIdToken(token);
+    const doc = await db.collection('assinantes').doc(decoded.uid).get();
+    if (!doc.exists || doc.data().ativo !== true)
+      return res.status(403).json({ error: 'Assinatura inativa' });
+    res.set('Cache-Control', 'private, no-store');
+    res.json(getVolumes());
+  } catch (e) {
+    res.status(401).json({ error: 'Token inválido' });
+  }
+});
+
 
 // ── BLOG ─────────────────────────────────────────────────────────────────────
 
