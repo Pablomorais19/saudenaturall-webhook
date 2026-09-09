@@ -111,6 +111,11 @@ app.post('/admin/desativar', async (req, res) => {
 
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
+// Links diretos das seções do app -> âncoras da página principal
+app.get(['/planejador', '/planner'], (req, res) => res.redirect(301, '/#planejador'));
+app.get(['/lista', '/lista-de-compras', '/compras'], (req, res) => res.redirect(301, '/#lista'));
+app.get('/entrar', (req, res) => res.redirect(302, '/#login'));
+
 // ── API DE RECEITAS (dados fora de /public, protegidos) ─────────────────────
 const zlib = require('zlib');
 const RECIPES_B64 = require('./recipes-data.js');
