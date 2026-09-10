@@ -115,6 +115,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOSt
 app.get(['/planejador', '/planner'], (req, res) => res.redirect(301, '/#planejador'));
 app.get(['/lista', '/lista-de-compras', '/compras'], (req, res) => res.redirect(301, '/#lista'));
 app.get('/entrar', (req, res) => res.redirect(302, '/#login'));
+app.get(['/materiais', '/bonus', '/materiais-e-bonus'], (req, res) => res.redirect(301, '/#materiais'));
 
 // ── API DE RECEITAS (dados fora de /public, protegidos) ─────────────────────
 const zlib = require('zlib');
@@ -145,9 +146,16 @@ function normalizeVolumes(vols) {
     return { ...vol, recipes, count: recipes.length };
   });
 }
+// Fragmentos de PDFs (guias/bônus picados) que estavam na grade como "receitas". Agora vivem em Materiais & Bônus.
+const FRAGMENT_CATS = new Set(['doce_guide', 'ansiedade_guide', 'reset', 'bonus1', 'bonus4', 'bonus5', 'bonus7', 'bonus8']);
+function isRealRecipe(r) {
+  return !FRAGMENT_CATS.has(r.category) && Array.isArray(r.ingredients) && r.ingredients.length > 0;
+}
 function getVolumes() {
   if (!VOLUMES_CACHE) {
-    const raw = JSON.parse(zlib.inflateSync(Buffer.from(RECIPES_B64, 'base64')).toString('utf8'));
+    const raw = JSON.parse(zlib.inflateSync(Buffer.from(RECIPES_B64, 'base64')).toString('utf8'))
+      .filter(v => v.vol !== 7)                                   // Vol. 7 "Ferramentas Práticas" = só fragmentos
+      .map(v => ({ ...v, recipes: (v.recipes || []).filter(isRealRecipe) }));
     VOLUMES_CACHE = normalizeVolumes(raw);
     console.log('🍽️ Receitas carregadas:', VOLUMES_CACHE.reduce((s, v) => s + v.recipes.length, 0));
   }
@@ -155,16 +163,17 @@ function getVolumes() {
 }
 app.get('/api/receitas/stats', (req, res) => {
   const vols = getVolumes();
-  res.json({ total: vols.reduce((s, v) => s + v.recipes.length, 0), volumes: vols.map(v => ({ vol: v.vol || v.id || v.label, label: v.label || v.name || v.title, count: v.recipes.length })) });
+  res.json({ total: vols.reduce((s, v) => s + v.recipes.length, 0), materiais: getMaterials().length, volumes: vols.map(v => ({ vol: v.vol || v.id || v.label, label: v.label || v.name || v.title, count: v.recipes.length })) });
 });
-// Demo: 20 receitas completas (1 a cada 31), o restante só nome (sem ingredientes/passos)
+// Demo: ~20 receitas completas (1 a cada 20), o restante só nome (sem ingredientes/passos)
+const DEMO_STEP = 20;
 function getDemoVolumes() {
   if (DEMO_CACHE) return DEMO_CACHE;
   let idx = 0;
   DEMO_CACHE = getVolumes().map(vol => ({
     ...vol,
     recipes: vol.recipes.map(r => {
-      const unlocked = (idx++ % 31) === 0;
+      const unlocked = (idx++ % DEMO_STEP) === 0;
       return unlocked ? r : { ...r, ingredients: [], steps: [], benefit: '', locked: true };
     })
   }));
@@ -174,20 +183,71 @@ app.get('/api/receitas/demo', (req, res) => {
   res.set('Cache-Control', 'public, max-age=3600');
   res.json(getDemoVolumes());
 });
+// Verifica token Firebase + assinatura ativa. Responde o erro e devolve false se não autorizado.
+async function exigirAssinante(req, res) {
+  const h = req.headers.authorization || '';
+  const token = h.startsWith('Bearer ') ? h.slice(7) : (req.query.t || null);
+  if (!token) { res.status(401).json({ error: 'Não autenticado' }); return false; }
+  let decoded;
+  try { decoded = await auth.verifyIdToken(token); }
+  catch { res.status(401).json({ error: 'Token inválido' }); return false; }
+  const doc = await db.collection('assinantes').doc(decoded.uid).get();
+  if (!doc.exists || doc.data().ativo !== true) { res.status(403).json({ error: 'Assinatura inativa' }); return false; }
+  return true;
+}
 app.get('/api/receitas', async (req, res) => {
   try {
-    const h = req.headers.authorization || '';
-    const token = h.startsWith('Bearer ') ? h.slice(7) : null;
-    if (!token) return res.status(401).json({ error: 'Não autenticado' });
-    const decoded = await auth.verifyIdToken(token);
-    const doc = await db.collection('assinantes').doc(decoded.uid).get();
-    if (!doc.exists || doc.data().ativo !== true)
-      return res.status(403).json({ error: 'Assinatura inativa' });
+    if (!(await exigirAssinante(req, res))) return;
     res.set('Cache-Control', 'private, no-store');
     res.json(getVolumes());
   } catch (e) {
-    res.status(401).json({ error: 'Token inválido' });
+    res.status(500).json({ error: 'Erro ao carregar receitas' });
   }
+});
+
+// ── MATERIAIS & BÔNUS (guias, protocolos e planners — dados fora de /public, protegidos) ──
+const MATERIALS_B64 = require('./materials-data.js');
+let MATERIALS_CACHE = null;
+function getMaterials() {
+  if (!MATERIALS_CACHE) {
+    MATERIALS_CACHE = JSON.parse(zlib.inflateSync(Buffer.from(MATERIALS_B64, 'base64')).toString('utf8'));
+    console.log('📚 Materiais carregados:', MATERIALS_CACHE.length);
+  }
+  return MATERIALS_CACHE;
+}
+// Lista sem conteúdo (capa): id, título, subtítulo, emoji, tipo, nº de capítulos
+function materialsIndex() {
+  return getMaterials().map(m => ({ id: m.id, title: m.title, subtitle: m.subtitle, emoji: m.emoji, kind: m.kind, source: m.source,
+    chapters: m.chapters.map(c => c.title), images: m.images.length }));
+}
+app.get('/api/materiais/demo', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.json(materialsIndex().map(m => ({ ...m, locked: true })));
+});
+app.get('/api/materiais', async (req, res) => {
+  try {
+    if (!(await exigirAssinante(req, res))) return;
+    res.set('Cache-Control', 'private, no-store');
+    res.json(materialsIndex());
+  } catch (e) { res.status(500).json({ error: 'Erro ao carregar materiais' }); }
+});
+app.get('/api/materiais/img/:name', async (req, res) => {
+  try {
+    if (!(await exigirAssinante(req, res))) return;
+    const name = String(req.params.name || '');
+    if (!/^[a-z0-9-]+\.jpg$/i.test(name)) return res.status(400).end();
+    res.set('Cache-Control', 'private, max-age=86400');
+    res.sendFile(path.join(__dirname, 'materials', 'img', name), err => { if (err && !res.headersSent) res.status(404).end(); });
+  } catch (e) { res.status(500).end(); }
+});
+app.get('/api/materiais/:id', async (req, res) => {
+  try {
+    if (!(await exigirAssinante(req, res))) return;
+    const m = getMaterials().find(x => x.id === req.params.id);
+    if (!m) return res.status(404).json({ error: 'Material não encontrado' });
+    res.set('Cache-Control', 'private, no-store');
+    res.json(m);
+  } catch (e) { res.status(500).json({ error: 'Erro ao carregar material' }); }
 });
 
 
@@ -234,7 +294,7 @@ const BLOG_POSTS = [
       <p>A maioria das pessoas planeja refeições muito elaboradas para a semana toda — e desiste no terceiro dia. O segredo é <strong>planejar simples</strong>. Receitas com no máximo 5 a 7 ingredientes e 20 minutos de preparo são as mais sustentáveis.</p>
 
       <h2>Como o NuvLev facilita isso</h2>
-      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde você monta toda a semana em minutos e gera a lista de compras com um clique — automticamente, já organizada por ingredientes. São 614 receitas com filtros por refeição, objetivo e tempo de preparo para você nunca ficar sem ideia.</p>
+      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde você monta toda a semana em minutos e gera a lista de compras com um clique — automticamente, já organizada por ingredientes. São mais de 400 receitas com filtros por refeição, objetivo e tempo de preparo para você nunca ficar sem ideia.</p>
 
       <h2>Recapitulando</h2>
       <ul>
@@ -476,7 +536,7 @@ function renderBlogIndex(posts) {
   </main>
   <section class="blog-cta">
     <h2>Pronto para organizar sua alimentação?</h2>
-    <p>614 receitas + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+    <p>400+ receitas + 17 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
     <a href="https://pay.hotmart.com/M106116851N" class="btn-cta-blog">Quero Assinar Agora →</a>
   </section>
   <footer class="blog-footer">
@@ -590,7 +650,7 @@ function renderBlogPost(post, allPosts) {
     ${leadBox('blog-post')}
     <div class="post-cta">
       <h3>Gostou? Veja na prática no NuvLev</h3>
-      <p>614 receitas organizadas + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+      <p>400+ receitas organizadas + 17 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
       <a href="https://pay.hotmart.com/M106116851N" class="btn-post-cta">Quero Assinar Agora →</a>
     </div>
     <div class="post-disclaimer">⚕️ Este conteúdo tem caráter informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN) antes de realizar mudanças na sua alimentação.</div>
@@ -779,12 +839,12 @@ function renderRecipeIndex() {
   <div class="wrap">
     <div class="crumb"><a href="/">Início</a> / Receitas grátis</div>
     <h1>Receitas saudáveis grátis, com passo a passo completo</h1>
-    <p>Uma amostra aberta das <strong>614 receitas</strong> da plataforma NuvLev — escolhidas entre as mais práticas, com poucos ingredientes.</p>
+    <p>Uma amostra aberta das <strong>400+ receitas</strong> da plataforma NuvLev — escolhidas entre as mais práticas, com poucos ingredientes.</p>
     ${body}
     ${leadBox('pagina-receitas')}
     <div class="cta">
       <h3>Gostou? Isso é só 6% do acervo.</h3>
-      <p>614 receitas organizadas + planejador semanal + lista de compras automática.</p>
+      <p>400+ receitas organizadas + 17 materiais bônus + planejador semanal + lista de compras automática.</p>
       <a href="https://pay.hotmart.com/M106116851N">Assinar por R$19,90/mês →</a>
     </div>
   </div>` + RECIPE_FOOT;
@@ -814,9 +874,9 @@ function renderRecipePage(r) {
     ${r.benefit ? `<div class="benefit"><strong>💡 Por que essa receita funciona:</strong> ${r.benefit}</div>` : ''}
     ${leadBox('receita-' + r.slug)}
     <div class="cta">
-      <h3>Essa é 1 das 614 receitas do NuvLev</h3>
+      <h3>Essa é 1 das 400+ receitas do NuvLev</h3>
       <p>Todas organizadas por refeição e objetivo, com planejador semanal e lista de compras automática.</p>
-      <a href="https://pay.hotmart.com/M106116851N">Quero as 614 receitas →</a>
+      <a href="https://pay.hotmart.com/M106116851N">Quero as 400+ receitas →</a>
     </div>
     ${others.length ? `<div class="rel"><h3>Veja também</h3>${others.map(o => `<a href="/receitas/${o.slug}">${o.emoji} ${o.name}</a>`).join('')}</div>` : ''}
     <p class="disc">⚕️ Conteúdo informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN).</p>
