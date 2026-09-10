@@ -165,8 +165,8 @@ app.get('/api/receitas/stats', (req, res) => {
   const vols = getVolumes();
   res.json({ total: vols.reduce((s, v) => s + v.recipes.length, 0), materiais: getMaterials().length, volumes: vols.map(v => ({ vol: v.vol || v.id || v.label, label: v.label || v.name || v.title, count: v.recipes.length })) });
 });
-// Demo: ~20 receitas completas (1 a cada 20), o restante só nome (sem ingredientes/passos)
-const DEMO_STEP = 20;
+// Demo: ~20 receitas completas (1 a cada 26), o restante só nome (sem ingredientes/passos)
+const DEMO_STEP = 26;
 function getDemoVolumes() {
   if (DEMO_CACHE) return DEMO_CACHE;
   let idx = 0;
@@ -294,7 +294,7 @@ const BLOG_POSTS = [
       <p>A maioria das pessoas planeja refeições muito elaboradas para a semana toda — e desiste no terceiro dia. O segredo é <strong>planejar simples</strong>. Receitas com no máximo 5 a 7 ingredientes e 20 minutos de preparo são as mais sustentáveis.</p>
 
       <h2>Como o NuvLev facilita isso</h2>
-      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde você monta toda a semana em minutos e gera a lista de compras com um clique — automticamente, já organizada por ingredientes. São mais de 400 receitas com filtros por refeição, objetivo e tempo de preparo para você nunca ficar sem ideia.</p>
+      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde você monta toda a semana em minutos e gera a lista de compras com um clique — automticamente, já organizada por ingredientes. São mais de 500 receitas com filtros por refeição, objetivo e tempo de preparo para você nunca ficar sem ideia.</p>
 
       <h2>Recapitulando</h2>
       <ul>
@@ -536,7 +536,7 @@ function renderBlogIndex(posts) {
   </main>
   <section class="blog-cta">
     <h2>Pronto para organizar sua alimentação?</h2>
-    <p>400+ receitas + 17 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+    <p>500+ receitas + 21 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
     <a href="https://pay.hotmart.com/M106116851N" class="btn-cta-blog">Quero Assinar Agora →</a>
   </section>
   <footer class="blog-footer">
@@ -650,7 +650,7 @@ function renderBlogPost(post, allPosts) {
     ${leadBox('blog-post')}
     <div class="post-cta">
       <h3>Gostou? Veja na prática no NuvLev</h3>
-      <p>400+ receitas organizadas + 17 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+      <p>500+ receitas organizadas + 21 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
       <a href="https://pay.hotmart.com/M106116851N" class="btn-post-cta">Quero Assinar Agora →</a>
     </div>
     <div class="post-disclaimer">⚕️ Este conteúdo tem caráter informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN) antes de realizar mudanças na sua alimentação.</div>
@@ -839,12 +839,12 @@ function renderRecipeIndex() {
   <div class="wrap">
     <div class="crumb"><a href="/">Início</a> / Receitas grátis</div>
     <h1>Receitas saudáveis grátis, com passo a passo completo</h1>
-    <p>Uma amostra aberta das <strong>400+ receitas</strong> da plataforma NuvLev — escolhidas entre as mais práticas, com poucos ingredientes.</p>
+    <p>Uma amostra aberta das <strong>500+ receitas</strong> da plataforma NuvLev — escolhidas entre as mais práticas, com poucos ingredientes.</p>
     ${body}
     ${leadBox('pagina-receitas')}
     <div class="cta">
       <h3>Gostou? Isso é só 6% do acervo.</h3>
-      <p>400+ receitas organizadas + 17 materiais bônus + planejador semanal + lista de compras automática.</p>
+      <p>500+ receitas organizadas + 21 materiais bônus + planejador semanal + lista de compras automática.</p>
       <a href="https://pay.hotmart.com/M106116851N">Assinar por R$19,90/mês →</a>
     </div>
   </div>` + RECIPE_FOOT;
@@ -874,9 +874,9 @@ function renderRecipePage(r) {
     ${r.benefit ? `<div class="benefit"><strong>💡 Por que essa receita funciona:</strong> ${r.benefit}</div>` : ''}
     ${leadBox('receita-' + r.slug)}
     <div class="cta">
-      <h3>Essa é 1 das 400+ receitas do NuvLev</h3>
+      <h3>Essa é 1 das 500+ receitas do NuvLev</h3>
       <p>Todas organizadas por refeição e objetivo, com planejador semanal e lista de compras automática.</p>
-      <a href="https://pay.hotmart.com/M106116851N">Quero as 400+ receitas →</a>
+      <a href="https://pay.hotmart.com/M106116851N">Quero as 500+ receitas →</a>
     </div>
     ${others.length ? `<div class="rel"><h3>Veja também</h3>${others.map(o => `<a href="/receitas/${o.slug}">${o.emoji} ${o.name}</a>`).join('')}</div>` : ''}
     <p class="disc">⚕️ Conteúdo informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN).</p>
