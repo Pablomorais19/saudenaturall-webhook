@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NuvLev – Nutrição que Funciona na Vida Real</title>
-<meta name="description" content="Chega de "o que a gente janta hoje?". mais de 400 receitas + 17 materiais bônus + planejador semanal + lista de compras automática. Sua semana de refeições pronta em minutos por R$19,90/mês.">
+<meta name="description" content="Chega de "o que a gente janta hoje?". mais de 500 receitas (200+ com foto) + 21 materiais bônus + planejador semanal + lista de compras automática. Sua semana de refeições pronta em minutos por R$19,90/mês.">
 <link rel="canonical" href="https://saudenaturall.online/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23E76F51'/%3E%3Ctext x='32' y='44' font-family='Segoe UI,Arial,sans-serif' font-size='34' font-weight='900' fill='white' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
 <meta property="og:type" content="website">
@@ -12,10 +12,10 @@
 <meta property="og:locale" content="pt_BR">
 <meta property="og:url" content="https://saudenaturall.online/">
 <meta property="og:title" content="NuvLev – Sua semana de refeições pronta em minutos">
-<meta property="og:description" content="mais de 400 receitas + 17 materiais bônus + planejador semanal + lista de compras automática. Por R$19,90/mês, cancele quando quiser.">
+<meta property="og:description" content="mais de 500 receitas (200+ com foto) + 21 materiais bônus + planejador semanal + lista de compras automática. Por R$19,90/mês, cancele quando quiser.">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NuvLev – Sua semana de refeições pronta em minutos">
-<meta name="twitter:description" content="mais de 400 receitas + materiais bônus + planejador semanal + lista de compras automática.">
+<meta name="twitter:description" content="mais de 500 receitas + materiais bônus + planejador semanal + lista de compras automática.">
 <meta name="theme-color" content="#E76F51">
 <style>
 :root{
@@ -276,6 +276,30 @@ footer strong{color:var(--primary)}
   .mr-main{overflow:visible;padding:0}
 }
 
+/* FOTOS NAS RECEITAS */
+.recipe-card.has-photo{padding-top:0}
+.rc-photo{margin:0 -1.5rem 1rem;height:150px;background:#f6efe9 linear-gradient(135deg,#fdf3ec,#f6e2d6);overflow:hidden;border-radius:var(--radius) var(--radius) 0 0}
+.rc-photo img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s}
+.rc-photo img.ok{opacity:1}
+.recipe-card.has-photo .fav-btn{top:.6rem;right:.6rem;z-index:2}
+.recipe-card.has-photo::before{display:none}
+.modal-photo{margin:-2.5rem -2.5rem 1.3rem;height:260px;overflow:hidden;border-radius:20px 20px 0 0;background:#f6efe9}
+.modal-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.modal-meta{display:flex;gap:.6rem;flex-wrap:wrap;margin:-.6rem 0 1.2rem}
+.modal-meta span{background:var(--accent);color:var(--primary);font-size:.78rem;font-weight:700;padding:.25rem .7rem;border-radius:50px}
+/* RECEITAS DENTRO DOS MATERIAIS */
+.mt-recipe{display:grid;grid-template-columns:220px 1fr;gap:1.2rem;margin:1.6rem 0;padding:1.2rem;background:var(--light);border:1px solid #f0ebe8;border-radius:var(--radius)}
+.mt-rfig{margin:0}
+.mt-rfig img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;display:block;background:#f3ede8}
+.mt-rbody h3{margin:0 0 .4rem;font-size:1.15rem}
+.mt-rbody h4{margin:.9rem 0 .3rem;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;color:var(--mid)}
+.mt-rbody ul,.mt-rbody ol{margin:0 0 .4rem 1.2rem;font-size:.93rem}
+.mt-rbody p{font-size:.93rem;margin:0 0 .4rem}
+.mt-meta{font-size:.82rem;color:var(--mid);margin-bottom:.4rem}
+.mt-why{color:var(--mid);font-size:.9rem!important;margin-top:.6rem!important}
+.mt-rbody .mt-tip{margin:.6rem 0;font-size:.9rem;padding:.6rem .9rem}
+@media(max-width:700px){.mt-recipe{grid-template-columns:1fr}.mt-rfig img{aspect-ratio:16/10}.modal-photo{height:190px;margin:-2.5rem -2.5rem 1rem}}
+
 /* RESPONSIVE */
 @media(max-width:900px){
   .hero-inner{grid-template-columns:1fr}
@@ -488,7 +512,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
         <h1 data-i18n="land_h1">Chega de "o que a gente janta hoje?" — sua semana de refeições pronta em minutos</h1>
         <p data-i18n="land_hero_p">Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.</p>
         <div class="land-feats">
-          <div class="land-feat" data-i18n="land_feat1">6 volumes de receitas reais + 17 materiais bônus (guias, protocolos e planners)</div>
+          <div class="land-feat" data-i18n="land_feat1">6 volumes de receitas reais (200+ com foto) + 21 materiais bônus</div>
           <div class="land-feat" data-i18n="land_feat2">Planejador semanal interativo integrado</div>
           <div class="land-feat" data-i18n="land_feat3">Lista de compras automática com um clique</div>
           <div class="land-feat" data-i18n="land_feat4">Busca e filtros por objetivo e refeição</div>
@@ -519,7 +543,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
       <h2 data-i18n="feat_h2">Tudo que você precisa em um só lugar</h2>
       <p data-i18n="feat_sub">Uma plataforma completa para quem quer comer bem sem complicar</p>
       <div class="feat-grid">
-        <div class="feat-card"><div class="feat-card-icon">🍽️</div><h3 data-i18n="fc1_h">400+ Receitas Reais</h3><p data-i18n="fc1_p">Organizadas por refeição, objetivo e tempo de preparo. Sem ingredientes impossíveis.</p></div>
+        <div class="feat-card"><div class="feat-card-icon">🍽️</div><h3 data-i18n="fc1_h">500+ Receitas Reais</h3><p data-i18n="fc1_p">Organizadas por refeição, objetivo e tempo de preparo. Sem ingredientes impossíveis.</p></div>
         <div class="feat-card"><div class="feat-card-icon">📅</div><h3 data-i18n="fc2_h">Planejador Semanal</h3><p data-i18n="fc2_p">Monte seu cardápio de segunda a domingo com poucos cliques. Direto e prático.</p></div>
         <div class="feat-card"><div class="feat-card-icon">🛒</div><h3 data-i18n="fc3_h">Lista de Compras</h3><p data-i18n="fc3_p">Gerada automaticamente a partir das receitas que você escolheu. Chega de esquecer nada.</p></div>
         <div class="feat-card"><div class="feat-card-icon">🔍</div><h3 data-i18n="fc4_h">Busca Inteligente</h3><p data-i18n="fc4_p">Filtre por volume, objetivo, tipo de refeição ou busque pelo nome do ingrediente.</p></div>
@@ -546,13 +570,13 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
       <h2 data-i18n="vol_h2">6 Volumes + Materiais & Bônus</h2>
       <p data-i18n="vol_sub">Cada volume é especializado em um tipo de refeição — e os materiais bônus vão além das receitas</p>
       <div class="land-vol-grid">
-        <div class="land-vol-card"><span class="land-vol-card-emoji">☀️</span><div class="land-vol-card-label" data-i18n="lv1_l">Vol.1 Café da Manhã</div><div class="land-vol-card-count" data-i18n="lv1_c">90 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🥗</span><div class="land-vol-card-label" data-i18n="lv2_l">Vol.2 Almoços</div><div class="land-vol-card-count" data-i18n="lv2_c">40 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🌙</span><div class="land-vol-card-label" data-i18n="lv3_l">Vol.3 Jantares</div><div class="land-vol-card-count" data-i18n="lv3_c">60 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🍎</span><div class="land-vol-card-label" data-i18n="lv4_l">Vol.4 Lanches</div><div class="land-vol-card-count" data-i18n="lv4_c">120 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🥤</span><div class="land-vol-card-label" data-i18n="lv5_l">Vol.5 Bebidas</div><div class="land-vol-card-count" data-i18n="lv5_c">40 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">☀️</span><div class="land-vol-card-label" data-i18n="lv1_l">Vol.1 Café da Manhã</div><div class="land-vol-card-count" data-i18n="lv1_c">106 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🥗</span><div class="land-vol-card-label" data-i18n="lv2_l">Vol.2 Almoços</div><div class="land-vol-card-count" data-i18n="lv2_c">60 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🌙</span><div class="land-vol-card-label" data-i18n="lv3_l">Vol.3 Jantares</div><div class="land-vol-card-count" data-i18n="lv3_c">78 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🍎</span><div class="land-vol-card-label" data-i18n="lv4_l">Vol.4 Lanches</div><div class="land-vol-card-count" data-i18n="lv4_c">161 receitas</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🥤</span><div class="land-vol-card-label" data-i18n="lv5_l">Vol.5 Bebidas</div><div class="land-vol-card-count" data-i18n="lv5_c">70 receitas</div></div>
         <div class="land-vol-card"><span class="land-vol-card-emoji">📋</span><div class="land-vol-card-label" data-i18n="lv6_l">Vol.6 Protocolos</div><div class="land-vol-card-count" data-i18n="lv6_c">54 receitas</div></div>
-        <div class="land-vol-card"><span class="land-vol-card-emoji">🎁</span><div class="land-vol-card-label" data-i18n="lv7_l">Materiais & Bônus</div><div class="land-vol-card-count" data-i18n="lv7_c">17 guias e planners</div></div>
+        <div class="land-vol-card"><span class="land-vol-card-emoji">🎁</span><div class="land-vol-card-label" data-i18n="lv7_l">Materiais & Bônus</div><div class="land-vol-card-count" data-i18n="lv7_c">21 guias, e-books e planners</div></div>
       </div>
     </div>
   </section>
@@ -560,7 +584,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
   <!-- CTA FINAL -->
   <section class="land-cta">
     <h2 data-i18n="cta_h2">Comece hoje por menos de R$1 por dia</h2>
-    <p data-i18n="cta_p">Acesso completo a mais de 400 receitas, 17 materiais bônus, planejador e lista de compras. Novidades todo mês.</p>
+    <p data-i18n="cta_p">Acesso completo a mais de 500 receitas, 21 materiais bônus, planejador e lista de compras. Novidades todo mês.</p>
     <div class="land-cta-price" data-i18n="cta_price">Apenas <strong>R$19,90</strong>/mês · cancele quando quiser</div>
     <a href="https://pay.hotmart.com/M106116851N" class="btn-assinar-lg" data-i18n="cta_big_btn">QUERO ASSINAR AGORA →</a>
   </section>
@@ -595,7 +619,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
 <div id="main-app">
   <!-- DEMO BANNER -->
   <div id="demo-banner">
-    🔍 <span data-i18n="demo_banner_text">Modo Demonstração · 20 de 400+ receitas disponíveis</span>
+    🔍 <span data-i18n="demo_banner_text">Modo Demonstração · 20 de 500+ receitas disponíveis</span>
     <a href="https://pay.hotmart.com/M106116851N" data-i18n="demo_banner_link">Assine para acessar tudo →</a>
     <span style="margin-left:1rem;opacity:.8">·</span>
     <a onclick="abrirLogin();return false" href="#" style="color:#fff;text-decoration:underline;margin-left:.5rem;cursor:pointer">Já sou assinante — Entrar</a>
@@ -607,7 +631,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
       <button class="demo-close" onclick="fecharCTADemo()">✕</button>
       <div style="font-size:2.5rem;margin-bottom:.5rem">🔒</div>
       <h2 data-i18n="demo_cta_h2">Receita bloqueada no demo</h2>
-      <p data-i18n="demo_cta_p">Você está no modo demonstração com 20 receitas de amostra. Assine para acessar todas as <strong>400+ receitas</strong> + 17 materiais bônus + planner completo + lista de compras.</p>
+      <p data-i18n="demo_cta_p">Você está no modo demonstração com 20 receitas de amostra. Assine para acessar todas as <strong>500+ receitas</strong> + 21 materiais bônus + planner completo + lista de compras.</p>
       <div class="demo-cta-price">R$19<small>,90/mês</small></div>
       <a href="https://pay.hotmart.com/M106116851N" class="btn-assinar" data-i18n="demo_cta_btn">🚀 Assinar Agora →</a>
       <div style="margin-top:1rem;font-size:.8rem;color:#888" data-i18n="demo_cta_cancel">Cancele quando quiser · Sem fidelidade</div>
@@ -639,10 +663,10 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
   <div class="hero-inner">
     <div>
       <div class="hero-badge" data-i18n="app_hero_badge">✦ Sistema Completo de Nutrição</div>
-      <p class="hero-h1" data-i18n="app_hero_h1">mais de 400 receitas + materiais bônus + um sistema que <em>decide sua alimentação</em> todos os dias.</p>
+      <p class="hero-h1" data-i18n="app_hero_h1">mais de 500 receitas + materiais bônus + um sistema que <em>decide sua alimentação</em> todos os dias.</p>
       <p data-i18n="app_hero_p">Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.</p>
       <div class="hero-features">
-        <div class="hero-feat" data-i18n="land_feat1">6 volumes de receitas reais + 17 materiais bônus (guias, protocolos e planners)</div>
+        <div class="hero-feat" data-i18n="land_feat1">6 volumes de receitas reais (200+ com foto) + 21 materiais bônus</div>
         <div class="hero-feat" data-i18n="land_feat2">Planejador semanal interativo integrado</div>
         <div class="hero-feat" data-i18n="land_feat3">Lista de compras automática com um clique</div>
         <div class="hero-feat" data-i18n="land_feat4">Busca e filtros por objetivo e refeição</div>
@@ -729,7 +753,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
   <div class="materiais-inner">
     <div class="section-tag" data-i18n="mat_tag">🎁 Materiais & Bônus</div>
     <h2 class="section-title" data-i18n="mat_h2">Guias, protocolos e planners</h2>
-    <p class="section-sub" data-i18n="mat_sub">Conteúdo extra para ir além das receitas: neurociência da saciedade, detox, controle da vontade de doce, ansiedade alimentar, cardápios prontos e mais.</p>
+    <p class="section-sub" data-i18n="mat_sub">E-books com foto (NuvLev Gourmet, Café da Manhã Estratégico, Almoços Inteligentes), neurociência da saciedade, detox, vontade de doce, ansiedade alimentar, cardápios prontos e mais.</p>
     <div class="mat-grid" id="mat-grid"><div class="mat-empty">Carregando materiais...</div></div>
   </div>
 </section>
@@ -771,7 +795,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
 <!-- FINAL CTA -->
 <section class="final-cta">
   <h2 data-i18n="final_h2">Pronto para transformar sua alimentação?</h2>
-  <p data-i18n="final_p">mais de 400 receitas + 17 materiais bônus + planejador + lista de compras — tudo por R$19,90/mês</p>
+  <p data-i18n="final_p">mais de 500 receitas (200+ com foto) + 21 materiais bônus + planejador + lista de compras — tudo por R$19,90/mês</p>
   <a href="#comprar" class="btn-final" data-i18n="final_btn">🚀 Quero o NuvLev Agora</a>
 </section>
 
@@ -788,8 +812,10 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
 <div class="modal-overlay" id="modal" onclick="closeModal(event)">
   <div class="modal" id="modal-content">
     <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div class="modal-photo" id="modal-photo" style="display:none"><img id="modal-photo-img" alt=""></div>
     <div class="modal-vol" id="modal-vol"></div>
     <h2 class="modal-title" id="modal-title"></h2>
+    <div class="modal-meta" id="modal-meta" style="display:none"></div>
     <div class="modal-section" id="modal-ing-section">
       <h3 data-i18n="modal_ing">🥘 Ingredientes</h3>
       <ul class="ingredient-list" id="modal-ingredients"></ul>
@@ -802,7 +828,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
       <strong data-i18n="modal_benefit">💡 Benefício:</strong> <span id="modal-benefit"></span>
     </div>
     <div id="modal-demo-cta">
-      <p>Você está vendo uma prévia. Assine para ver esta e todas as <strong>400+ receitas</strong> completas.</p>
+      <p>Você está vendo uma prévia. Assine para ver esta e todas as <strong>500+ receitas</strong> completas.</p>
       <a href="https://pay.hotmart.com/M106116851N">&#128640; Assinar por R$19,90/mês</a>
     </div>
     <div class="modal-actions">
@@ -1350,7 +1376,7 @@ I18N = {
     land_badge: '✦ Plataforma de Nutrição',
     land_h1: 'Chega de "o que a gente janta hoje?" — sua semana de refeições <em>pronta em minutos</em>',
     land_hero_p: 'Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.',
-    land_feat1: '6 volumes de receitas reais + 17 materiais bônus (guias, protocolos e planners)',
+    land_feat1: '6 volumes de receitas reais (200+ com foto) + 21 materiais bônus',
     land_feat2: 'Planejador semanal interativo integrado',
     land_feat3: 'Lista de compras automática com um clique',
     land_feat4: 'Busca e filtros por objetivo e refeição',
@@ -1365,7 +1391,7 @@ I18N = {
     // Features
     feat_h2: 'Tudo que você precisa em um só lugar',
     feat_sub: 'Uma plataforma completa para quem quer comer bem sem complicar',
-    fc1_h: '400+ Receitas Reais', fc1_p: 'Organizadas por refeição, objetivo e tempo de preparo. Sem ingredientes impossíveis.',
+    fc1_h: '500+ Receitas Reais', fc1_p: 'Organizadas por refeição, objetivo e tempo de preparo. Sem ingredientes impossíveis.',
     fc2_h: 'Planejador Semanal', fc2_p: 'Monte seu cardápio de segunda a domingo com poucos cliques. Direto e prático.',
     fc3_h: 'Lista de Compras', fc3_p: 'Gerada automaticamente a partir das receitas que você escolheu. Chega de esquecer nada.',
     fc4_h: 'Busca Inteligente', fc4_p: 'Filtre por volume, objetivo, tipo de refeição ou busque pelo nome do ingrediente.',
@@ -1374,26 +1400,26 @@ I18N = {
     // Volumes
     vol_h2: '6 Volumes + Materiais & Bônus',
     vol_sub: 'Cada volume é especializado em um tipo de refeição — e os materiais bônus vão além das receitas',
-    lv1_l: 'Vol.1 Café da Manhã', lv1_c: '90 receitas',
-    lv2_l: 'Vol.2 Almoços', lv2_c: '40 receitas',
-    lv3_l: 'Vol.3 Jantares', lv3_c: '60 receitas',
-    lv4_l: 'Vol.4 Lanches', lv4_c: '120 receitas',
-    lv5_l: 'Vol.5 Bebidas', lv5_c: '40 receitas',
+    lv1_l: 'Vol.1 Café da Manhã', lv1_c: '106 receitas',
+    lv2_l: 'Vol.2 Almoços', lv2_c: '60 receitas',
+    lv3_l: 'Vol.3 Jantares', lv3_c: '78 receitas',
+    lv4_l: 'Vol.4 Lanches', lv4_c: '161 receitas',
+    lv5_l: 'Vol.5 Bebidas', lv5_c: '70 receitas',
     lv6_l: 'Vol.6 Protocolos', lv6_c: '54 receitas',
-    lv7_l: 'Materiais & Bônus', lv7_c: '17 guias e planners',
+    lv7_l: 'Materiais & Bônus', lv7_c: '21 guias, e-books e planners',
     // CTA
     cta_h2: 'Comece hoje por menos de R$1 por dia',
-    cta_p: 'Acesso completo a mais de 400 receitas, 17 materiais bônus, planejador e lista de compras. Novidades todo mês.',
+    cta_p: 'Acesso completo a mais de 500 receitas, 21 materiais bônus, planejador e lista de compras. Novidades todo mês.',
     cta_price: 'Apenas <strong>R$19,90</strong>/mês · cancele quando quiser',
     cta_big_btn: 'QUERO ASSINAR AGORA →',
     // Footer
     land_footer_copy: '© 2025 NuvLev · saudenaturall.online · Todos os direitos reservados',
     land_footer_sub: 'Já é assinante? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Clique aqui para entrar</a>',
     land_demo_btn: '🔍 Ver demonstração gratuita',
-    demo_banner_text: 'Modo Demonstração · 20 de 400+ receitas disponíveis',
+    demo_banner_text: 'Modo Demonstração · 20 de 500+ receitas disponíveis',
     demo_banner_link: 'Assine para acessar tudo →',
     demo_cta_h2: 'Receita bloqueada no demo',
-    demo_cta_p: 'Você está no modo demonstração com 20 receitas de amostra. Assine para acessar todas as <strong>400+ receitas</strong> + 17 materiais bônus + planner completo + lista de compras.',
+    demo_cta_p: 'Você está no modo demonstração com 20 receitas de amostra. Assine para acessar todas as <strong>500+ receitas</strong> + 21 materiais bônus + planner completo + lista de compras.',
     demo_cta_btn: '🚀 Assinar Agora →',
     demo_cta_cancel: 'Cancele quando quiser · Sem fidelidade',
     // Login
@@ -1409,10 +1435,10 @@ I18N = {
     app_logout: 'Sair',
     nav_recipes: 'Receitas',
     nav_planner: 'Planejador',
-    nav_shop: 'Lista de Compras', nav_mat: 'Materiais', mat_tag: '🎁 Materiais & Bônus', mat_h2: 'Guias, protocolos e planners', mat_sub: 'Conteúdo extra para ir além das receitas: neurociência da saciedade, detox, controle da vontade de doce, ansiedade alimentar, cardápios prontos e mais.',
+    nav_shop: 'Lista de Compras', nav_mat: 'Materiais', mat_tag: '🎁 Materiais & Bônus', mat_h2: 'Guias, protocolos e planners', mat_sub: 'E-books com foto (NuvLev Gourmet, Café da Manhã Estratégico, Almoços Inteligentes), neurociência da saciedade, detox, vontade de doce, ansiedade alimentar, cardápios prontos e mais.',
     nav_access: 'Acessar Agora →',
     app_hero_badge: '✦ Sistema Completo de Nutrição',
-    app_hero_h1: 'mais de 400 receitas + materiais bônus + um sistema que <em>decide sua alimentação</em> todos os dias.',
+    app_hero_h1: 'mais de 500 receitas + materiais bônus + um sistema que <em>decide sua alimentação</em> todos os dias.',
     app_hero_p: 'Pare de gastar energia escolhendo o que comer. O NuvLev organiza café da manhã, almoço, jantar, lanches, bebidas e muito mais — tudo em um lugar.',
     app_vols_h2: 'O que está dentro do NuvLev',
     app_vols_p: '6 volumes de receitas cobrindo todas as refeições — e uma biblioteca de materiais bônus',
@@ -1436,7 +1462,7 @@ I18N = {
     t2: '"O planejador semanal mudou minha vida. Faço a lista de compras em 5 minutos e já sei o que vou comer a semana toda."',
     t3: '"Comprei achando que era mais um e-book. Me surpreendi com a qualidade e a variedade. Vale muito mais que o preço."',
     final_h2: 'Pronto para transformar sua alimentação?',
-    final_p: 'mais de 400 receitas + 17 materiais bônus + planejador + lista de compras — tudo por R$19,90/mês',
+    final_p: 'mais de 500 receitas (200+ com foto) + 21 materiais bônus + planejador + lista de compras — tudo por R$19,90/mês',
     final_btn: '🚀 Quero o NuvLev Agora',
     footer_tagline: 'Nutrição que funciona na vida real',
     footer_copy: '© 2025 NuvLev. Todos os direitos reservados.',
@@ -1472,7 +1498,7 @@ I18N = {
   en: {
     nav_login: 'Already a subscriber →',
     land_badge: '✦ Nutrition Platform',
-    land_h1: '400+ organized recipes + a system that <em>plans your meals</em> every day.',
+    land_h1: '500+ organized recipes + a system that <em>plans your meals</em> every day.',
     land_hero_p: 'Stop wasting energy deciding what to eat. NuvLev organizes breakfast, lunch, dinner, snacks, drinks and more — all in one place.',
     land_feat1: '7 complete volumes with real, practical recipes',
     land_feat2: 'Integrated interactive weekly planner',
@@ -1487,7 +1513,7 @@ I18N = {
     land_guarantee: '🔒 Secure payment via Hotmart · Card, Pix or Bank Slip',
     feat_h2: 'Everything you need in one place',
     feat_sub: 'A complete platform for those who want to eat well without the hassle',
-    fc1_h: '400+ Real Recipes', fc1_p: 'Organized by meal, goal and prep time. No impossible ingredients.',
+    fc1_h: '500+ Real Recipes', fc1_p: 'Organized by meal, goal and prep time. No impossible ingredients.',
     fc2_h: 'Weekly Planner', fc2_p: 'Plan your menu from Monday to Sunday in a few clicks. Simple and practical.',
     fc3_h: 'Shopping List', fc3_p: 'Auto-generated from the recipes you chose. Never forget anything again.',
     fc4_h: 'Smart Search', fc4_p: 'Filter by volume, goal, meal type or search by ingredient name.',
@@ -1503,16 +1529,16 @@ I18N = {
     lv6_l: 'Vol.6 Protocols', lv6_c: '102 recipes',
     lv7_l: 'Vol.7 Tools', lv7_c: '82 recipes',
     cta_h2: 'Start today for less than R$1 a day',
-    cta_p: 'Full access to 400+ recipes, 17 bonus guides, planner and shopping list. New recipes every month.',
+    cta_p: 'Full access to 500+ recipes, 21 bonus guides, planner and shopping list. New recipes every month.',
     cta_price: 'Only <strong>R$19.90</strong>/month · cancel anytime',
     cta_big_btn: 'SUBSCRIBE NOW →',
     land_footer_copy: '© 2025 NuvLev · saudenaturall.online · All rights reserved',
         land_footer_sub: 'Already a subscriber? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Click here to login</a>',
         land_demo_btn: '🔍 Free demonstration',
-        demo_banner_text: 'Demo Mode · 20 of 400+ recipes available',
+        demo_banner_text: 'Demo Mode · 20 of 500+ recipes available',
         demo_banner_link: 'Subscribe to access everything →',
         demo_cta_h2: 'Recipe locked in demo',
-        demo_cta_p: 'You are in demo mode with 20 sample recipes. Subscribe to access all <strong>400+ recipes</strong> + full planner + shopping list.',
+        demo_cta_p: 'You are in demo mode with 20 sample recipes. Subscribe to access all <strong>500+ recipes</strong> + full planner + shopping list.',
         demo_cta_btn: '🚀 Subscribe Now →',
         demo_cta_cancel: 'Cancel anytime · No commitment',
         login_h2: 'Sign in to NuvLev',
@@ -1529,7 +1555,7 @@ I18N = {
         nav_shop: 'Shopping List',
         nav_access: 'Access Now →',
         app_hero_badge: '✦ Complete Nutrition System',
-        app_hero_h1: '400+ organized recipes + a system that <em>plans your meals</em> every day.',
+        app_hero_h1: '500+ organized recipes + a system that <em>plans your meals</em> every day.',
         app_hero_p: 'Stop wasting energy deciding what to eat. NuvLev organizes breakfast, lunch, dinner, snacks, drinks and more — all in one place.',
         app_vols_h2: "What's inside NuvLev",
         app_vols_p: '7 complete volumes covering all meals and goals',
@@ -1553,7 +1579,7 @@ I18N = {
         t2: '"The weekly planner changed my life. I make the shopping list in 5 minutes and know what I\'ll eat all week."',
         t3: '"I bought it thinking it was just another e-book. I was amazed by the quality and variety. Worth much more than the price."',
         final_h2: 'Ready to transform your eating?',
-        final_p: '400+ organized recipes + planner + shopping list — all for R$19.90/mo',
+        final_p: '500+ organized recipes + planner + shopping list — all for R$19.90/mo',
         final_btn: '🚀 I want NuvLev Now',
         footer_tagline: 'Nutrition that works in real life',
         footer_copy: '© 2025 NuvLev. All rights reserved.',
@@ -1619,7 +1645,7 @@ function nlCleanName(n){ let s=String(n||'').replace(/^Receita\s*\d+\s*[—–-]
 let favs = new Set(JSON.parse(localStorage.getItem(NL_FAVS)||'[]'));
 let filterFav=false, filterQuick=false;
 
-function isDemoUnlocked(r){ return r._id % 20 === 0; } /* ~20 receitas espalhadas pelos 6 volumes (igual a DEMO_STEP no servidor) */
+function isDemoUnlocked(r){ return r._id % 26 === 0; } /* ~20 receitas espalhadas pelos 6 volumes (igual a DEMO_STEP no servidor) */
 function isFav(r){ return favs.has(r.name); }
 function saveFavs(){ localStorage.setItem(NL_FAVS, JSON.stringify([...favs])); }
 function toggleFavById(id){
@@ -1694,8 +1720,11 @@ function renderRecipes(){
         <div class="lock-overlay"><span>🔒</span>${_lang==='pt'?'Toque para espiar':'Tap to preview'}</div>`;
       card.onclick=()=>openRecipeLocked(r);
     } else {
+      const ph = (r.photo && !isDemoMode) ? `<div class="rc-photo"><img data-photo="${r.photo}" alt=""></div>` : '';
+      if(ph) card.classList.add('has-photo');
       card.innerHTML=`
         <button class="fav-btn${isFav(r)?' active':''}" data-rid="${r._id}" onclick="event.stopPropagation();toggleFavById(${r._id})">❤</button>
+        ${ph}
         <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
         <div class="recipe-card-name">${r.name}</div>
         <div class="recipe-card-meta">
@@ -1707,6 +1736,7 @@ function renderRecipes(){
     grid.appendChild(card);
   });
   displayed+=slice.length;
+  nlLazyPhotos(grid);
   count.innerHTML=`${I18N[_lang].js_showing} <strong>${displayed}</strong> ${I18N[_lang].js_of} <strong>${filtered.length}</strong> ${I18N[_lang].js_showing_suffix}`;
   loadBtn.style.display = displayed>=filtered.length ? 'none':'block';
 }
@@ -1717,6 +1747,7 @@ function openRecipe(r){
   const mc=document.getElementById('modal-content');
   mc.querySelector('.modal-actions').style.display='';
   document.getElementById('modal-demo-cta').style.display='none';
+  nlModalPhoto(r);
   document.getElementById('modal-vol').textContent=r.emoji+' '+r.volLabel;
   document.getElementById('modal-title').textContent=r.name;
   const ingSection=document.getElementById('modal-ing-section');
@@ -1735,6 +1766,7 @@ function openRecipe(r){
 /* prévia borrada no demo */
 function openRecipeLocked(r){
   currentRecipe=null;
+  nlModalPhoto(null);
   const mc=document.getElementById('modal-content');
   mc.querySelector('.modal-actions').style.display='none';
   document.getElementById('modal-demo-cta').style.display='block';
@@ -1938,7 +1970,8 @@ async function carregarMateriais(modo){
 }
 function renderMateriais(){
   const grid = document.getElementById('mat-grid'); grid.innerHTML = '';
-  const groups = [['Guias & Protocolos', m => m.source === 'pdf' && m.kind !== 'Textura & Sensação'],
+  const groups = [['E-books de receitas (com foto)', m => m.kind === 'E-book de receitas'],
+                  ['Guias & Protocolos', m => m.source === 'pdf' && m.kind !== 'Textura & Sensação' && m.kind !== 'E-book de receitas'],
                   ['Combo Textura & Sensação — Emagrecimento Consciente', m => m.kind === 'Textura & Sensação'],
                   ['Bônus: planos, listas e mini eBooks', m => m.source === 'bonus']];
   groups.forEach(([label, fn]) => {
@@ -2008,6 +2041,32 @@ async function mrRenderChapter(){
       img.src = _matBlobs[name];
     }catch(e){ img.closest('figure')?.remove(); }
   }
+}
+/* fotos protegidas das receitas: mesma rota das imagens dos materiais */
+async function nlPhotoUrl(name){
+  if(_matBlobs[name]) return _matBlobs[name];
+  const token = await auth.currentUser.getIdToken();
+  const r = await fetch('/api/materiais/img/' + name, { headers: { 'Authorization': 'Bearer ' + token } });
+  if(!r.ok) throw new Error('img ' + r.status);
+  _matBlobs[name] = URL.createObjectURL(await r.blob());
+  return _matBlobs[name];
+}
+const _nlObs = ('IntersectionObserver' in window) ? new IntersectionObserver(entries => {
+  entries.forEach(e => { if(!e.isIntersecting) return; const img = e.target; _nlObs.unobserve(img);
+    nlPhotoUrl(img.getAttribute('data-photo')).then(u => { img.src = u; img.onload = () => img.classList.add('ok'); }).catch(() => img.closest('.rc-photo')?.remove()); });
+}, { rootMargin: '200px' }) : null;
+function nlLazyPhotos(root){
+  root.querySelectorAll('img[data-photo]:not([src])').forEach(img => {
+    if(_nlObs) _nlObs.observe(img);
+    else nlPhotoUrl(img.getAttribute('data-photo')).then(u => { img.src = u; img.classList.add('ok'); }).catch(() => {});
+  });
+}
+function nlModalPhoto(r){
+  const box = document.getElementById('modal-photo'), img = document.getElementById('modal-photo-img'), meta = document.getElementById('modal-meta');
+  if(!r || !r.photo || isDemoMode){ box.style.display = 'none'; img.removeAttribute('src'); }
+  else { box.style.display = ''; img.removeAttribute('src'); nlPhotoUrl(r.photo).then(u => { img.src = u; }).catch(() => box.style.display = 'none'); }
+  const m = r ? [r.time && '⏱ ' + r.time, r.kcal && '🔥 ' + r.kcal, r.yield && '🍽 ' + r.yield].filter(Boolean) : [];
+  meta.style.display = m.length ? '' : 'none'; meta.innerHTML = m.map(x => `<span>${x}</span>`).join('');
 }
 function fecharMaterial(){ document.getElementById('mat-reader').classList.remove('show'); document.body.style.overflow = ''; }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') fecharMaterial(); });
