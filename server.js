@@ -536,7 +536,7 @@ function renderBlogIndex(posts) {
   </main>
   <section class="blog-cta">
     <h2>Pronto para organizar sua alimentação?</h2>
-    <p>500+ receitas + 31 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+    <p>500+ receitas + 33 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
     <a href="https://pay.hotmart.com/M106116851N" class="btn-cta-blog">Quero Assinar Agora →</a>
   </section>
   <footer class="blog-footer">
@@ -650,7 +650,7 @@ function renderBlogPost(post, allPosts) {
     ${leadBox('blog-post')}
     <div class="post-cta">
       <h3>Gostou? Veja na prática no NuvLev</h3>
-      <p>500+ receitas organizadas + 31 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+      <p>500+ receitas organizadas + 33 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
       <a href="https://pay.hotmart.com/M106116851N" class="btn-post-cta">Quero Assinar Agora →</a>
     </div>
     <div class="post-disclaimer">⚕️ Este conteúdo tem caráter informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN) antes de realizar mudanças na sua alimentação.</div>
@@ -844,7 +844,7 @@ function renderRecipeIndex() {
     ${leadBox('pagina-receitas')}
     <div class="cta">
       <h3>Gostou? Isso é só 6% do acervo.</h3>
-      <p>500+ receitas organizadas + 31 materiais bônus + planejador semanal + lista de compras automática.</p>
+      <p>500+ receitas organizadas + 33 materiais bônus + planejador semanal + lista de compras automática.</p>
       <a href="https://pay.hotmart.com/M106116851N">Assinar por R$19,90/mês →</a>
     </div>
   </div>` + RECIPE_FOOT;
