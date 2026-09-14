@@ -4,9 +4,20 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-app.use(express.json());
-app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.set({
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'SAMEORIGIN',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://pay.hotmart.com; base-uri 'self'; form-action 'self' https://pay.hotmart.com; frame-ancestors 'self'"
+  });
+  next();
+});
+app.use(express.json({ limit: '1mb' }));
+app.use(cors({ origin: 'https://saudenaturall.online' }));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
 
 // ── Firebase Admin SDK ───────────────────────────────────────────────────────
 let fbCredential;
@@ -26,7 +37,7 @@ const db = admin.firestore();
 const auth = admin.auth();
 
 const HOTMART_TOKEN = process.env.HOTMART_TOKEN || '';
-const ADMIN_TOKEN   = process.env.ADMIN_TOKEN   || 'mude-esta-senha-admin';
+const ADMIN_TOKEN   = process.env.ADMIN_TOKEN   || '';
 
 async function ativarAssinante(email, nome, transacao) {
   let user;
@@ -37,7 +48,6 @@ async function ativarAssinante(email, nome, transacao) {
     user = await auth.createUser({ email, displayName: nome, emailVerified: true, password: senha });
   }
   const resetLink = await auth.generatePasswordResetLink(email);
-  console.log(`🔗 Link de acesso para ${email}: ${resetLink}`);
   await db.collection('assinantes').doc(user.uid).set({
     email, nome, ativo: true, transacao,
     atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
@@ -61,7 +71,7 @@ async function desativarAssinante(email) {
 
 app.post('/webhook/hotmart', async (req, res) => {
   const token = req.headers['x-hotmart-webhook-token'];
-  if (HOTMART_TOKEN && token !== HOTMART_TOKEN)
+  if (!HOTMART_TOKEN || token !== HOTMART_TOKEN)
     return res.status(401).json({ error: 'Token inválido' });
   const body = req.body;
   const event = body.event;
@@ -75,12 +85,12 @@ app.post('/webhook/hotmart', async (req, res) => {
   const DESATIVAR = ['PURCHASE_REFUNDED','PURCHASE_CHARGEBACK','SUBSCRIPTION_CANCELLATION','PURCHASE_CANCELED'];
   try {
     if (ATIVAR.includes(event)) {
-      const { resetLink } = await ativarAssinante(email, nome, trans);
-      return res.json({ ok: true, acao: 'ativado', email, resetLink });
+      await ativarAssinante(email, nome, trans);
+      return res.json({ ok: true, acao: 'ativado' });
     }
     if (DESATIVAR.includes(event)) {
       await desativarAssinante(email);
-      return res.json({ ok: true, acao: 'desativado', email });
+      return res.json({ ok: true, acao: 'desativado' });
     }
     return res.json({ ok: true, acao: 'ignorado', event });
   } catch (err) {
@@ -90,7 +100,7 @@ app.post('/webhook/hotmart', async (req, res) => {
 });
 
 app.post('/admin/ativar', async (req, res) => {
-  if (req.headers['x-admin-token'] !== ADMIN_TOKEN)
+  if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN)
     return res.status(401).json({ error: 'Não autorizado' });
   const { email, nome } = req.body;
   try {
@@ -100,7 +110,7 @@ app.post('/admin/ativar', async (req, res) => {
 });
 
 app.post('/admin/desativar', async (req, res) => {
-  if (req.headers['x-admin-token'] !== ADMIN_TOKEN)
+  if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN)
     return res.status(401).json({ error: 'Não autorizado' });
   const { email } = req.body;
   try {
@@ -129,21 +139,89 @@ function cleanRecipeName(n) {
   s = s.replace(/\)(?=[A-ZÀ-Ú])[\s\S]*$/, ')');
   return s.replace(/\s+/g, ' ').trim();
 }
+
+// Mantém os nomes no campo culinário, sem sugerir tratamento ou resultado de saúde.
+function neutralizeRecipeName(name) {
+  return String(name || '')
+    .replace(/anti[- ]?inflamatóri[oa]/gi, 'com especiarias')
+    .replace(/anti[- ]?inchaço/gi, 'refrescante')
+    .replace(/anti[- ]?ansiedade/gi, 'refrescantes')
+    .replace(/anti[- ]?fome/gi, '')
+    .replace(/\bdetox(?:-style)?\b/gi, 'do dia a dia')
+    .replace(/\btermogênic[oa]\b/gi, 'com especiarias')
+    .replace(/\bdiurétic[oa]\b/gi, 'refrescante')
+    .replace(/\bdigestiv[oa]\b/gi, 'aromático')
+    .replace(/\bfuncional\b/gi, 'caseiro')
+    .replace(/\benerg[eé]tic[oa]s?\b/gi, '')
+    .replace(/\bantioxidantes?\b/gi, 'colorido')
+    .replace(/\bpurificador[ae]s?\b/gi, 'verde')
+    .replace(/\b(?:calmante|relaxante)s?\b/gi, 'aromático')
+    .replace(/\bemagrecedor[ae]?\b/gi, 'leve')
+    .replace(/\bderrete gordura\b/gi, 'com aveia')
+    .replace(/\bseca barriga\b/gi, 'do dia a dia')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+function neutralizeSensitiveWords(value) {
+  return String(value || '')
+    .replace(/emagrec(?:imento|er|endo|edor[ae]?)?/gi, 'planejamento')
+    .replace(/desintoxicaç[aã]o|desintoxicar|\bdetox(?:-style)?\b/gi, 'dia a dia')
+    .replace(/ansiedade/gi, 'rotina')
+    .replace(/compuls(?:ão|ões)/gi, 'hábitos')
+    .replace(/anti[- ]?inchaço|desinchar|inchaço/gi, 'leveza')
+    .replace(/anti[- ]?inflamatóri[oa]|inflamaç[aã]o/gi, 'variedade')
+    .replace(/diurétic[oa]s?/gi, 'refrescante')
+    .replace(/termogênic[oa]s?/gi, 'com especiarias')
+    .replace(/metabolismo|metabólic[oa]/gi, 'rotina')
+    .replace(/colesterol|glicemia|imunidade/gi, 'cardápio')
+    .replace(/toxinas?/gi, 'resíduos')
+    .replace(/hormônios?/gi, 'sinais')
+    .replace(/tratamento|terapêutic[oa]/gi, 'orientação profissional')
+    .replace(/resultados? esperados?/gi, 'o que observar')
+    .replace(/\bsaciedade\b/gi, 'textura')
+    .replace(/\bbenefícios?\b/gi, 'características')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+function practicalRecipeTip(vol) {
+  const tips = {
+    1: 'Ajuste a consistência aos poucos e finalize com os acompanhamentos de sua preferência.',
+    2: 'Prove antes de servir e ajuste sal, ervas e temperos ao seu gosto.',
+    3: 'Sirva logo após o preparo para aproveitar melhor a textura e a temperatura.',
+    4: 'Observe o tempo de forno ou geladeira e adapte a finalização ao seu gosto.',
+    5: 'Experimente a bebida na temperatura indicada e ajuste água, gelo ou especiarias a gosto.',
+    6: 'Adapte os temperos e acompanhamentos aos ingredientes que você já tem em casa.'
+  };
+  return tips[vol] || 'Ajuste os temperos e a finalização ao seu gosto.';
+}
+
+const VOLUME_LABELS = {
+  1: 'Café da Manhã', 2: 'Almoços', 3: 'Jantares',
+  4: 'Lanches & Sobremesas', 5: 'Bebidas & Infusões', 6: 'Receitas Low Carb'
+};
 // Normaliza: nomes limpos, remove receitas idênticas, diferencia homônimas
 function normalizeVolumes(vols) {
   const seen = new Set(), byName = new Map();
   return vols.map(vol => {
     const recipes = [];
     for (const r of (vol.recipes || [])) {
-      const name = cleanRecipeName(r.name);
+      const name = neutralizeRecipeName(cleanRecipeName(r.name));
       const key = name + '|' + JSON.stringify(r.ingredients || []) + '|' + JSON.stringify(r.steps || []);
       if (seen.has(key)) continue;           // idêntica: descarta
       seen.add(key);
       const n = (byName.get(name) || 0) + 1;
       byName.set(name, n);
-      recipes.push({ ...r, name: n === 1 ? name : name + ' (versão ' + n + ')' });
+      recipes.push({
+        ...r,
+        name: n === 1 ? name : name + ' (versão ' + n + ')',
+        volLabel: VOLUME_LABELS[vol.vol] || r.volLabel,
+        category: ['detox', 'lowcarb_detox', 'objetivo', 'estrategico'].includes(r.category) ? 'diaadia' : r.category,
+        benefit: practicalRecipeTip(vol.vol)
+      });
     }
-    return { ...vol, recipes, count: recipes.length };
+    return { ...vol, label: VOLUME_LABELS[vol.vol] || vol.label, recipes, count: recipes.length };
   });
 }
 // Fragmentos de PDFs (guias/bônus picados) que estavam na grade como "receitas". Agora vivem em Materiais & Bônus.
@@ -205,12 +283,88 @@ app.get('/api/receitas', async (req, res) => {
   }
 });
 
-// ── MATERIAIS & BÔNUS (guias, protocolos e planners — dados fora de /public, protegidos) ──
+// ── MATERIAIS DE APOIO (receitas, cardápios e planners — protegidos) ─────────
 const MATERIALS_B64 = require('./materials-data.js');
 let MATERIALS_CACHE = null;
+
+// Estes arquivos continuam preservados no repositório, mas não são publicados porque
+// seu tema central é tratamento, detox, emagrecimento ou comportamento alimentar.
+const HIDDEN_TREATMENT_MATERIALS = new Set([
+  'neurociencia-saciedade', 'detox-3-dias-pele', 'detox-beauty',
+  'guia-ansiedade-alimentar', 'checklist-reset-14-dias', 'nuvlev-reset-14-dias',
+  'guia-vontade-de-doce', 'guia-anti-ansiedade-alimentar'
+]);
+
+const MATERIAL_PRESENTATION = {
+  'nuvlev-gourmet': ['NuvLev Gourmet — 145 receitas com foto', 'Cafés da manhã, lanches, chás, sucos, almoços, jantares e sobremesas — com foto e instruções de preparo.'],
+  'cafe-da-manha-estrategico': ['Café da Manhã — 40 receitas', '40 opções doces e salgadas, incluindo versões veganas, low carb e proteicas, com fotos e dicas de preparo.'],
+  'almocos-inteligentes': ['Almoços Práticos — 20 receitas', '20 ideias de almoço com foto, ingredientes e passo a passo numerado.'],
+  'jantas-leves-anti-inchaco': ['Jantares Leves para o Dia a Dia — 20 receitas', '20 ideias de jantar com foto, passo a passo e sugestões de substituição.'],
+  'lanches-sobremesas-fit': ['Lanches & Sobremesas — 40 receitas', '20 lanches e 20 sobremesas com foto, ingredientes e passo a passo.'],
+  'low-carb-inteligente': ['Receitas Low Carb — 40 receitas', 'Cafés da manhã, pratos principais, snacks e sobremesas com baixo teor de carboidratos.'],
+  'sobremesas-zero-acucar': ['Sobremesas sem Açúcar Refinado — 40 receitas', '40 sobremesas com foto, passo a passo e sugestões de ingredientes para adoçar.'],
+  'sucos-chas-funcionais': ['Sucos, Chás & Infusões — 40 receitas', '20 sucos e 20 chás para variar as bebidas do dia a dia, com foto e modo de preparo.'],
+  'receitas-por-objetivo': ['Receitas para Diferentes Momentos — 40 receitas', '40 ideias divididas entre refeições leves, proteicas, vegetarianas e veganas.'],
+  'receitas-dia-detox': ['Bebidas e Bowls do Dia a Dia — 7 receitas', 'Sucos, chás, cremes e bowls com hortaliças, mais cardápio de 7 dias e lista de compras.'],
+  'receitas-dia-lowcarb': ['Low Carb do Dia a Dia — 7 receitas', 'Sete receitas low carb com porções para 1 e 4 pessoas, lista de compras e ordem de preparo.'],
+  'cardapio-7-dias-acelerado': ['Cardápio Prático de 7 Dias', 'Uma semana de ideias para café da manhã, lanches, almoço, jantar e bebidas.'],
+  'cardapio-14-dias-recomeco': ['Cardápio Prático de 14 Dias', 'Duas semanas de ideias de refeições para facilitar a rotina e criar variedade.'],
+  'cardapio-30-dias-transformacao': ['Cardápio Prático de 30 Dias', 'Um mês de sugestões organizado em quatro semanas, com refeições para cada dia.'],
+  'textura-plano-7-dias': ['Plano de 7 Dias — Texturas e Sabores', 'Uma semana de receitas que combina preparos cremosos, crocantes, macios e frescos.']
+};
+
+function neutralizeMaterialHtml(html) {
+  let result = String(html || '').replace(
+    /<p class="mt-why">[\s\S]*?<\/p>/gi,
+    '<p class="mt-why"><strong>Dica de preparo:</strong> Ajuste temperos, textura e finalização ao seu gosto.</p>'
+  );
+  const riskyClaim = /emagrec|detox|desintoxic|ansiedade|compuls[aã]o|anti[- ]?incha|anti[- ]?inflamat|diur[eé]tic|termog[eê]nic|metaboli|colesterol|glicemia|imunidade|toxina|horm[oô]nio|saciedade|trata|terap[eê]ut|cura|previne|reduz|elimina|acelera|resultado esperado/i;
+  const blocks = [
+    /<p\b[^>]*>(?:(?!<\/p>)[\s\S])*<\/p>/gi,
+    /<li\b[^>]*>(?:(?!<\/li>)[\s\S])*<\/li>/gi
+  ];
+  for (const pattern of blocks) {
+    result = result.replace(pattern, block => riskyClaim.test(block.replace(/<[^>]+>/g, ' ')) ? '' : block);
+  }
+  result = result
+    .replace(/anti[- ]?inflamatóri[oa]/gi, 'com especiarias')
+    .replace(/anti[- ]?inchaço/gi, 'refrescante')
+    .replace(/\bdetox(?:-style)?\b/gi, 'do dia a dia')
+    .replace(/\btermogênic[oa]\b/gi, 'com especiarias')
+    .replace(/\bdiurétic[oa]\b/gi, 'refrescante')
+    .replace(/\bfunciona(?:l|is)\b/gi, 'caseiro')
+    .replace(/\bemagrecimento\b/gi, 'planejamento')
+    .replace(/Por que (?:é|essa receita é) caseir[oa]\?/gi, 'Dica de preparo')
+    .replace(/Por que essa receita funciona\?/gi, 'Dica de preparo');
+  return result.split(/(<[^>]+>)/).map(part => {
+    if (part.startsWith('<') || !riskyClaim.test(part)) return part;
+    return part.trim().length > 120 ? '' : neutralizeSensitiveWords(part);
+  }).join('');
+}
+
+function prepareMaterial(m) {
+  const presentation = MATERIAL_PRESENTATION[m.id];
+  const chapters = (m.chapters || []).map((chapter, index) => ({
+    ...chapter,
+    title: neutralizeSensitiveWords(neutralizeRecipeName(chapter.title)),
+    html: (index === 0
+      ? '<div class="mt-tip"><strong>Sobre este material:</strong> sugestões culinárias gerais para você adaptar ao seu gosto, à sua rotina e às suas necessidades.</div>'
+      : '') + neutralizeMaterialHtml(chapter.html)
+  }));
+  return {
+    ...m,
+    title: presentation ? presentation[0] : neutralizeSensitiveWords(neutralizeRecipeName(m.title)),
+    subtitle: presentation ? presentation[1] : neutralizeSensitiveWords(neutralizeRecipeName(m.subtitle)),
+    kind: m.kind === 'Protocolo' || m.kind === 'Programa' ? 'Cardápio' : m.kind,
+    chapters
+  };
+}
+
 function getMaterials() {
   if (!MATERIALS_CACHE) {
-    MATERIALS_CACHE = JSON.parse(zlib.inflateSync(Buffer.from(MATERIALS_B64, 'base64')).toString('utf8'));
+    MATERIALS_CACHE = JSON.parse(zlib.inflateSync(Buffer.from(MATERIALS_B64, 'base64')).toString('utf8'))
+      .filter(m => !HIDDEN_TREATMENT_MATERIALS.has(m.id))
+      .map(prepareMaterial);
     console.log('📚 Materiais carregados:', MATERIALS_CACHE.length);
   }
   return MATERIALS_CACHE;
@@ -294,7 +448,7 @@ const BLOG_POSTS = [
       <p>A maioria das pessoas planeja refeições muito elaboradas para a semana toda — e desiste no terceiro dia. O segredo é <strong>planejar simples</strong>. Receitas com no máximo 5 a 7 ingredientes e 20 minutos de preparo são as mais sustentáveis.</p>
 
       <h2>Como o NuvLev facilita isso</h2>
-      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde você monta toda a semana em minutos e gera a lista de compras com um clique — automticamente, já organizada por ingredientes. São mais de 690 receitas com filtros por refeição, objetivo e tempo de preparo para você nunca ficar sem ideia.</p>
+      <p>O <a href="https://saudenaturall.online" style="color:#E76F51">NuvLev</a> tem um planejador semanal integrado onde você monta toda a semana em minutos e gera a lista de compras com um clique — automaticamente, já organizada por ingredientes. São 690 receitas com filtros por tipo de refeição e busca por ingrediente para você nunca ficar sem ideia.</p>
 
       <h2>Recapitulando</h2>
       <ul>
@@ -461,11 +615,11 @@ function renderBlogIndex(posts) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog NuvLev — Nutrição, Receitas e Planejamento Alimentar</title>
-  <meta name="description" content="Dicas práticas de nutrição, receitas saudáveis e planejamento alimentar. Conteúdo gratuito do NuvLev para te ajudar a comer melhor todos os dias.">
+  <title>Blog NuvLev — Receitas e Planejamento para o Dia a Dia</title>
+  <meta name="description" content="Receitas, ideias de cardápio e dicas práticas para organizar as refeições da semana.">
   <link rel="canonical" href="https://saudenaturall.online/blog">
-  <meta property="og:title" content="Blog NuvLev — Nutrição e Receitas Saudáveis">
-  <meta property="og:description" content="Dicas práticas de nutrição, receitas saudáveis e planejamento alimentar.">
+  <meta property="og:title" content="Blog NuvLev — Receitas e Planejamento">
+  <meta property="og:description" content="Receitas, ideias de cardápio e dicas práticas para organizar as refeições da semana.">
   <meta property="og:url" content="https://saudenaturall.online/blog">
   <meta property="og:type" content="website">
   <style>
@@ -527,16 +681,16 @@ function renderBlogIndex(posts) {
   <header class="blog-hero">
     <div class="blog-hero-inner">
       <div class="blog-hero-tag">✦ Blog NuvLev</div>
-      <h1>Nutrição que funciona na vida real</h1>
-      <p>Receitas, planejamento alimentar e dicas práticas para você comer melhor todo dia.</p>
+      <h1>Receitas e organização para a vida real</h1>
+      <p>Ideias de receitas, cardápios e dicas práticas para facilitar as refeições da semana.</p>
     </div>
   </header>
   <main class="blog-main">
     ${cards}
   </main>
   <section class="blog-cta">
-    <h2>Pronto para organizar sua alimentação?</h2>
-    <p>690+ receitas + 40 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+    <h2>Pronto para organizar suas receitas da semana?</h2>
+    <p>690 receitas + 32 materiais de apoio + planejador semanal + lista de compras automática por R$19,90/mês.</p>
     <a href="https://pay.hotmart.com/M106116851N" class="btn-cta-blog">Quero Assinar Agora →</a>
   </section>
   <footer class="blog-footer">
@@ -650,7 +804,7 @@ function renderBlogPost(post, allPosts) {
     ${leadBox('blog-post')}
     <div class="post-cta">
       <h3>Gostou? Veja na prática no NuvLev</h3>
-      <p>690+ receitas organizadas + 40 materiais bônus + planejador semanal + lista de compras automática por R$19,90/mês.</p>
+      <p>690 receitas organizadas + 32 materiais de apoio + planejador semanal + lista de compras automática por R$19,90/mês.</p>
       <a href="https://pay.hotmart.com/M106116851N" class="btn-post-cta">Quero Assinar Agora →</a>
     </div>
     <div class="post-disclaimer">⚕️ Este conteúdo tem caráter informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN) antes de realizar mudanças na sua alimentação.</div>
@@ -691,7 +845,7 @@ app.get('/blog/:slug', async (req, res) => {
 
 // ── Admin do blog (protegido por ADMIN_TOKEN) ───────────────────────────────
 function checkAdmin(req, res) {
-  if (req.headers['x-admin-token'] !== ADMIN_TOKEN) {
+  if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN) {
     res.status(401).json({ error: 'Não autorizado' });
     return false;
   }
@@ -734,8 +888,15 @@ function normalizeRecipe(r) {
   let steps = r.steps || [];
   if (steps.length === 1 && /\d\)/.test(steps[0]))
     steps = steps[0].split(/\s*\d+\)\s*/).map(s => s.trim()).filter(Boolean);
-  const name = r.name.replace(/^Receita \d+ — /, '').replace(/\s*Tempo total:.*$/i, '').trim();
-  return { ...r, name, ingredients: ings, steps };
+  const name = neutralizeRecipeName(r.name.replace(/^Receita \d+ — /, '').replace(/\s*Tempo total:.*$/i, '').trim());
+  return {
+    ...r,
+    name,
+    ingredients: ings,
+    steps,
+    volLabel: VOLUME_LABELS[r.vol] || r.volLabel,
+    benefit: practicalRecipeTip(r.vol)
+  };
 }
 const PUBLIC_RECIPES = require('./public-recipes.json').map(normalizeRecipe);
 const LEAD_PDF = '/downloads/10-jantares-saudaveis-15-minutos.pdf';
@@ -756,8 +917,9 @@ function leadBox(origem) {
     async function nlLead(f, origem) {
       const btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'Enviando...';
       try {
-        await fetch('/lead', { method:'POST', headers:{'Content-Type':'application/json'},
+        const response = await fetch('/lead', { method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ email: f.email.value, origem }) });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
         f.style.display = 'none';
         f.parentElement.querySelector('.nl-lead-ok').style.display = 'block';
       } catch(e) { btn.disabled = false; btn.textContent = 'Quero o PDF →'; alert('Erro de conexão, tente de novo.'); }
@@ -770,7 +932,7 @@ function leadBox(origem) {
 
 function recipeDesc(r) {
   const ing = (r.ingredients || []).length;
-  return `Receita de ${r.name}: ${ing} ingredientes, passo a passo simples e benefício explicado. Veja como fazer — grátis no NuvLev.`.slice(0, 158);
+  return `Receita de ${r.name}: ${ing} ingredientes, passo a passo simples e dica de preparo. Veja como fazer — grátis no NuvLev.`.slice(0, 158);
 }
 
 function renderRecipeHead(title, desc, url, jsonld) {
@@ -839,12 +1001,12 @@ function renderRecipeIndex() {
   <div class="wrap">
     <div class="crumb"><a href="/">Início</a> / Receitas grátis</div>
     <h1>Receitas saudáveis grátis, com passo a passo completo</h1>
-    <p>Uma amostra aberta das <strong>690+ receitas</strong> da plataforma NuvLev — escolhidas entre as mais práticas, com poucos ingredientes.</p>
+    <p>Uma amostra aberta das <strong>690 receitas</strong> da plataforma NuvLev — escolhidas entre as mais práticas, com poucos ingredientes.</p>
     ${body}
     ${leadBox('pagina-receitas')}
     <div class="cta">
       <h3>Gostou? Isso é só 6% do acervo.</h3>
-      <p>690+ receitas organizadas + 40 materiais bônus + planejador semanal + lista de compras automática.</p>
+      <p>690 receitas organizadas + 32 materiais de apoio + planejador semanal + lista de compras automática.</p>
       <a href="https://pay.hotmart.com/M106116851N">Assinar por R$19,90/mês →</a>
     </div>
   </div>` + RECIPE_FOOT;
@@ -871,12 +1033,12 @@ function renderRecipePage(r) {
     <ul>${(r.ingredients || []).map(i => `<li>${i}</li>`).join('')}</ul>
     <h2>👨‍🍳 Modo de preparo</h2>
     <ol>${(r.steps || []).map(s => `<li>${s}</li>`).join('')}</ol>
-    ${r.benefit ? `<div class="benefit"><strong>💡 Por que essa receita funciona:</strong> ${r.benefit}</div>` : ''}
+    ${r.benefit ? `<div class="benefit"><strong>💡 Dica de preparo:</strong> ${r.benefit}</div>` : ''}
     ${leadBox('receita-' + r.slug)}
     <div class="cta">
-      <h3>Essa é 1 das 690+ receitas do NuvLev</h3>
-      <p>Todas organizadas por refeição e objetivo, com planejador semanal e lista de compras automática.</p>
-      <a href="https://pay.hotmart.com/M106116851N">Quero as 690+ receitas →</a>
+      <h3>Essa é 1 das 690 receitas do NuvLev</h3>
+      <p>Todas organizadas por tipo de refeição, com planejador semanal e lista de compras automática.</p>
+      <a href="https://pay.hotmart.com/M106116851N">Quero as 690 receitas →</a>
     </div>
     ${others.length ? `<div class="rel"><h3>Veja também</h3>${others.map(o => `<a href="/receitas/${o.slug}">${o.emoji} ${o.name}</a>`).join('')}</div>` : ''}
     <p class="disc">⚕️ Conteúdo informativo e educacional. Não substitui orientação médica ou nutricional profissional. Consulte um nutricionista (CRN).</p>
