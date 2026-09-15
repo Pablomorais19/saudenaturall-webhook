@@ -105,6 +105,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .filter-select:focus{border-color:var(--primary);outline:none}
 .results-count{color:var(--mid);font-size:.9rem;margin-bottom:1.5rem}
 .results-count strong{color:var(--primary)}
+.aviso-tempo{color:var(--mid);font-size:.82rem;margin:-1rem 0 1.5rem;opacity:.85}
 
 /* RECIPE GRID */
 .recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
@@ -115,6 +116,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .recipe-card-name{font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:.7rem;line-height:1.3}
 .recipe-card-meta{display:flex;gap:.5rem;flex-wrap:wrap}
 .recipe-tag{background:var(--accent);color:var(--primary);font-size:.7rem;padding:.2rem .6rem;border-radius:50px;font-weight:600}
+.recipe-tag.tag-tempo{background:#eef4ee;color:#3f6b4a}
 .recipe-card-ing-count{margin-left:auto;font-size:.75rem;color:var(--mid)}
 .load-more{display:block;margin:2rem auto 0;background:var(--accent);color:var(--primary);border:2px solid var(--primary);padding:.8rem 2rem;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;transition:.2s}
 .load-more:hover{background:var(--primary);color:#fff}
@@ -752,11 +754,17 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
   <div class="library-inner">
     <div class="section-tag" data-i18n="lib_tag">📖 Biblioteca de Receitas</div>
     <h2 class="section-title" data-i18n="lib_h2">Explore todas as receitas</h2>
-    <p class="section-sub" data-i18n="lib_sub">Busque por nome, ingrediente ou filtre por volume</p>
+    <p class="section-sub" data-i18n="lib_sub">Busque por nome ou ingrediente, e filtre por volume e tempo de preparo</p>
     <div class="search-bar">
       <input type="text" class="search-input" id="search-input" placeholder="🔍  Buscar receita ou ingrediente..." data-i18n-ph="search_ph">
       <select class="filter-select" id="vol-filter">
         <option value="" data-i18n="vol_all">Todos os volumes</option>
+      </select>
+      <select class="filter-select" id="time-filter" aria-label="Filtrar por tempo de preparo">
+        <option value="">⏱ Qualquer tempo</option>
+        <option value="15">Até 15 minutos</option>
+        <option value="30">Até 30 minutos</option>
+        <option value="31">Mais de 30 minutos</option>
       </select>
     </div>
     <div class="filter-chips">
@@ -1367,7 +1375,7 @@ I18N = {
     app_vols_p: '6 volumes de receitas para diferentes refeições — e uma biblioteca de materiais de apoio',
     lib_tag: '📖 Biblioteca de Receitas',
     lib_h2: 'Explore todas as receitas',
-    lib_sub: 'Busque por nome, ingrediente ou filtre por volume',
+    lib_sub: 'Busque por nome ou ingrediente, e filtre por volume e tempo de preparo',
     search_ph: '🔍  Buscar receita ou ingrediente...',
     vol_all: 'Todos os volumes',
     load_more: 'Carregar mais receitas ↓',
@@ -1602,24 +1610,74 @@ function updateChips(){
   if(cf){ cf.classList.toggle('active',filterFav); cf.innerHTML='❤ Favoritas'+(favs.size?` (${favs.size})`:''); }
   if(cq) cq.classList.toggle('active',filterQuick);
 }
+/* ── tempo de preparo ──────────────────────────────────────────────────────
+   O campo vem dos PDFs em 133 formatos diferentes ("5 minutos", "10 MIN · FÁCIL",
+   "Tempo total: 20–25 min. Nível: Fácil.", "1h 10 min"). Aqui vira minuto.
+   Num intervalo vale o maior, para "até 15 min" não prometer o que não cumpre. */
+const _tempoCache = new Map();
+function minutosDe(txt){
+  if(!txt) return null;
+  if(_tempoCache.has(txt)) return _tempoCache.get(txt);
+  const s = String(txt).toLowerCase().replace(',', '.');
+  let n = null;
+  const intervalo = s.match(/(\d+)\s*[–—-]\s*(\d+)\s*(?:min|m\b)/);
+  const horas = s.match(/(\d+(?:\.\d+)?)\s*(?:h\b|hora)/);
+  const mins  = s.match(/(\d+)\s*(?:min|m\b)/);
+  if(intervalo) n = parseInt(intervalo[2], 10);
+  else if(horas && mins) n = Math.round(parseFloat(horas[1]) * 60) + parseInt(mins[1], 10);
+  else if(horas) n = Math.round(parseFloat(horas[1]) * 60);
+  else if(mins) n = parseInt(mins[1], 10);
+  if(n !== null && (n <= 0 || n > 600)) n = null;   // fora disso é extração ruim
+  _tempoCache.set(txt, n);
+  return n;
+}
+function faixaDeTempo(r, teto){
+  const n = minutosDe(r.time);
+  if(n === null) return false;              // sem tempo informado não entra na faixa
+  return teto === 31 ? n > 30 : n <= teto;
+}
+
 function applyFilter(){
   const q = document.getElementById('search-input').value.toLowerCase().trim();
   const volIdx = activeVol;
+  const selTempo = document.getElementById('time-filter');
+  const teto = selTempo && selTempo.value ? parseInt(selTempo.value, 10) : null;
   filtered = ALL_RECIPES.filter(r => {
     const matchVol = volIdx === null || r.vol === VOLUMES[volIdx].vol;
     const matchQ = !q || r.name.toLowerCase().includes(q) ||
       (r.ingredients || []).some(i => i.toLowerCase().includes(q));
     const matchFav = !filterFav || favs.has(r.name);
     const matchQuick = !filterQuick || (r.ingredients||[]).length <= 6;
-    return matchVol && matchQ && matchFav && matchQuick;
+    const matchTempo = teto === null || faixaDeTempo(r, teto);
+    return matchVol && matchQ && matchFav && matchQuick && matchTempo;
   });
   displayed = 0;
   renderRecipes();
+  avisoDeTempo(teto);
+}
+
+/* Nem toda receita traz o tempo. Quando o filtro está ligado, diz isso em vez
+   de deixar o assinante achar que o acervo encolheu. */
+function avisoDeTempo(teto){
+  let aviso = document.getElementById('aviso-tempo');
+  if(!aviso){
+    aviso = document.createElement('div');
+    aviso.id = 'aviso-tempo';
+    aviso.className = 'aviso-tempo';
+    const c = document.getElementById('results-count');
+    if(c && c.parentNode) c.parentNode.insertBefore(aviso, c.nextSibling);
+  }
+  if(teto === null){ aviso.style.display = 'none'; return; }
+  const semTempo = ALL_RECIPES.filter(r => minutosDe(r.time) === null).length;
+  aviso.style.display = semTempo ? '' : 'none';
+  aviso.textContent = semTempo + ' receitas ainda não têm o tempo informado e ficam de fora deste filtro.';
 }
 (function(){ /* religa o listener da busca na nova applyFilter */
   const si=document.getElementById('search-input');
   const si2=si.cloneNode(true); si.parentNode.replaceChild(si2,si);
   si2.addEventListener('input', applyFilter);
+  const st=document.getElementById('time-filter');
+  if(st) st.addEventListener('change', applyFilter);
 })();
 
 /* ── grid de receitas (trava estável no demo + coração) ── */
@@ -1654,6 +1712,7 @@ function renderRecipes(){
         <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
         <div class="recipe-card-name">${r.name}</div>
         <div class="recipe-card-meta">
+          ${minutosDe(r.time)!==null?`<span class="recipe-tag tag-tempo">⏱ ${minutosDe(r.time)} min</span>`:''}
           ${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}
           ${r.steps&&r.steps.length>1?`<span class="recipe-tag">${r.steps.length} ${I18N[_lang].js_steps}</span>`:''}
         </div>`;
