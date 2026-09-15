@@ -286,6 +286,15 @@ footer strong{color:var(--primary)}
 .rc-photo{margin:0 -1.5rem 1rem;height:150px;background:#f6efe9 linear-gradient(135deg,#fdf3ec,#f6e2d6);overflow:hidden;border-radius:var(--radius) var(--radius) 0 0}
 .rc-photo img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s}
 .rc-photo img.ok{opacity:1}
+/* prévia borrada das receitas bloqueadas no demo */
+.rc-photo.previa{position:relative}
+.rc-photo.previa img{filter:blur(6px) saturate(1.15);transform:scale(1.12);opacity:1}
+/* com foto, a tarja do cadeado fica só sobre a imagem — o nome continua legível */
+.recipe-card-locked.has-photo .lock-overlay{
+  inset:0 0 auto 0;height:150px;border-radius:var(--radius) var(--radius) 0 0;
+  background:linear-gradient(180deg,rgba(30,30,40,.18),rgba(30,30,40,.5));backdrop-filter:none
+}
+.recipe-card-locked.has-photo{filter:none;opacity:1}
 .recipe-card.has-photo .fav-btn{top:.6rem;right:.6rem;z-index:2}
 .recipe-card.has-photo::before{display:none}
 .modal-photo{margin:-2.5rem -2.5rem 1.3rem;height:260px;overflow:hidden;border-radius:20px 20px 0 0;background:#f6efe9}
@@ -313,7 +322,25 @@ footer strong{color:var(--primary)}
   .planner-grid{grid-template-columns:repeat(4,1fr)}
   .provas-grid{grid-template-columns:1fr}
 }
+/* NAV INFERIOR (celular) — só quando o app está aberto: assinante ou demo */
+.mob-nav{display:none}
 @media(max-width:600px){
+  body.modo-app .mob-nav{
+    /* a regra global de nav{} fixa top:0 e padding lateral — aqui é o contrário */
+    display:flex;position:fixed;top:auto;left:0;right:0;bottom:0;padding:0;z-index:120;
+    background:rgba(255,255,255,.98);backdrop-filter:blur(10px);
+    border-top:1px solid #f0e8e4;box-shadow:0 -2px 12px rgba(0,0,0,.06);
+    padding-bottom:env(safe-area-inset-bottom,0px)
+  }
+  .mob-nav a{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:.15rem;padding:.5rem .2rem;font-size:.66rem;font-weight:600;color:var(--mid);
+    text-decoration:none;line-height:1.2;text-align:center;min-height:56px
+  }
+  .mob-nav a span{font-size:1.15rem;line-height:1}
+  .mob-nav a.ativo{color:var(--primary)}
+  .mob-nav a:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;border-radius:8px}
+  body.modo-app{padding-bottom:64px}
   .nav-links{display:none}
   .vol-cards{grid-template-columns:repeat(2,1fr)}
   .planner-grid{grid-template-columns:repeat(2,1fr)}
@@ -630,7 +657,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
 <div id="main-app">
   <!-- DEMO BANNER -->
   <div id="demo-banner">
-    🔍 <span data-i18n="demo_banner_text">Modo Demonstração · 20 de 690 receitas disponíveis</span>
+    🔍 <span data-i18n="demo_banner_text">Modo Demonstração · 27 de 690 receitas disponíveis</span>
     <a href="https://pay.hotmart.com/M106116851N" data-i18n="demo_banner_link">Assine para acessar tudo →</a>
     <span style="margin-left:1rem;opacity:.8">·</span>
     <a onclick="abrirLogin();return false" href="#" style="color:#fff;text-decoration:underline;margin-left:.5rem;cursor:pointer">Já sou assinante — Entrar</a>
@@ -642,7 +669,7 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
       <button class="demo-close" onclick="fecharCTADemo()">✕</button>
       <div style="font-size:2.5rem;margin-bottom:.5rem">🔒</div>
       <h2 data-i18n="demo_cta_h2">Receita bloqueada no demo</h2>
-      <p data-i18n="demo_cta_p">Você está no modo demonstração com 20 receitas de amostra. Assine para acessar as <strong>690 receitas</strong> + 40 materiais de apoio + planner completo + lista de compras.</p>
+      <p data-i18n="demo_cta_p">Você está no modo demonstração com 27 receitas de amostra. Assine para acessar as <strong>690 receitas</strong> + 40 materiais de apoio + planner completo + lista de compras.</p>
       <div class="demo-cta-price">R$19<small>,90/mês</small></div>
       <a href="https://pay.hotmart.com/M106116851N" class="btn-assinar" data-i18n="demo_cta_btn">🚀 Assinar Agora →</a>
       <div style="margin-top:1rem;font-size:.8rem;color:#888" data-i18n="demo_cta_cancel">Cancele quando quiser · Sem fidelidade</div>
@@ -667,6 +694,14 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
       <a href="#comprar" class="btn-nav" data-i18n="nav_access">Acessar Agora →</a>
     </div>
   </div>
+</nav>
+
+<!-- NAV INFERIOR (celular) -->
+<nav class="mob-nav" aria-label="Navegação principal">
+  <a href="#receitas"><span aria-hidden="true">🍽</span><em data-i18n="mnav_recipes" style="font-style:normal">Receitas</em></a>
+  <a href="#planejador"><span aria-hidden="true">📅</span><em data-i18n="mnav_planner" style="font-style:normal">Planejador</em></a>
+  <a href="#lista"><span aria-hidden="true">🛒</span><em data-i18n="mnav_shop" style="font-style:normal">Lista</em></a>
+  <a href="#materiais"><span aria-hidden="true">📚</span><em data-i18n="mnav_mat" style="font-style:normal">Materiais</em></a>
 </nav>
 
 <!-- HERO -->
@@ -1071,6 +1106,7 @@ function loadMore() { renderRecipes(); }
 
 function abrirDemo() {
   isDemoMode = true;
+  document.body.classList.add('modo-app');
   carregarReceitas('demo');
   const loading = document.getElementById('auth-loading');
   const landing = document.getElementById('landing');
@@ -1451,10 +1487,10 @@ I18N = {
     land_footer_copy: '© 2025 NuvLev · saudenaturall.online · Todos os direitos reservados',
     land_footer_sub: 'Já é assinante? <a href="#" onclick="abrirLogin();return false" style="color:#E76F51">Clique aqui para entrar</a>',
     land_demo_btn: '🔍 Ver demonstração gratuita',
-    demo_banner_text: 'Modo Demonstração · 20 de 690 receitas disponíveis',
+    demo_banner_text: 'Modo Demonstração · 27 de 690 receitas disponíveis',
     demo_banner_link: 'Assine para acessar tudo →',
     demo_cta_h2: 'Receita bloqueada no demo',
-    demo_cta_p: 'Você está no modo demonstração com 20 receitas de amostra. Assine para acessar as <strong>690 receitas</strong> + 40 materiais de apoio + planner completo + lista de compras.',
+    demo_cta_p: 'Você está no modo demonstração com 27 receitas de amostra. Assine para acessar as <strong>690 receitas</strong> + 40 materiais de apoio + planner completo + lista de compras.',
     demo_cta_btn: '🚀 Assinar Agora →',
     demo_cta_cancel: 'Cancele quando quiser · Sem fidelidade',
     // Login
@@ -1468,6 +1504,7 @@ I18N = {
     // App
     app_loading: 'Carregando...',
     app_logout: 'Sair',
+    mnav_recipes: 'Receitas', mnav_planner: 'Planejador', mnav_shop: 'Lista', mnav_mat: 'Materiais',
     nav_recipes: 'Receitas',
     nav_planner: 'Planejador',
     nav_shop: 'Lista de Compras', nav_mat: 'Materiais', mat_tag: '🎁 Materiais de Apoio', mat_h2: 'E-books, cardápios e planners', mat_sub: 'Materiais práticos para variar as receitas, montar cardápios de 7, 14 e 30 dias, organizar marmitas e preparar listas de compras.',
@@ -1573,7 +1610,7 @@ I18N = {
         demo_banner_text: 'Demo Mode · 20 of 690 recipes available',
         demo_banner_link: 'Subscribe to access everything →',
         demo_cta_h2: 'Recipe locked in demo',
-        demo_cta_p: 'You are in demo mode with 20 sample recipes. Subscribe to access all <strong>690 recipes</strong> + 40 supporting materials + full planner + shopping list.',
+        demo_cta_p: 'You are in demo mode with 27 sample recipes. Subscribe to access all <strong>690 recipes</strong> + 40 supporting materials + full planner + shopping list.',
         demo_cta_btn: '🚀 Subscribe Now →',
         demo_cta_cancel: 'Cancel anytime · No commitment',
         login_h2: 'Sign in to NuvLev',
@@ -1586,6 +1623,7 @@ I18N = {
         app_loading: 'Loading...',
         app_logout: 'Sign out',
         nav_recipes: 'Recipes',
+        mnav_recipes: 'Recipes', mnav_planner: 'Planner', mnav_shop: 'List', mnav_mat: 'Materials',
         nav_planner: 'Planner',
         nav_shop: 'Shopping List',
         nav_access: 'Access Now →',
@@ -1748,14 +1786,18 @@ function renderRecipes(){
     card.className='recipe-card'+(isLocked?' recipe-card-locked':'');
     const hasIng=r.ingredients&&r.ingredients.length>0;
     if(isLocked){
+      // Receita bloqueada do demo: mostra a miniatura borrada da foto, não a foto inteira.
+      const prev = r.photo ? `<div class="rc-photo previa"><img data-thumb="${r.photo}" alt="" aria-hidden="true"></div>` : '';
+      if(prev) card.classList.add('has-photo');
       card.innerHTML=`
+        ${prev}
         <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
         <div class="recipe-card-name">${r.name}</div>
         <div class="recipe-card-meta">${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}</div>
         <div class="lock-overlay"><span>🔒</span>${_lang==='pt'?'Toque para espiar':'Tap to preview'}</div>`;
       card.onclick=()=>openRecipeLocked(r);
     } else {
-      const ph = (r.photo && !isDemoMode) ? `<div class="rc-photo"><img data-photo="${r.photo}" alt=""></div>` : '';
+      const ph = r.photo ? `<div class="rc-photo"><img data-photo="${r.photo}" alt=""></div>` : '';
       if(ph) card.classList.add('has-photo');
       card.innerHTML=`
         <button class="fav-btn${isFav(r)?' active':''}" data-rid="${r._id}" onclick="event.stopPropagation();toggleFavById(${r._id})">❤</button>
@@ -1942,6 +1984,7 @@ auth.onAuthStateChanged(async (user)=>{
     const doc=await db.collection('assinantes').doc(user.uid).get();
     if(doc.exists && doc.data().ativo===true){
       document.body.classList.add('is-member');
+      document.body.classList.add('modo-app');
       if(!localStorage.getItem(NL_ONB)) setTimeout(()=>document.getElementById('onboarding-modal').classList.add('show'),900);
     }
   }catch(e){}
@@ -2073,9 +2116,11 @@ async function mrRenderChapter(){
     }catch(e){ img.closest('figure')?.remove(); }
   }
 }
-/* fotos protegidas das receitas: mesma rota das imagens dos materiais */
+/* fotos protegidas das receitas: mesma rota das imagens dos materiais.
+   No demo usa a rota aberta, que só serve as fotos das receitas liberadas. */
 async function nlPhotoUrl(name){
   if(_matBlobs[name]) return _matBlobs[name];
+  if(isDemoMode) return '/api/demo/img/' + encodeURIComponent(name);
   const token = await auth.currentUser.getIdToken();
   const r = await fetch('/api/materiais/img/' + name, { headers: { 'Authorization': 'Bearer ' + token } });
   if(!r.ok) throw new Error('img ' + r.status);
@@ -2086,15 +2131,31 @@ const _nlObs = ('IntersectionObserver' in window) ? new IntersectionObserver(ent
   entries.forEach(e => { if(!e.isIntersecting) return; const img = e.target; _nlObs.unobserve(img);
     nlPhotoUrl(img.getAttribute('data-photo')).then(u => { img.src = u; img.onload = () => img.classList.add('ok'); }).catch(() => img.closest('.rc-photo')?.remove()); });
 }, { rootMargin: '200px' }) : null;
+/* miniaturas do demo: um único arquivo, carregado uma vez e guardado em memória */
+let _thumbs = null, _thumbsPromise = null;
+function nlThumbs(){
+  if(_thumbs) return Promise.resolve(_thumbs);
+  if(!_thumbsPromise) _thumbsPromise = fetch('/api/demo/thumbs')
+    .then(r => r.ok ? r.json() : {})
+    .then(j => (_thumbs = j))
+    .catch(() => (_thumbs = {}));
+  return _thumbsPromise;
+}
 function nlLazyPhotos(root){
   root.querySelectorAll('img[data-photo]:not([src])').forEach(img => {
     if(_nlObs) _nlObs.observe(img);
     else nlPhotoUrl(img.getAttribute('data-photo')).then(u => { img.src = u; img.classList.add('ok'); }).catch(() => {});
   });
+  const previas = [...root.querySelectorAll('img[data-thumb]:not([src])')];
+  if(previas.length) nlThumbs().then(t => previas.forEach(img => {
+    const b64 = t[img.getAttribute('data-thumb')];
+    if(b64) { img.src = 'data:image/jpeg;base64,' + b64; img.classList.add('ok'); }
+    else img.closest('.rc-photo')?.remove();
+  }));
 }
 function nlModalPhoto(r){
   const box = document.getElementById('modal-photo'), img = document.getElementById('modal-photo-img'), meta = document.getElementById('modal-meta');
-  if(!r || !r.photo || isDemoMode){ box.style.display = 'none'; img.removeAttribute('src'); }
+  if(!r || !r.photo || (isDemoMode && !isDemoUnlocked(r))){ box.style.display = 'none'; img.removeAttribute('src'); }
   else { box.style.display = ''; img.removeAttribute('src'); nlPhotoUrl(r.photo).then(u => { img.src = u; }).catch(() => box.style.display = 'none'); }
   const m = r ? [r.time && '⏱ ' + r.time, r.kcal && '🔥 ' + r.kcal, r.yield && '🍽 ' + r.yield].filter(Boolean) : [];
   meta.style.display = m.length ? '' : 'none'; meta.innerHTML = m.map(x => `<span>${x}</span>`).join('');
@@ -2135,6 +2196,32 @@ async function nlLead(f, origem){
   return false;
 }
 function fecharLeadPopup(){ document.getElementById('lead-popup').classList.remove('show'); localStorage.setItem('nuvlev-lead-popup','1'); }
+
+/* Nav inferior do celular: marca a seção em que o leitor está. */
+(function(){
+  const barra = document.querySelector('.mob-nav');
+  if(!barra) return;
+  const links = [...barra.querySelectorAll('a')];
+  const secoes = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  if(!secoes.length) return;
+  const marcar = id => links.forEach(a => a.classList.toggle('ativo', a.getAttribute('href') === '#' + id));
+  // a seção "atual" é a última cujo topo já passou da barra de cima
+  function atualizar(){
+    const limite = 80;
+    let atual = secoes[0];
+    for(const s of secoes){ if(s.getBoundingClientRect().top <= limite) atual = s; }
+    // no fim da página, a última seção sempre vence
+    if(window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) atual = secoes[secoes.length-1];
+    marcar(atual.id);
+  }
+  let agendado = false;
+  addEventListener('scroll', () => {
+    if(agendado) return; agendado = true;
+    requestAnimationFrame(() => { agendado = false; atualizar(); });
+  }, { passive: true });
+  links.forEach(a => a.addEventListener('click', () => marcar(a.getAttribute('href').slice(1))));
+  atualizar();
+})();
 setTimeout(()=>{
   // Só oferece o PDF a visitante: quem paga e quem está no demo não vê.
   const assinante = document.body.classList.contains('is-member');
