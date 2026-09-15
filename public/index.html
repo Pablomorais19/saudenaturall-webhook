@@ -1704,7 +1704,7 @@ I18N = {
 
   function toggleLang() {
       _lang = (_lang === 'pt') ? 'en' : 'pt';
-      localStorage.setItem('nuvlev-lang', _lang);
+      nlLS.set('nuvlev-lang', _lang);
     applyI18n();
   }
 
@@ -1714,13 +1714,133 @@ I18N = {
 <script>
 /* ════════ NuvLev UX upgrade — overrides ════════ */
 const NL_FAVS='nuvlev-favs', NL_PLAN='nuvlev-plan', NL_SHOP='nuvlev-shop', NL_ONB='nuvlev-onboarded';
+
+/* ── storage à prova de Safari privado: nunca lança, só devolve null ── */
+const nlLS = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch(e){ return false; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+
+/* ── sincronização do assinante: o mesmo login vê tudo em qualquer aparelho ──
+   O servidor grava no Firestore com firebase-admin; aqui é só ler e mandar.
+   O localStorage continua como cache: é o que aparece antes da resposta e o
+   que segura o trabalho quando a rede cai. */
+const nlSync = {
+  ligado: false, aplicando: false, ultimoEnvio: 0, timer: null, assinatura: '',
+
+  estadoLocal(){
+    const plano = {};
+    if(typeof DAYS !== 'undefined' && typeof plan !== 'undefined')
+      DAYS.forEach(([k]) => plano[k] = (plan[k]||[]).map(r => r.name));
+    return {
+      favoritos: typeof favs !== 'undefined' ? [...favs] : [],
+      plano,
+      lista: typeof shopList !== 'undefined' ? shopList : []
+    };
+  },
+
+  async token(){
+    if(typeof auth === 'undefined' || !auth.currentUser) return null;
+    try { return await auth.currentUser.getIdToken(); } catch(e){ return null; }
+  },
+
+  // Chamado quando a assinatura é confirmada. Traz o que está no servidor e,
+  // se lá não houver nada, sobe o que já existia neste aparelho.
+  async iniciar(){
+    if(this.ligado) return; this.ligado = true;
+    const t = await this.token(); if(!t) return;
+    let remoto = null;
+    try {
+      const r = await fetch('/api/estado', { headers:{ Authorization:'Bearer '+t } });
+      if(r.ok) remoto = await r.json();
+    } catch(e){ return; }   // offline: fica só com o cache local
+    if(!remoto) return;
+
+    const local = this.estadoLocal();
+    const temRemoto = (remoto.favoritos||[]).length || (remoto.lista||[]).length ||
+                      Object.values(remoto.plano||{}).some(a => (a||[]).length);
+    const temLocal = local.favoritos.length || local.lista.length ||
+                     Object.values(local.plano).some(a => a.length);
+
+    if(temRemoto) this.aplicar(remoto, local, true);   // primeira carga: preserva o que foi feito offline
+    else if(temLocal) this.enviar(true);          // primeira vez: migra o aparelho
+    this.assinatura = JSON.stringify(this.estadoLocal());
+    // voltar para a aba (ou para o app no celular) busca o que mudou no outro aparelho
+    document.addEventListener('visibilitychange', () => { if(!document.hidden) this.recarregar(); });
+    addEventListener('focus', () => this.recarregar());
+  },
+
+  // `unir` só na primeira carga: ali o aparelho pode ter favoritos feitos offline
+  // que ainda não subiram. Nas atualizações seguintes o servidor manda, senão
+  // desfavoritar num aparelho voltaria atrás quando o outro sincronizasse.
+  aplicar(remoto, local, unir){
+    this.aplicando = true;
+    try {
+      const mapa = {}; (typeof ALL_RECIPES !== 'undefined' ? ALL_RECIPES : []).forEach(r => mapa[r.name] = r);
+      const nomes = unir ? new Set([...(remoto.favoritos||[]), ...local.favoritos])
+                         : new Set(remoto.favoritos||[]);
+      if(typeof favs !== 'undefined'){ favs = new Set([...nomes]); saveFavs(); }
+      if(typeof plan !== 'undefined' && typeof DAYS !== 'undefined'){
+        const p = remoto.plano || {};
+        DAYS.forEach(([k]) => { plan[k] = (p[k]||[]).map(n => mapa[n]).filter(Boolean); });
+        if(typeof renderPlanner === 'function') renderPlanner();
+        savePlan();
+      }
+      if(Array.isArray(remoto.lista) && (remoto.lista.length || !unir) && typeof shopList !== 'undefined'){
+        shopList = remoto.lista; saveShop();
+        if(typeof renderShopList === 'function') renderShopList();
+      }
+      if(typeof updateChips === 'function') updateChips();
+      if(typeof refreshFavHearts === 'function') refreshFavHearts();
+    } catch(e){ console.error('Erro ao aplicar estado:', e); }
+    this.aplicando = false;
+  },
+
+  // Volta do segundo plano: pega o que mudou no outro aparelho.
+  async recarregar(){
+    if(!this.ligado || Date.now() - this.ultimoEnvio < 3000) return;
+    const t = await this.token(); if(!t) return;
+    try {
+      const r = await fetch('/api/estado', { headers:{ Authorization:'Bearer '+t } });
+      if(!r.ok) return;
+      const remoto = await r.json();
+      this.aplicar(remoto, this.estadoLocal(), false); // volta para a aba: o servidor manda
+      this.assinatura = JSON.stringify(this.estadoLocal());
+    } catch(e){}
+  },
+
+  // Agrupa as mudanças: quem monta a semana inteira gera uma gravação, não vinte.
+  agendar(){
+    if(!this.ligado || this.aplicando) return;
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.enviar(), 1200);
+  },
+
+  async enviar(){
+    if(!this.ligado) return;
+    const estado = this.estadoLocal();
+    const assinatura = JSON.stringify(estado);
+    if(assinatura === this.assinatura) return;
+    const t = await this.token(); if(!t) return;
+    try {
+      const r = await fetch('/api/estado', {
+        method:'PUT',
+        headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+t },
+        body: assinatura
+      });
+      if(r.ok){ this.assinatura = assinatura; this.ultimoEnvio = Date.now(); }
+    } catch(e){}   // offline: o localStorage segura e a próxima mudança tenta de novo
+  }
+};
+addEventListener('beforeunload', () => { if(nlSync.ligado) nlSync.enviar(); });
 function nlCleanName(n){ let s=String(n||'').replace(/^Receita\s*\d+\s*[—–-]\s*/i,''); s=s.replace(/\s*Tempo total:[\s\S]*$/i,''); s=s.split(' · ')[0]; s=s.replace(/\)(?=[A-ZÀ-Ú])[\s\S]*$/,')'); return s.replace(/\s+/g,' ').trim(); }
-let favs = new Set(JSON.parse(localStorage.getItem(NL_FAVS)||'[]'));
+let favs = new Set(JSON.parse(nlLS.get(NL_FAVS)||'[]'));
 let filterFav=false, filterQuick=false;
 
 function isDemoUnlocked(r){ return r._id % 26 === 0; } /* ~20 receitas espalhadas pelos 6 volumes (igual a DEMO_STEP no servidor) */
 function isFav(r){ return favs.has(r.name); }
-function saveFavs(){ localStorage.setItem(NL_FAVS, JSON.stringify([...favs])); }
+function saveFavs(){ nlLS.set(NL_FAVS, JSON.stringify([...favs])); nlSync.agendar(); }
 function toggleFavById(id){
   const r = ALL_RECIPES[id]; if(!r) return;
   if(favs.has(r.name)) favs.delete(r.name);
@@ -1863,17 +1983,17 @@ function openRecipeLocked(r){
 }
 
 /* ── persistência ── */
-function savePlan(){ const o={}; DAYS.forEach(([k])=>o[k]=plan[k].map(r=>r.name)); localStorage.setItem(NL_PLAN, JSON.stringify(o)); }
-function saveShop(){ localStorage.setItem(NL_SHOP, JSON.stringify(shopList)); }
+function savePlan(){ const o={}; DAYS.forEach(([k])=>o[k]=plan[k].map(r=>r.name)); nlLS.set(NL_PLAN, JSON.stringify(o)); nlSync.agendar(); }
+function saveShop(){ nlLS.set(NL_SHOP, JSON.stringify(shopList)); nlSync.agendar(); }
 function restoreState(){
   try{
-    const o=JSON.parse(localStorage.getItem(NL_PLAN)||'null');
+    const o=JSON.parse(nlLS.get(NL_PLAN)||'null');
     const map={}; ALL_RECIPES.forEach(r=>map[r.name]=r);
     const fixName=n=>map[n]?n:(map[nlCleanName(n)]?nlCleanName(n):n);
     if(o){ DAYS.forEach(([k])=>{ plan[k]=(o[k]||[]).map(n=>map[fixName(n)]).filter(Boolean); });
       renderPlanner(); savePlan(); }
     if(typeof favs!=='undefined'){ favs=new Set([...favs].map(fixName)); saveFavs(); }
-    const s=JSON.parse(localStorage.getItem(NL_SHOP)||'null');
+    const s=JSON.parse(nlLS.get(NL_SHOP)||'null');
     if(s&&s.length){ shopList=s; renderShopList(); }
   }catch(e){}
   updateChips();
@@ -1985,13 +2105,18 @@ auth.onAuthStateChanged(async (user)=>{
     if(doc.exists && doc.data().ativo===true){
       document.body.classList.add('is-member');
       document.body.classList.add('modo-app');
-      if(!localStorage.getItem(NL_ONB)) setTimeout(()=>document.getElementById('onboarding-modal').classList.add('show'),900);
+      // só começa a sincronizar depois que as receitas existem, para casar os nomes
+      (function esperaReceitas(){
+        if(typeof ALL_RECIPES !== 'undefined' && ALL_RECIPES.length) nlSync.iniciar();
+        else setTimeout(esperaReceitas, 300);
+      })();
+      if(!nlLS.get(NL_ONB)) setTimeout(()=>document.getElementById('onboarding-modal').classList.add('show'),900);
     }
   }catch(e){}
 });
-function onbPular(){ localStorage.setItem(NL_ONB,'skip'); document.getElementById('onboarding-modal').classList.remove('show'); }
+function onbPular(){ nlLS.set(NL_ONB,'skip'); document.getElementById('onboarding-modal').classList.remove('show'); }
 function onbEscolher(goal){
-  localStorage.setItem(NL_ONB,goal);
+  nlLS.set(NL_ONB,goal);
   document.getElementById('onboarding-modal').classList.remove('show');
   montarSemana(goal);
 }
@@ -2026,6 +2151,36 @@ document.addEventListener('keydown',e=>{
 <script>
 /* ════════ Materiais & Bônus ════════ */
 let MATERIAIS = [], _matMode = null, _matCur = null, _matChap = 0, _matBlobs = {};
+
+/* Cache de imagens com teto: cada blob segura a imagem inteira na memória, e
+   com 573 fotos isso só crescia. Guarda as 60 mais recentes e libera o resto. */
+const NL_MAX_BLOBS = 60;
+const _blobUso = [];
+function nlGuardaBlob(nome, url){
+  _matBlobs[nome] = url;
+  const i = _blobUso.indexOf(nome); if(i >= 0) _blobUso.splice(i, 1);
+  _blobUso.push(nome);
+  while(_blobUso.length > NL_MAX_BLOBS){
+    const velho = _blobUso.shift();
+    const u = _matBlobs[velho];
+    if(u && u.startsWith('blob:')){
+      // não libera o que ainda está na tela
+      const emUso = document.querySelector('img[src="' + u + '"]');
+      if(emUso){ _blobUso.push(velho); break; }
+      try { URL.revokeObjectURL(u); } catch(e){}
+    }
+    delete _matBlobs[velho];
+  }
+  return url;
+}
+function nlLiberaBlobs(){
+  for(const nome of Object.keys(_matBlobs)){
+    const u = _matBlobs[nome];
+    if(u && u.startsWith('blob:')) { try { URL.revokeObjectURL(u); } catch(e){} }
+  }
+  _matBlobs = {}; _blobUso.length = 0;
+}
+addEventListener('pagehide', nlLiberaBlobs);
 async function carregarMateriais(modo){
   if (_matMode === 'membro' || _matMode === modo) return;
   try{
@@ -2110,7 +2265,7 @@ async function mrRenderChapter(){
       if(!_matBlobs[name]){
         const r = await fetch('/api/materiais/img/' + name, { headers: { 'Authorization': 'Bearer ' + token } });
         if(!r.ok) throw new Error('img ' + r.status);
-        _matBlobs[name] = URL.createObjectURL(await r.blob());
+        nlGuardaBlob(name, URL.createObjectURL(await r.blob()));
       }
       img.src = _matBlobs[name];
     }catch(e){ img.closest('figure')?.remove(); }
@@ -2124,8 +2279,7 @@ async function nlPhotoUrl(name){
   const token = await auth.currentUser.getIdToken();
   const r = await fetch('/api/materiais/img/' + name, { headers: { 'Authorization': 'Bearer ' + token } });
   if(!r.ok) throw new Error('img ' + r.status);
-  _matBlobs[name] = URL.createObjectURL(await r.blob());
-  return _matBlobs[name];
+  return nlGuardaBlob(name, URL.createObjectURL(await r.blob()));
 }
 const _nlObs = ('IntersectionObserver' in window) ? new IntersectionObserver(entries => {
   entries.forEach(e => { if(!e.isIntersecting) return; const img = e.target; _nlObs.unobserve(img);
@@ -2194,11 +2348,11 @@ async function nlLead(f, origem){
     if(!response.ok) throw new Error('HTTP '+response.status);
     f.style.display='none';
     f.parentElement.querySelector('.nl-lead-ok').style.display='block';
-    localStorage.setItem('nuvlev-lead','1');
+    nlLS.set('nuvlev-lead','1');
   }catch(e){ btn.disabled=false; btn.textContent='Quero o PDF →'; alert('Erro de conexão, tente de novo.'); }
   return false;
 }
-function fecharLeadPopup(){ document.getElementById('lead-popup').classList.remove('show'); localStorage.setItem('nuvlev-lead-popup','1'); }
+function fecharLeadPopup(){ document.getElementById('lead-popup').classList.remove('show'); nlLS.set('nuvlev-lead-popup','1'); }
 
 /* Nav inferior do celular: marca a seção em que o leitor está. */
 (function(){
@@ -2231,7 +2385,7 @@ setTimeout(()=>{
   const el = document.getElementById('landing');
   const landingVisivel = el && el.offsetParent !== null;
   if(landingVisivel && !assinante && !isDemoMode
-     && !localStorage.getItem('nuvlev-lead-popup') && !localStorage.getItem('nuvlev-lead'))
+     && !nlLS.get('nuvlev-lead-popup') && !nlLS.get('nuvlev-lead'))
     document.getElementById('lead-popup').classList.add('show');
 }, 18000);
 </script>
