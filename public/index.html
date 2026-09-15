@@ -2143,8 +2143,11 @@ function nlThumbs(){
 }
 function nlLazyPhotos(root){
   root.querySelectorAll('img[data-photo]:not([src])').forEach(img => {
-    if(_nlObs) _nlObs.observe(img);
-    else nlPhotoUrl(img.getAttribute('data-photo')).then(u => { img.src = u; img.classList.add('ok'); }).catch(() => {});
+    // No demo são só 27 fotos, públicas e cacheadas: carrega na hora, sem depender do observer.
+    if(_nlObs && !isDemoMode) _nlObs.observe(img);
+    else nlPhotoUrl(img.getAttribute('data-photo'))
+      .then(u => { img.src = u; img.onload = () => img.classList.add('ok'); })
+      .catch(() => img.closest('.rc-photo')?.remove());
   });
   const previas = [...root.querySelectorAll('img[data-thumb]:not([src])')];
   if(previas.length) nlThumbs().then(t => previas.forEach(img => {
