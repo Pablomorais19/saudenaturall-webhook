@@ -247,8 +247,66 @@ async function exigirAssinante(req, res) {
   catch { res.status(401).json({ error: 'Token inválido' }); return false; }
   const doc = await db.collection('assinantes').doc(decoded.uid).get();
   if (!doc.exists || doc.data().ativo !== true) { res.status(403).json({ error: 'Assinatura inativa' }); return false; }
+  req.uid = decoded.uid;
   return true;
 }
+
+// ── Estado do assinante: planejador, favoritos e lista de compras ────────────
+// Gravado pelo servidor (firebase-admin), para o mesmo login ver tudo em
+// qualquer aparelho sem depender das regras do Firestore no cliente.
+const LIM = { favoritos: 2000, lista: 2000, nome: 200, dias: 7, porDia: 20 };
+const DIAS_OK = new Set(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+
+function textos(v, max) {
+  if (!Array.isArray(v)) return [];
+  return v.filter(x => typeof x === 'string').map(x => x.slice(0, LIM.nome)).slice(0, max);
+}
+// lista de compras: itens { text, checked }
+function listaLimpa(v) {
+  if (!Array.isArray(v)) return [];
+  return v.filter(x => x && typeof x.text === 'string')
+          .map(x => ({ text: x.text.slice(0, LIM.nome), checked: x.checked === true }))
+          .slice(0, LIM.lista);
+}
+function planoLimpo(v) {
+  const out = {};
+  if (!v || typeof v !== 'object') return out;
+  for (const dia of Object.keys(v).slice(0, LIM.dias)) {
+    if (DIAS_OK.has(dia)) out[dia] = textos(v[dia], LIM.porDia);
+  }
+  return out;
+}
+
+app.get('/api/estado', async (req, res) => {
+  try {
+    if (!(await exigirAssinante(req, res))) return;
+    const doc = await db.collection('estado_usuario').doc(req.uid).get();
+    res.set('Cache-Control', 'private, no-store');
+    res.json(doc.exists ? doc.data() : { favoritos: [], plano: {}, lista: [], atualizadoEm: 0 });
+  } catch (e) {
+    console.error('Erro ao ler estado:', e.message);
+    res.status(500).json({ error: 'Erro ao carregar seus dados' });
+  }
+});
+
+app.put('/api/estado', async (req, res) => {
+  try {
+    if (!(await exigirAssinante(req, res))) return;
+    const b = req.body || {};
+    const estado = {
+      favoritos: textos(b.favoritos, LIM.favoritos),
+      plano: planoLimpo(b.plano),
+      lista: listaLimpa(b.lista),
+      atualizadoEm: Date.now()
+    };
+    await db.collection('estado_usuario').doc(req.uid).set(estado);
+    res.set('Cache-Control', 'private, no-store');
+    res.json({ ok: true, atualizadoEm: estado.atualizadoEm });
+  } catch (e) {
+    console.error('Erro ao gravar estado:', e.message);
+    res.status(500).json({ error: 'Erro ao salvar seus dados' });
+  }
+});
 app.get('/api/receitas', async (req, res) => {
   try {
     if (!(await exigirAssinante(req, res))) return;
