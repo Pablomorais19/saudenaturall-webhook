@@ -13,7 +13,12 @@
 <meta property="og:url" content="https://saudenaturall.online/">
 <meta property="og:title" content="NuvLev – Receitas e planejamento para o dia a dia">
 <meta property="og:description" content="690 receitas, 40 materiais de apoio, planejador semanal e lista de compras automática. Por R$19,90/mês, cancele quando quiser.">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://saudenaturall.online/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="NuvLev — receitas e planejamento para o dia a dia">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://saudenaturall.online/og-image.jpg">
 <meta name="twitter:title" content="NuvLev – Receitas e planejamento para o dia a dia">
 <meta name="twitter:description" content="690 receitas + materiais de apoio + planejador semanal + lista de compras automática.">
 <meta name="theme-color" content="#E76F51">
@@ -324,7 +329,8 @@ footer strong{color:var(--primary)}
 
 <style>
 /* ── AUTH LOADING ── */
-#auth-loading{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .4s}
+#auth-loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;z-index:9999;transition:opacity .4s;padding:1.5rem}
+#auth-loading.tem-aviso .logo-load{animation:none}
 #auth-loading .logo-load{font-size:2.5rem;font-weight:900;color:#E76F51;animation:pulse 1.2s infinite}
 #auth-loading .logo-load span{color:#2D2D2D}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -493,6 +499,11 @@ body.is-member .hero, body.is-member .provas, body.is-member .final-cta, body.is
 <!-- ─── AUTH LOADING ─────────────────────────────────────── -->
 <div id="auth-loading">
   <div class="logo-load">Nuv<span>Lev</span></div>
+  <div id="auth-offline" style="display:none;max-width:340px;margin:1.5rem auto 0;text-align:center;font-size:.9rem;color:#6b6257;line-height:1.5">
+    <p style="margin:0 0 .9rem">Não consegui confirmar sua assinatura agora — parece problema de conexão. Sua conta continua ativa.</p>
+    <button type="button" onclick="revalidarAssinatura()" style="padding:.7rem 1.4rem;border:0;border-radius:50px;background:#E76F51;color:#fff;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer">Tentar de novo</button>
+    <div style="margin-top:.8rem"><a href="#" onclick="sairDaConta();return false" style="color:#9a9086;font-size:.8rem">Sair da conta</a></div>
+  </div>
 </div>
 
 <!-- ─── LANDING PAGE (não-membros) ───────────────────────── -->
@@ -1264,9 +1275,27 @@ auth.onAuthStateChanged(async (user) => {
   const mainApp = document.getElementById('main-app');
 
   if (user) {
-    // Verifica se a assinatura está ativa no Firestore
-    try {
-      const doc = await db.collection('assinantes').doc(user.uid).get();
+    // Verifica se a assinatura está ativa no Firestore.
+    // Falha de rede NÃO desloga: só assinatura comprovadamente inativa desloga.
+    let doc = null, falhou = false;
+    for (let tentativa = 0; tentativa < 3 && !doc; tentativa++) {
+      try {
+        doc = await db.collection('assinantes').doc(user.uid).get();
+      } catch(e) {
+        falhou = true;
+        console.error('Erro ao verificar assinatura (tentativa ' + (tentativa+1) + '):', e);
+        if (tentativa < 2) await new Promise(r => setTimeout(r, 800 * (tentativa + 1)));
+      }
+    }
+    if (!doc && falhou) {
+      // Não dá para saber se a assinatura está ativa — mantém a sessão e avisa.
+      document.getElementById('auth-offline').style.display = 'block';
+      loading.classList.add('tem-aviso');
+      loading.style.opacity = '1';
+      loading.style.display = '';
+      return;
+    }
+    {
       if (doc.exists && doc.data().ativo === true) {
         // ✅ Assinante ativo — mostra o app
         isDemoMode = false;
@@ -1280,15 +1309,18 @@ auth.onAuthStateChanged(async (user) => {
         setTimeout(() => { loading.style.display = 'none'; mainApp.style.display = 'block'; }, 400);
         return;
       }
-    } catch(e) {
-      console.error('Erro ao verificar assinatura:', e);
     }
-    // Assinatura inativa — desloga e mostra landing
+    // Assinatura comprovadamente inativa — desloga e explica na landing
+    sessionStorage.setItem('nuvlev-assinatura-inativa', '1');
     await auth.signOut();
   }
 
   // Não logado ou assinatura inativa — mostra landing (exceto se demo ativo)
   if (isDemoMode) return;
+  if (sessionStorage.getItem('nuvlev-assinatura-inativa')) {
+    sessionStorage.removeItem('nuvlev-assinatura-inativa');
+    setTimeout(() => alert('Sua assinatura está inativa no momento. Se você acabou de assinar, aguarde alguns minutos e entre de novo; se acha que é engano, fale com a gente pelo contato do rodapé.'), 600);
+  }
   loading.style.opacity = '0';
   setTimeout(() => { loading.style.display = 'none'; landing.style.display = 'block'; }, 400);
 });
@@ -1315,6 +1347,9 @@ async function fazerLogout() {
   await auth.signOut();
   location.reload();
 }
+// Usados pela tela "não consegui confirmar sua assinatura"
+function revalidarAssinatura() { location.reload(); }
+async function sairDaConta() { await auth.signOut(); location.reload(); }
 
 // ── Modal ────────────────────────────────────────────────────
 function abrirLogin()  { document.getElementById('login-modal').classList.add('show'); }
@@ -2101,8 +2136,12 @@ async function nlLead(f, origem){
 }
 function fecharLeadPopup(){ document.getElementById('lead-popup').classList.remove('show'); localStorage.setItem('nuvlev-lead-popup','1'); }
 setTimeout(()=>{
-  const landingVisivel = document.getElementById('landing').style.display !== 'none';
-  if(landingVisivel && !localStorage.getItem('nuvlev-lead-popup') && !localStorage.getItem('nuvlev-lead'))
+  // Só oferece o PDF a visitante: quem paga e quem está no demo não vê.
+  const assinante = document.body.classList.contains('is-member');
+  const el = document.getElementById('landing');
+  const landingVisivel = el && el.offsetParent !== null;
+  if(landingVisivel && !assinante && !isDemoMode
+     && !localStorage.getItem('nuvlev-lead-popup') && !localStorage.getItem('nuvlev-lead'))
     document.getElementById('lead-popup').classList.add('show');
 }, 18000);
 </script>
