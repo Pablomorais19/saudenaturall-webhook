@@ -2,10 +2,12 @@ const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors');
 const path = require('path');
+const crypto = require('crypto');
 const app = express();
 
 app.disable('x-powered-by');
 app.use((req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString('base64');
   res.set({
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'SAMEORIGIN',
@@ -15,6 +17,18 @@ app.use((req, res, next) => {
   });
   next();
 });
+
+// Páginas montadas no servidor (blog e receitas públicas) não precisam de 'unsafe-inline':
+// os dois <script> que elas trazem levam nonce. Assim, mesmo que algo escape do
+// sanitizador do blog, o navegador não executa script injetado.
+function cspEstrita(res) {
+  res.set('Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'nonce-" + res.locals.nonce + "'; " +
+    "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; " +
+    "frame-src https://pay.hotmart.com; base-uri 'self'; " +
+    "form-action 'self' https://pay.hotmart.com; frame-ancestors 'self'");
+}
+
 app.use(express.json({ limit: '1mb' }));
 app.use(cors({ origin: 'https://saudenaturall.online' }));
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
@@ -264,6 +278,67 @@ app.get('/api/materiais/:id', async (req, res) => {
 
 // ── BLOG ─────────────────────────────────────────────────────────────────────
 
+// O post pode vir do Firestore, escrito pelo painel. Nada dele entra cru no HTML.
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function slugSeguro(v) { return String(v || '').replace(/[^a-z0-9-]/gi, '').slice(0, 120); }
+
+const TAGS_OK = new Set(['p','br','strong','b','em','i','u','ul','ol','li','h2','h3','h4',
+                         'blockquote','a','code','pre','hr','img','figure','figcaption','table',
+                         'thead','tbody','tr','th','td','span','div']);
+const ATTR_OK = { a: ['href','title'], img: ['src','alt','title'] };
+
+// Corpo do post: mantém a formatação, descarta tag fora da lista, atributo fora da lista,
+// qualquer on*, e href/src que não seja http(s), mailto ou caminho do próprio site.
+function sanitizeHtml(html) {
+  return String(html || '')
+    // blocos inteiros vão embora com o conteúdo, não só a tag
+    .replace(/<(script|style|iframe|object|embed|svg|math|template|noscript)\b[\s\S]*?<\/\1\s*>/gi, '')
+    .replace(/<(script|style|iframe|object|embed|svg|math|template|noscript)\b[^>]*\/?>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)((?:[^<>"']|"[^"]*"|'[^']*')*)>/g,
+    (tagInteira, nome, attrs) => {
+      const tag = nome.toLowerCase();
+      if (!TAGS_OK.has(tag)) return '';
+      if (tagInteira.startsWith('</')) return '</' + tag + '>';
+      const permitidos = ATTR_OK[tag] || [];
+      let saida = '';
+      if (permitidos.length) {
+        const rx = /([a-zA-Z-]+)\s*=\s*("([^"]*)"|'([^']*)')/g;
+        let m;
+        while ((m = rx.exec(attrs))) {
+          const chave = m[1].toLowerCase();
+          if (!permitidos.includes(chave)) continue;
+          const valor = m[3] !== undefined ? m[3] : m[4];
+          if ((chave === 'href' || chave === 'src') &&
+              !/^(https?:\/\/|mailto:|\/(?!\/))/i.test(valor.trim())) continue;
+          saida += ' ' + chave + '="' + esc(valor) + '"';
+        }
+      }
+      return '<' + tag + saida + '>';
+    })
+    .replace(/<!--[\s\S]*?-->/g, '');
+}
+
+// Todo post passa por aqui antes de virar HTML.
+function postSeguro(p) {
+  if (!p) return p;
+  return {
+    ...p,
+    slug: slugSeguro(p.slug),
+    title: esc(p.title),
+    description: esc(p.description),
+    category: esc(p.category),
+    readTime: esc(p.readTime),
+    dateFormatted: esc(p.dateFormatted),
+    date: esc(p.date),
+    content: sanitizeHtml(p.content)
+  };
+}
+
 const BLOG_POSTS = [
   {
     slug: 'como-planejar-alimentacao-semanal',
@@ -454,7 +529,7 @@ const BLOG_POSTS = [
   }
 ];
 
-function renderBlogIndex(posts) {
+function renderBlogIndex(posts, nonce) {
   const cards = posts.map(p => `
     <article class="post-card">
       <div class="post-meta"><span class="post-cat">${p.category}</span> · ${p.readTime}</div>
@@ -558,13 +633,13 @@ function renderBlogIndex(posts) {
 </html>`;
 }
 
-function renderBlogPost(post, allPosts) {
+function renderBlogPost(post, allPosts, nonce) {
   const related = allPosts.filter(p => p.slug !== post.slug).slice(0, 2);
   const relatedCards = related.map(p => `
     <div class="related-card">
       <div class="post-meta"><span class="post-cat">${p.category}</span> · ${p.readTime}</div>
       <h3><a href="/blog/${p.slug}">${p.title}</a></h3>
-      <p>${p.description.substring(0, 100)}...</p>
+      <p>${p.description.substring(0, 100).replace(/&[^;]*$/, '')}...</p>
     </div>
   `).join('');
 
@@ -580,8 +655,12 @@ function renderBlogPost(post, allPosts) {
   <meta property="og:description" content="${post.description}">
   <meta property="og:url" content="https://saudenaturall.online/blog/${post.slug}">
   <meta property="og:type" content="article">
+  <meta property="og:image" content="https://saudenaturall.online/og-image.jpg">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://saudenaturall.online/og-image.jpg">
   <meta property="article:published_time" content="${post.date}">
-  <script type="application/ld+json">${JSON.stringify({
+  <script type="application/ld+json"${nonce ? ` nonce="${nonce}"` : ''}>${JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": post.title,
@@ -658,7 +737,7 @@ function renderBlogPost(post, allPosts) {
     <h1>${post.title}</h1>
     <p class="post-lead">${post.description}</p>
     <div class="post-body">${post.content}</div>
-    ${leadBox('blog-post')}
+    ${leadBox('blog-post', nonce)}
     <div class="post-cta">
       <h3>Gostou? Veja na prática no NuvLev</h3>
       <p>690 receitas organizadas + 40 materiais de apoio + planejador semanal + lista de compras automática por R$19,90/mês.</p>
@@ -685,19 +764,23 @@ async function getAllPosts() {
     dyn = snap.docs.map(d => d.data());
   } catch (e) { console.error('Erro ao ler blog_posts:', e.message); }
   const statics = BLOG_POSTS.filter(p => !dyn.find(d => d.slug === p.slug));
-  return [...statics, ...dyn].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  return [...statics, ...dyn]
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .map(postSeguro);
 }
 
 // Blog routes
 app.get('/blog', async (req, res) => {
-  res.send(renderBlogIndex(await getAllPosts()));
+  cspEstrita(res);
+  res.send(renderBlogIndex(await getAllPosts(), res.locals.nonce));
 });
 
 app.get('/blog/:slug', async (req, res) => {
   const posts = await getAllPosts();
   const post = posts.find(p => p.slug === req.params.slug);
   if (!post) return res.status(404).redirect('/blog');
-  res.send(renderBlogPost(post, posts));
+  cspEstrita(res);
+  res.send(renderBlogPost(post, posts, res.locals.nonce));
 });
 
 // ── Admin do blog (protegido por ADMIN_TOKEN) ───────────────────────────────
@@ -756,31 +839,34 @@ function normalizeRecipe(r) {
 const PUBLIC_RECIPES = require('./public-recipes.json').map(normalizeRecipe);
 const LEAD_PDF = '/downloads/10-jantares-saudaveis-15-minutos.pdf';
 
-function leadBox(origem) {
+function leadBox(origem, nonce) {
+  const n = nonce ? ` nonce="${nonce}"` : '';
   return `
   <div style="background:linear-gradient(135deg,#fdf3ec,#fbe8dd);border:2px solid #E76F51;border-radius:18px;padding:1.8rem 1.5rem;margin:2.5rem 0;text-align:center">
     <h3 style="color:#2a2a35;font-size:1.25rem;margin-bottom:.4rem">🎁 Grátis: 10 Jantares Saudáveis de 15 Minutos</h3>
     <p style="color:#666;font-size:.92rem;margin-bottom:1rem">Deixe seu e-mail e baixe agora o PDF com 10 receitas práticas de jantar para a semana.</p>
-    <form onsubmit="return nlLead(this,'${origem}')" style="display:flex;gap:.6rem;max-width:430px;margin:0 auto;flex-wrap:wrap;justify-content:center">
+    <form data-lead-origem="${esc(origem)}" style="display:flex;gap:.6rem;max-width:430px;margin:0 auto;flex-wrap:wrap;justify-content:center">
       <input type="email" name="email" required placeholder="Seu melhor e-mail" style="flex:1;min-width:200px;padding:.8rem 1rem;border:2px solid #e8d5c8;border-radius:50px;font-size:.95rem;font-family:inherit">
       <button type="submit" style="background:#E76F51;color:#fff;border:none;border-radius:50px;padding:.8rem 1.5rem;font-weight:800;cursor:pointer;font-size:.92rem;font-family:inherit">Quero o PDF →</button>
     </form>
     <p class="nl-lead-ok" style="display:none;margin-top:1rem;font-weight:700"><a href="${LEAD_PDF}" style="color:#1e7e46" download>✅ Pronto! Clique aqui para baixar seu PDF →</a></p>
   </div>
-  <script>
-  if (typeof nlLead === 'undefined') {
-    async function nlLead(f, origem) {
+  <script${n}>
+  if (!window.__nlLeadPronto) {
+    window.__nlLeadPronto = true;
+    document.addEventListener('submit', async (ev) => {
+      const f = ev.target;
+      if (!f || !f.dataset || !f.dataset.leadOrigem) return;
+      ev.preventDefault();
       const btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'Enviando...';
       try {
         const response = await fetch('/lead', { method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ email: f.email.value, origem }) });
+          body: JSON.stringify({ email: f.email.value, origem: f.dataset.leadOrigem }) });
         if (!response.ok) throw new Error('HTTP ' + response.status);
         f.style.display = 'none';
         f.parentElement.querySelector('.nl-lead-ok').style.display = 'block';
       } catch(e) { btn.disabled = false; btn.textContent = 'Quero o PDF →'; alert('Erro de conexão, tente de novo.'); }
-      return false;
-    }
-    window.nlLead = nlLead;
+    });
   }
   </script>`;
 }
@@ -790,7 +876,7 @@ function recipeDesc(r) {
   return `Receita de ${r.name}: ${ing} ingredientes, passo a passo simples e dica de preparo. Veja como fazer — grátis no NuvLev.`.slice(0, 158);
 }
 
-function renderRecipeHead(title, desc, url, jsonld) {
+function renderRecipeHead(title, desc, url, jsonld, nonce) {
   return `<!DOCTYPE html><html lang="pt-BR"><head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
@@ -798,7 +884,11 @@ function renderRecipeHead(title, desc, url, jsonld) {
   <link rel="canonical" href="${url}">
   <meta property="og:title" content="${title}"><meta property="og:description" content="${desc}">
   <meta property="og:url" content="${url}"><meta property="og:type" content="article">
-  ${jsonld ? `<script type="application/ld+json">${jsonld}</scr` + `ipt>` : ''}
+  <meta property="og:image" content="https://saudenaturall.online/og-image.jpg">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://saudenaturall.online/og-image.jpg">
+  ${jsonld ? `<script type="application/ld+json"${nonce ? ` nonce="${nonce}"` : ''}>${jsonld}</scr` + `ipt>` : ''}
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#faf7f2;color:#2D2D2D;line-height:1.65}
@@ -840,7 +930,7 @@ function renderRecipeHead(title, desc, url, jsonld) {
 
 const RECIPE_FOOT = `<footer class="foot"><p><strong>NuvLev</strong> · saudenaturall.online · © 2025 Todos os direitos reservados</p></footer></body></html>`;
 
-function renderRecipeIndex() {
+function renderRecipeIndex(nonce) {
   const base = 'https://saudenaturall.online';
   const groups = {};
   PUBLIC_RECIPES.forEach(r => { (groups[r.volLabel] = groups[r.volLabel] || []).push(r); });
@@ -852,13 +942,13 @@ function renderRecipeIndex() {
   return renderRecipeHead(
     'Receitas Saudáveis Grátis — Café, Almoço, Jantar e Lanches | NuvLev',
     '40 receitas saudáveis grátis com passo a passo completo: café da manhã, almoço, jantar e lanches rápidos. Sem cadastro, direto do NuvLev.',
-    base + '/receitas', null) + `
+    base + '/receitas', null, nonce) + `
   <div class="wrap">
     <div class="crumb"><a href="/">Início</a> / Receitas grátis</div>
     <h1>Receitas saudáveis grátis, com passo a passo completo</h1>
     <p>Uma amostra aberta das <strong>690 receitas</strong> da plataforma NuvLev — escolhidas entre as mais práticas, com poucos ingredientes.</p>
     ${body}
-    ${leadBox('pagina-receitas')}
+    ${leadBox('pagina-receitas', nonce)}
     <div class="cta">
       <h3>Gostou? Isso é só 6% do acervo.</h3>
       <p>690 receitas organizadas + 40 materiais de apoio + planejador semanal + lista de compras automática.</p>
@@ -867,7 +957,7 @@ function renderRecipeIndex() {
   </div>` + RECIPE_FOOT;
 }
 
-function renderRecipePage(r) {
+function renderRecipePage(r, nonce) {
   const base = 'https://saudenaturall.online';
   const url = `${base}/receitas/${r.slug}`;
   const others = PUBLIC_RECIPES.filter(x => x.slug !== r.slug && x.vol === r.vol).slice(0, 3);
@@ -879,7 +969,7 @@ function renderRecipePage(r) {
     recipeInstructions: (r.steps || []).map(s => ({ '@type': 'HowToStep', text: s })),
     description: recipeDesc(r), url
   });
-  return renderRecipeHead(`${r.name} — Receita | NuvLev`, recipeDesc(r), url, jsonld) + `
+  return renderRecipeHead(`${r.name} — Receita | NuvLev`, recipeDesc(r), url, jsonld, nonce) + `
   <div class="wrap">
     <div class="crumb"><a href="/receitas">← Receitas grátis</a></div>
     <div style="margin-top:1rem"><span class="badge">${r.emoji} ${r.volLabel}</span></div>
@@ -889,7 +979,7 @@ function renderRecipePage(r) {
     <h2>👨‍🍳 Modo de preparo</h2>
     <ol>${(r.steps || []).map(s => `<li>${s}</li>`).join('')}</ol>
     ${r.benefit ? `<div class="benefit"><strong>💡 Dica de preparo:</strong> ${r.benefit}</div>` : ''}
-    ${leadBox('receita-' + r.slug)}
+    ${leadBox('receita-' + r.slug, nonce)}
     <div class="cta">
       <h3>Essa é 1 das 690 receitas do NuvLev</h3>
       <p>Todas organizadas por tipo de refeição, com planejador semanal e lista de compras automática.</p>
@@ -900,11 +990,12 @@ function renderRecipePage(r) {
   </div>` + RECIPE_FOOT;
 }
 
-app.get('/receitas', (req, res) => res.send(renderRecipeIndex()));
+app.get('/receitas', (req, res) => { cspEstrita(res); res.send(renderRecipeIndex(res.locals.nonce)); });
 app.get('/receitas/:slug', (req, res) => {
   const r = PUBLIC_RECIPES.find(x => x.slug === req.params.slug);
   if (!r) return res.status(404).redirect('/receitas');
-  res.send(renderRecipePage(r));
+  cspEstrita(res);
+  res.send(renderRecipePage(r, res.locals.nonce));
 });
 
 // Captura de leads
