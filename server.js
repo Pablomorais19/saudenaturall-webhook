@@ -207,6 +207,36 @@ app.get('/api/receitas/demo', (req, res) => {
   res.set('Cache-Control', 'public, max-age=3600');
   res.json(getDemoVolumes());
 });
+// Fotos abertas: só as das receitas que o demo já libera. O resto do acervo
+// continua atrás de /api/materiais/img, que exige assinante.
+let DEMO_FOTOS = null;
+function fotosDoDemo() {
+  if (DEMO_FOTOS) return DEMO_FOTOS;
+  DEMO_FOTOS = new Set();
+  getDemoVolumes().forEach(v => v.recipes.forEach(r => {
+    if (!r.locked && r.photo) DEMO_FOTOS.add(String(r.photo).toLowerCase());
+  }));
+  return DEMO_FOTOS;
+}
+// Miniaturas de 24px para as receitas bloqueadas do demo: a grade fica com cara
+// de acervo de fotos sem entregar a imagem em tamanho real.
+let THUMBS_CACHE = null;
+app.get('/api/demo/thumbs', (req, res) => {
+  try {
+    if (!THUMBS_CACHE) {
+      THUMBS_CACHE = JSON.parse(zlib.inflateSync(Buffer.from(require('./demo-thumbs.js'), 'base64')).toString('utf8'));
+    }
+    res.set('Cache-Control', 'public, max-age=604800');
+    res.json(THUMBS_CACHE);
+  } catch (e) { res.status(500).json({}); }
+});
+app.get('/api/demo/img/:name', (req, res) => {
+  const name = String(req.params.name || '');
+  if (!/^[a-z0-9-]+\.jpg$/i.test(name)) return res.status(400).end();
+  if (!fotosDoDemo().has(name.toLowerCase())) return res.status(403).end();
+  res.set('Cache-Control', 'public, max-age=86400');
+  res.sendFile(path.join(__dirname, 'materials', 'img', name), err => { if (err && !res.headersSent) res.status(404).end(); });
+});
 // Verifica token Firebase + assinatura ativa. Responde o erro e devolve false se não autorizado.
 async function exigirAssinante(req, res) {
   const h = req.headers.authorization || '';
