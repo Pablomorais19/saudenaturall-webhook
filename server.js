@@ -185,10 +185,6 @@ function getVolumes() {
   }
   return VOLUMES_CACHE;
 }
-app.get('/api/receitas/stats', (req, res) => {
-  const vols = getVolumes();
-  res.json({ total: vols.reduce((s, v) => s + v.recipes.length, 0), materiais: getMaterials().length, volumes: vols.map(v => ({ vol: v.vol || v.id || v.label, label: v.label || v.name || v.title, count: v.recipes.length })) });
-});
 // Demo: ~20 receitas completas (1 a cada 26), o restante só nome (sem ingredientes/passos)
 const DEMO_STEP = 26;
 function getDemoVolumes() {
@@ -240,7 +236,9 @@ app.get('/api/demo/img/:name', (req, res) => {
 // Verifica token Firebase + assinatura ativa. Responde o erro e devolve false se não autorizado.
 async function exigirAssinante(req, res) {
   const h = req.headers.authorization || '';
-  const token = h.startsWith('Bearer ') ? h.slice(7) : (req.query.t || null);
+  // Só pelo cabeçalho: token em query string vaza para log de servidor,
+  // histórico do navegador e cabeçalho Referer.
+  const token = h.startsWith('Bearer ') ? h.slice(7) : null;
   if (!token) { res.status(401).json({ error: 'Não autenticado' }); return false; }
   let decoded;
   try { decoded = await auth.verifyIdToken(token); }
