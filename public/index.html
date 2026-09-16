@@ -1709,7 +1709,7 @@ function renderRecipes(){
         ${prev}
         <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
         <div class="recipe-card-name">${r.name}</div>
-        <div class="recipe-card-meta">${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}</div>
+        <div class="recipe-card-meta">${minutosDe(r.time)!==null?`<span class="recipe-tag tag-tempo">⏱ ${minutosDe(r.time)} min</span>`:''}${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}</div>
         <div class="lock-overlay"><span>🔒</span>${_lang==='pt'?'Toque para espiar':'Tap to preview'}</div>`;
       card.onclick=()=>openRecipeLocked(r);
     } else {
