@@ -40,7 +40,10 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--dark);background:var(--white);line-height:1.6}
 a{text-decoration:none;color:inherit}
-button{cursor:pointer;border:none;outline:none;font-family:inherit}
+button{cursor:pointer;border:none;font-family:inherit}
+/* Foco visível para quem navega por teclado. :focus-visible não aparece no clique
+   de mouse, então dá acessibilidade sem poluir a tela de quem usa o dedo. */
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(10px);border-bottom:1px solid #f0e8e4;padding:0 5%}
@@ -101,8 +104,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .search-bar{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
 .search-input{flex:1;min-width:280px;padding:.8rem 1.2rem;border:2px solid #eee;border-radius:50px;font-size:1rem;transition:.2s}
 .search-input:focus{border-color:var(--primary);outline:none}
+.search-input:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 .filter-select{padding:.8rem 1.2rem;border:2px solid #eee;border-radius:50px;font-size:.9rem;background:#fff;color:var(--dark);cursor:pointer;min-width:160px}
 .filter-select:focus{border-color:var(--primary);outline:none}
+.filter-select:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 .results-count{color:var(--mid);font-size:.9rem;margin-bottom:1.5rem}
 .results-count strong{color:var(--primary)}
 .aviso-tempo{color:var(--mid);font-size:.82rem;margin:-1rem 0 1.5rem;opacity:.85}
@@ -443,6 +448,7 @@ footer strong{color:var(--primary)}
 .login-box h2{font-size:1.6rem;font-weight:900;margin-bottom:.3rem}
 .login-box p{color:#6B6B6B;font-size:.9rem;margin-bottom:2rem}
 .login-input{width:100%;padding:.85rem 1rem;border:2px solid #eee;border-radius:10px;font-size:1rem;font-family:inherit;margin-bottom:1rem;transition:.2s;outline:none}
+.login-input:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 .login-input:focus{border-color:#E76F51}
 .btn-login-submit{width:100%;padding:1rem;background:#E76F51;color:#fff;border:none;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s}
 .btn-login-submit:hover{background:#C85A3C}
@@ -1589,7 +1595,10 @@ function toggleFavById(id){
 function refreshFavHearts(){
   document.querySelectorAll('.fav-btn[data-rid]').forEach(b=>{
     const r = ALL_RECIPES[parseInt(b.dataset.rid)];
-    b.classList.toggle('active', r && favs.has(r.name));
+    const marcada = !!(r && favs.has(r.name));
+    b.classList.toggle('active', marcada);
+    b.setAttribute('aria-pressed', marcada);
+    b.setAttribute('aria-label', marcada ? 'Remover das favoritas' : 'Adicionar às favoritas');
   });
 }
 function favFromModal(){ if(currentRecipe) toggleFavById(currentRecipe._id); }
@@ -1707,7 +1716,7 @@ function renderRecipes(){
       const ph = r.photo ? `<div class="rc-photo"><img data-photo="${r.photo}" alt=""></div>` : '';
       if(ph) card.classList.add('has-photo');
       card.innerHTML=`
-        <button class="fav-btn${isFav(r)?' active':''}" data-rid="${r._id}" onclick="event.stopPropagation();toggleFavById(${r._id})">❤</button>
+        <button class="fav-btn${isFav(r)?' active':''}" data-rid="${r._id}" aria-pressed="${isFav(r)}" aria-label="${isFav(r)?'Remover das favoritas':'Adicionar às favoritas'}" onclick="event.stopPropagation();toggleFavById(${r._id})">❤</button>
         ${ph}
         <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
         <div class="recipe-card-name">${r.name}</div>
@@ -1718,6 +1727,17 @@ function renderRecipes(){
         </div>`;
       card.onclick=()=>openRecipe(r);
     }
+    // O card é um <div>, então precisa ser dito ao teclado e ao leitor de tela
+    // que ele é acionável — e responder a Enter e Espaço como um botão.
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', (isLocked ? 'Receita bloqueada: ' : '') + r.name);
+    card.addEventListener('keydown', ev => {
+      if(ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar'){
+        ev.preventDefault();
+        card.click();
+      }
+    });
     grid.appendChild(card);
   });
   displayed+=slice.length;
