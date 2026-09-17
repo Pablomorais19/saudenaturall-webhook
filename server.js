@@ -53,34 +53,138 @@ const auth = admin.auth();
 const HOTMART_TOKEN = process.env.HOTMART_TOKEN || '';
 const ADMIN_TOKEN   = process.env.ADMIN_TOKEN   || '';
 
-async function ativarAssinante(email, nome, transacao) {
-  let user;
+// ── E-mail transacional (Brevo) ──────────────────────────────────────────────
+const REMETENTE_EMAIL = process.env.BREVO_REMETENTE_EMAIL || 'contato@saudenaturall.online';
+const REMETENTE_NOME  = process.env.BREVO_REMETENTE_NOME  || 'NuvLev';
+
+// Envia um e-mail avulso. Nunca lança: falha de e-mail não pode derrubar o
+// webhook, senão a Hotmart reenvia o evento e o assinante é reativado em loop.
+async function enviarEmail(para, nome, assunto, html) {
+  if (!process.env.BREVO_API_KEY || typeof fetch !== 'function') {
+    console.warn('⚠️ BREVO_API_KEY ausente — e-mail não enviado para', para);
+    return false;
+  }
+  try {
+    const r = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sender:  { email: REMETENTE_EMAIL, name: REMETENTE_NOME },
+        replyTo: { email: REMETENTE_EMAIL, name: REMETENTE_NOME },
+        to: [{ email: para, name: nome || undefined }],
+        subject: assunto,
+        htmlContent: html
+      })
+    });
+    if (!r.ok) {
+      console.error('Erro Brevo (' + r.status + '):', (await r.text()).slice(0, 300));
+      return false;
+    }
+    console.log('📨 E-mail enviado para', para);
+    return true;
+  } catch (e) {
+    console.error('Erro Brevo:', e.message);
+    return false;
+  }
+}
+
+function escaparHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function emailDeAcesso(nome, link) {
+  const primeiro = escaparHtml((nome || '').trim().split(/\s+/)[0] || '');
+  const ola = primeiro ? 'Olá, ' + primeiro + '!' : 'Olá!';
+  return `<!DOCTYPE html><html lang="pt-BR"><body style="margin:0;padding:0;background:#f4f6f4;">
+<div style="max-width:560px;margin:0 auto;padding:28px 20px;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#2c3a2f;">
+  <div style="background:#ffffff;border-radius:14px;padding:32px 28px;">
+    <div style="font-size:22px;font-weight:700;color:#2e7d4f;margin-bottom:22px;">NuvLev</div>
+    <p style="font-size:17px;margin:0 0 14px;">${ola}</p>
+    <p style="font-size:16px;line-height:1.6;margin:0 0 22px;">
+      Sua assinatura foi confirmada e o seu acesso já está liberado.
+      Falta só criar a sua senha — leva menos de um minuto.
+    </p>
+    <p style="margin:0 0 26px;">
+      <a href="${escaparHtml(link)}" style="display:inline-block;background:#2e7d4f;color:#ffffff;
+         text-decoration:none;font-size:16px;font-weight:600;padding:14px 28px;border-radius:9px;">
+        Criar minha senha</a>
+    </p>
+    <p style="font-size:15px;line-height:1.6;margin:0 0 22px;">
+      Depois de criar a senha, entre em
+      <a href="https://saudenaturall.online" style="color:#2e7d4f;">saudenaturall.online</a>
+      usando <strong>este mesmo e-mail</strong>. Suas 614 receitas, o planejador de refeições
+      e a lista de compras estarão lá esperando.
+    </p>
+    <div style="background:#f4f6f4;border-radius:10px;padding:16px 18px;font-size:14px;line-height:1.6;color:#55645a;">
+      <strong>O link acima expirou?</strong> É normal, ele tem validade curta por segurança.
+      Basta abrir <a href="https://saudenaturall.online" style="color:#2e7d4f;">saudenaturall.online</a>,
+      clicar em <em>Entrar</em> e depois em <em>Esqueci minha senha</em> — você recebe um link novo na hora.
+    </div>
+    <p style="font-size:14px;line-height:1.6;color:#55645a;margin:22px 0 0;">
+      Qualquer dúvida, é só responder este e-mail. Bom proveito!
+    </p>
+  </div>
+  <p style="font-size:12px;color:#8a978e;text-align:center;margin:18px 0 0;">
+    NuvLev · ${escaparHtml(REMETENTE_EMAIL)}
+  </p>
+</div></body></html>`;
+}
+
+async function ativarAssinante(email, nome, transacao, avisar = true) {
+  let user, novo = false;
   try {
     user = await auth.getUserByEmail(email);
   } catch {
-    const senha = Math.random().toString(36).slice(-8) + 'Aa1!';
+    const senha = crypto.randomBytes(24).toString('base64url') + 'Aa1!';
     user = await auth.createUser({ email, displayName: nome, emailVerified: true, password: senha });
+    novo = true;
+  }
+  const ref = db.collection('assinantes').doc(user.uid);
+  let jaAvisado = false;
+  if (!novo) {
+    try { jaAvisado = !!(await ref.get()).get('boasVindasEm'); } catch { /* segue e avisa */ }
   }
   const resetLink = await auth.generatePasswordResetLink(email);
-  await db.collection('assinantes').doc(user.uid).set({
+  await ref.set({
     email, nome, ativo: true, transacao,
     atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
     inicioAssinatura: admin.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
-  return { user, resetLink };
+
+  // Só manda "crie sua senha" uma vez. Numa reativação, quem já tem senha
+  // não precisa receber de novo.
+  let enviado = false;
+  if (avisar && !jaAvisado) {
+    enviado = await enviarEmail(email, nome, 'Seu acesso ao NuvLev está liberado 🌿',
+                                emailDeAcesso(nome, resetLink));
+    if (enviado) {
+      try {
+        await ref.set({ boasVindasEm: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      } catch (e) { console.error('Não gravou boasVindasEm:', e.message); }
+    }
+  }
+  console.log(`✅ Ativado: ${email}${enviado ? ' (e-mail de acesso enviado)' : ''}`);
+  return { user, resetLink, novo, emailEnviado: enviado };
 }
 
 async function desativarAssinante(email) {
+  let user;
   try {
-    const user = await auth.getUserByEmail(email);
-    await db.collection('assinantes').doc(user.uid).set(
-      { ativo: false, atualizadoEm: admin.firestore.FieldValue.serverTimestamp() },
-      { merge: true }
-    );
-    console.log(`❌ Desativado: ${email}`);
+    user = await auth.getUserByEmail(email);
   } catch {
     console.warn(`⚠️ Usuário não encontrado para desativar: ${email}`);
+    return false;
   }
+  // Fora do try acima de propósito: se a gravação falhar, o erro sobe, o webhook
+  // responde 500 e a Hotmart reenvia. Antes, o catch engolia essa falha e o
+  // cancelado continuava com acesso.
+  await db.collection('assinantes').doc(user.uid).set(
+    { ativo: false, atualizadoEm: admin.firestore.FieldValue.serverTimestamp() },
+    { merge: true }
+  );
+  console.log(`❌ Desativado: ${email}`);
+  return true;
 }
 
 app.post('/webhook/hotmart', async (req, res) => {
@@ -91,7 +195,7 @@ app.post('/webhook/hotmart', async (req, res) => {
   const event = body.event;
   const data  = body.data || {};
   console.log(`📩 Webhook: ${event}`);
-  const email = data?.buyer?.email || data?.subscriber?.email;
+  const email = (data?.buyer?.email || data?.subscriber?.email || '').trim().toLowerCase();
   const nome  = data?.buyer?.name  || data?.subscriber?.name || 'Assinante';
   const trans = data?.purchase?.transaction || data?.subscription?.subscriber_code || '';
   if (!email) return res.status(400).json({ error: 'Email não encontrado' });
@@ -117,9 +221,20 @@ app.post('/admin/ativar', async (req, res) => {
   if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN)
     return res.status(401).json({ error: 'Não autorizado' });
   const { email, nome } = req.body;
+  // avisar: false ativa sem mandar e-mail; reenviar: true reenvia mesmo para
+  // quem já recebeu (útil para resgatar quem comprou antes e nunca entrou).
+  const avisar = req.body.avisar !== false;
   try {
-    const { user, resetLink } = await ativarAssinante(email, nome || 'Admin', 'manual');
-    res.json({ ok: true, uid: user.uid, resetLink });
+    if (req.body.reenviar === true) {
+      try {
+        const u = await auth.getUserByEmail(String(email || '').trim().toLowerCase());
+        await db.collection('assinantes').doc(u.uid)
+                .set({ boasVindasEm: admin.firestore.FieldValue.delete() }, { merge: true });
+      } catch { /* usuário novo: nada a limpar */ }
+    }
+    const r = await ativarAssinante(String(email || '').trim().toLowerCase(),
+                                    nome || 'Admin', 'manual', avisar);
+    res.json({ ok: true, uid: r.user.uid, resetLink: r.resetLink, emailEnviado: r.emailEnviado });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
