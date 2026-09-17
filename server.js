@@ -241,10 +241,37 @@ app.post('/admin/ativar', async (req, res) => {
 app.post('/admin/desativar', async (req, res) => {
   if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN)
     return res.status(401).json({ error: 'Não autorizado' });
-  const { email } = req.body;
+  const email = String((req.body || {}).email || '').trim().toLowerCase();
   try {
-    await desativarAssinante(email);
-    res.json({ ok: true });
+    const achou = await desativarAssinante(email);
+    res.json({ ok: true, encontrado: achou });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Consulta a situação de um assinante, para o painel mostrar antes de agir.
+app.get('/admin/assinante', async (req, res) => {
+  if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN)
+    return res.status(401).json({ error: 'Não autorizado' });
+  const email = String(req.query.email || '').trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+    return res.status(400).json({ error: 'E-mail inválido' });
+  try {
+    let user;
+    try { user = await auth.getUserByEmail(email); }
+    catch { return res.json({ existe: false, email }); }
+    const snap = await db.collection('assinantes').doc(user.uid).get();
+    const d = (snap.exists && snap.data()) || {};
+    const quando = v => (v && typeof v.toDate === 'function' ? v.toDate().toISOString() : (v || null));
+    res.json({
+      existe: true, email, uid: user.uid,
+      nome: d.nome || user.displayName || '',
+      ativo: d.ativo === true,
+      temFicha: !!snap.exists,
+      transacao: d.transacao || '',
+      boasVindasEm:     quando(d.boasVindasEm),
+      atualizadoEm:     quando(d.atualizadoEm),
+      inicioAssinatura: quando(d.inicioAssinatura)
+    });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
