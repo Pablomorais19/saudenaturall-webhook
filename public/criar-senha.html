@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>NuvLev — Criar sua senha</title>
+<style>
+:root{--primary:#E76F51;--primary-dark:#C85A3C;--accent:#FFF3EE;--dark:#2D2D2D;
+      --mid:#6B6B6B;--white:#fff;--green:#27AE60;--green-dark:#1E8449}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{background:var(--accent);color:var(--dark);min-height:100vh;display:flex;
+     align-items:center;justify-content:center;padding:1.2rem}
+.card{background:var(--white);border-radius:20px;padding:2.2rem 1.9rem;width:100%;max-width:440px;
+      box-shadow:0 6px 30px rgba(0,0,0,.08)}
+.marca{font-size:1.6rem;font-weight:800;color:var(--primary);margin-bottom:.2rem}
+.marca span{color:var(--green-dark)}
+h1{font-size:1.25rem;margin:1.1rem 0 .5rem;line-height:1.3}
+p{color:var(--mid);font-size:.95rem;line-height:1.6;margin-bottom:.9rem}
+label{display:block;font-weight:700;font-size:.85rem;margin:1.1rem 0 .4rem}
+input{width:100%;padding:.85rem 1rem;border:2px solid #efe7e2;border-radius:12px;
+      font-size:1rem;font-family:inherit}
+input:focus{outline:none;border-color:var(--primary)}
+button{width:100%;background:var(--primary);color:#fff;border:none;border-radius:50px;
+       padding:.95rem 1.5rem;font-weight:800;font-size:1rem;font-family:inherit;
+       cursor:pointer;margin-top:1.4rem}
+button:hover{background:var(--primary-dark)}
+button:disabled{opacity:.55;cursor:wait}
+.hint{font-size:.8rem;color:#9a9a9a;margin-top:.4rem}
+.msg{padding:.9rem 1.1rem;border-radius:12px;margin-top:1.1rem;font-size:.9rem;
+     line-height:1.55;display:none}
+.msg.err{background:#fdecea;color:#c0392b;display:block}
+.msg.ok{background:#e8f8ef;color:var(--green-dark);display:block}
+.centro{text-align:center}
+.link{color:var(--primary);font-weight:700;text-decoration:none}
+.carregando{text-align:center;color:var(--mid);padding:1.5rem 0}
+.oculto{display:none}
+.olho{background:none;border:none;color:var(--mid);font-size:.82rem;font-weight:700;
+      width:auto;padding:0;margin:.5rem 0 0;cursor:pointer}
+.olho:hover{background:none;color:var(--primary)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="marca">Nuv<span>Lev</span></div>
+
+  <div id="carregando" class="carregando">Verificando seu link…</div>
+
+  <!-- definir a senha -->
+  <div id="form-senha" class="oculto">
+    <h1>Crie a sua senha</h1>
+    <p>Você está criando a senha de <strong id="email-alvo"></strong>. Depois disso já entra direto, sem precisar digitar de novo.</p>
+    <label for="senha">Nova senha</label>
+    <input type="password" id="senha" autocomplete="new-password" placeholder="Pelo menos 8 caracteres">
+    <label for="senha2">Repita a senha</label>
+    <input type="password" id="senha2" autocomplete="new-password" placeholder="Digite de novo">
+    <button type="button" class="olho" id="btn-olho" onclick="verSenha()">Mostrar as senhas</button>
+    <button type="button" id="btn-salvar" onclick="salvar()">Criar senha e entrar</button>
+    <p class="hint">Guarde essa senha: é com ela que você entra no NuvLev daqui em diante.</p>
+  </div>
+
+  <!-- pedir um link novo -->
+  <div id="form-novo" class="oculto">
+    <h1>Esse link expirou</h1>
+    <p>Os links de senha valem por pouco tempo, por segurança. Coloque o seu e-mail que a gente manda um novo agora.</p>
+    <label for="email-novo">Seu e-mail</label>
+    <input type="email" id="email-novo" autocomplete="email" placeholder="o e-mail da sua assinatura">
+    <button type="button" id="btn-novo" onclick="pedirNovo()">Enviar link novo</button>
+  </div>
+
+  <!-- fim -->
+  <div id="fim" class="oculto centro">
+    <h1 id="fim-titulo"></h1>
+    <p id="fim-texto"></p>
+    <a class="link" href="/">Ir para o NuvLev →</a>
+  </div>
+
+  <div class="msg" id="msg"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:            "AIzaSyD4gFuNdDRRXi0nBNfym3oQepf8X0zAXPI",
+  authDomain:        "saudenaturall.firebaseapp.com",
+  projectId:         "saudenaturall",
+  storageBucket:     "saudenaturall.firebasestorage.app",
+  messagingSenderId: "491763004558",
+  appId:             "1:491763004558:web:aa8eedda234b6728e6c5df"
+});
+var auth = firebase.auth();
+
+var $ = function (id) { return document.getElementById(id); };
+var params = new URLSearchParams(location.search);
+var modo = params.get('mode');
+var codigo = params.get('oobCode');
+var email = '';
+
+function mostrar(id){ ['carregando','form-senha','form-novo','fim'].forEach(function(x){
+  $(x).classList.toggle('oculto', x !== id); $(x).style.display = (x === id ? '' : 'none'); }); }
+function aviso(texto, erro){ var m = $('msg'); m.className = 'msg ' + (erro ? 'err' : 'ok'); m.textContent = texto; }
+function limparAviso(){ $('msg').className = 'msg'; $('msg').textContent = ''; }
+function fim(titulo, texto){ $('fim-titulo').textContent = titulo; $('fim-texto').textContent = texto; mostrar('fim'); }
+function verSenha(){
+  var t = $('senha').type === 'password' ? 'text' : 'password';
+  $('senha').type = t; $('senha2').type = t;
+  $('btn-olho').textContent = t === 'text' ? 'Esconder as senhas' : 'Mostrar as senhas';
+}
+
+// Mensagens em português para os erros que o Firebase devolve.
+function traduzir(e){
+  var c = (e && e.code) || '';
+  if (c.indexOf('expired-action-code') > -1)  return 'expirado';
+  if (c.indexOf('invalid-action-code') > -1)  return 'expirado';
+  if (c.indexOf('user-disabled') > -1)        return 'Esta conta está desativada. Fale com a gente respondendo o e-mail do seu acesso.';
+  if (c.indexOf('user-not-found') > -1)       return 'Não encontramos uma conta com esse e-mail.';
+  if (c.indexOf('weak-password') > -1)        return 'Essa senha é curta demais. Use pelo menos 8 caracteres.';
+  if (c.indexOf('too-many-requests') > -1)    return 'Muitas tentativas seguidas. Espere alguns minutos e tente de novo.';
+  if (c.indexOf('network') > -1)              return 'Sem conexão no momento. Verifique a internet e tente de novo.';
+  return 'Algo deu errado: ' + ((e && e.message) || 'erro desconhecido');
+}
+
+function salvar(){
+  limparAviso();
+  var s1 = $('senha').value, s2 = $('senha2').value;
+  if (s1.length < 8) { aviso('A senha precisa ter pelo menos 8 caracteres.', true); return; }
+  if (s1 !== s2)     { aviso('As duas senhas não são iguais.', true); return; }
+  $('btn-salvar').disabled = true;
+  $('btn-salvar').textContent = 'Criando…';
+  auth.confirmPasswordReset(codigo, s1)
+    .then(function(){ return auth.signInWithEmailAndPassword(email, s1); })
+    .then(function(){ location.replace('/'); })
+    .catch(function(e){
+      var t = traduzir(e);
+      if (t === 'expirado') {
+        // a senha pode ter sido salva antes de o login falhar: manda para a entrada
+        aviso('Sua senha foi criada. Entre no NuvLev com ela.', false);
+        setTimeout(function(){ location.replace('/'); }, 2200);
+        return;
+      }
+      aviso(t, true);
+      $('btn-salvar').disabled = false;
+      $('btn-salvar').textContent = 'Criar senha e entrar';
+    });
+}
+
+function pedirNovo(){
+  limparAviso();
+  var e = ($('email-novo').value || '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) { aviso('Digite um e-mail válido.', true); return; }
+  $('btn-novo').disabled = true;
+  $('btn-novo').textContent = 'Enviando…';
+  auth.sendPasswordResetEmail(e)
+    .then(function(){
+      fim('Link enviado', 'Mandamos um link novo para ' + e + '. Ele chega em instantes — confira também o spam.');
+    })
+    .catch(function(err){
+      // não revela se o e-mail existe ou não
+      fim('Link enviado', 'Se existir uma conta com ' + e + ', o link novo chega em instantes. Confira também o spam.');
+    });
+}
+
+// ── entrada ────────────────────────────────────────────────────────────────
+(function inicio(){
+  if (!codigo) {
+    mostrar('form-novo');
+    return;
+  }
+  if (modo === 'verifyEmail') {
+    auth.applyActionCode(codigo)
+      .then(function(){ fim('E-mail confirmado', 'Tudo certo. Seu e-mail foi confirmado.'); })
+      .catch(function(){ fim('Link inválido', 'Esse link de confirmação não vale mais. Se precisar, entre em contato respondendo o e-mail do seu acesso.'); });
+    return;
+  }
+  if (modo === 'recoverEmail') {
+    auth.applyActionCode(codigo)
+      .then(function(){ fim('E-mail restaurado', 'O endereço da sua conta voltou ao que era antes.'); })
+      .catch(function(){ fim('Link inválido', 'Esse link não vale mais.'); });
+    return;
+  }
+  // resetPassword (e qualquer outro caso, que tratamos como definição de senha)
+  auth.verifyPasswordResetCode(codigo)
+    .then(function(e){
+      email = e;
+      $('email-alvo').textContent = e;
+      mostrar('form-senha');
+      $('senha').focus();
+    })
+    .catch(function(err){
+      var t = traduzir(err);
+      if (t === 'expirado') { mostrar('form-novo'); return; }
+      mostrar('form-novo');
+      aviso(t, true);
+    });
+})();
+</script>
+</body>
+</html>
