@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>NuvLev — Painel do Blog</title>
+<title>NuvLev — Painel</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 body{background:#f6f3ec;color:#2a2a35;padding:1.5rem}
@@ -32,6 +32,11 @@ button:disabled{opacity:.5;cursor:wait}
 .msg.ok{background:#e8f8ef;color:#1e7e46;display:block}
 .msg.err{background:#fdecea;color:#c0392b;display:block}
 #preview{border:2px dashed #e8e4dd;border-radius:10px;padding:1.2rem;margin-top:1rem;display:none}
+.ficha{display:none;margin-top:1rem;background:#faf8f4;border:2px solid #efece5;border-radius:10px;padding:1rem 1.1rem;font-size:.88rem;line-height:1.7}
+.ficha b{color:#2a2a35}
+.ficha .pill{display:inline-block;font-size:.72rem;font-weight:800;padding:.15rem .7rem;border-radius:50px;color:#fff}
+.ficha .pill.on{background:#1e7e46}
+.ficha .pill.off{background:#c0392b}
 #preview h2{color:#E76F51;margin:1rem 0 .5rem}
 #preview h3{margin:.8rem 0 .4rem}
 #preview p{margin-bottom:.8rem;line-height:1.6}
@@ -41,8 +46,8 @@ button:disabled{opacity:.5;cursor:wait}
 </head>
 <body>
 <div class="wrap">
-  <h1>Nuv<span>Lev</span> · Painel do Blog</h1>
-  <p class="sub">Escreva e publique artigos sem mexer em código. <a href="/blog" style="color:#E76F51">Ver blog →</a></p>
+  <h1>Nuv<span>Lev</span> · Painel</h1>
+  <p class="sub">Blog e assinantes, sem mexer em código. <a href="/blog" style="color:#E76F51">Ver blog →</a></p>
 
   <div class="card" id="auth-card">
     <label>Senha do painel (token de admin)</label>
@@ -87,6 +92,29 @@ Linha em branco separa parágrafos."></textarea>
       </div>
       <div id="preview"></div>
       <div class="msg" id="pub-msg"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:1.1rem;margin-bottom:.5rem">👤 Assinantes</h2>
+      <p class="hint" style="margin:0 0 .2rem">Para liberar acesso na mão, reenviar o e-mail de quem não recebeu, ou cortar o acesso de alguém.</p>
+      <div class="row">
+        <div>
+          <label>E-mail do assinante *</label>
+          <input id="a-email" type="email" placeholder="pessoa@exemplo.com" autocomplete="off">
+        </div>
+        <div>
+          <label>Nome (só ao ativar pela primeira vez)</label>
+          <input id="a-nome" placeholder="Ex: Maria Souza" autocomplete="off">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="mini" type="button" onclick="assConsultar()">🔎 Consultar</button>
+        <button type="button" onclick="assAtivar(false)">✅ Ativar e enviar acesso</button>
+        <button class="sec" type="button" onclick="assAtivar(true)">📨 Reenviar e-mail de acesso</button>
+        <button class="danger" id="a-btn-off" type="button" onclick="assDesativar()">Desativar acesso</button>
+      </div>
+      <div id="a-ficha" class="ficha"></div>
+      <div class="msg" id="a-msg"></div>
     </div>
 
     <div class="card">
@@ -214,6 +242,91 @@ function htmlBack(h){
     .replace(/<a href="([^"]+)"[^>]*>(.*?)<\/a>/g,'[$2]($1)')
     .replace(/<p>/g,'\n').replace(/<\/p>/g,'\n').replace(/&amp;/g,'&').replace(/&lt;/g,'<')
     .split('\n').map(s=>s.trim()).join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+/* ── Assinantes ─────────────────────────────────────────────────────────── */
+let assOffArmado = false;
+
+function assMsg(texto, erro){
+  const m = $('a-msg');
+  m.className = 'msg ' + (erro ? 'err' : 'ok');
+  m.textContent = texto;
+}
+function assEmail(){
+  const e = ($('a-email').value || '').trim().toLowerCase();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){ assMsg('Digite um e-mail válido.', true); return null; }
+  return e;
+}
+function assResetOff(){
+  assOffArmado = false;
+  $('a-btn-off').textContent = 'Desativar acesso';
+  $('a-btn-off').classList.remove('sec');
+}
+function assData(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  return isNaN(d) ? '—' : d.toLocaleString('pt-BR');
+}
+function assFicha(j){
+  const f = $('a-ficha');
+  if(!j){ f.style.display='none'; return; }
+  if(!j.existe){
+    f.innerHTML = 'Nenhuma conta com <b>'+j.email+'</b>. Use <b>Ativar e enviar acesso</b> para criar.';
+  } else {
+    f.innerHTML =
+      '<span class="pill '+(j.ativo?'on':'off')+'">'+(j.ativo?'ACESSO ATIVO':'SEM ACESSO')+'</span><br>'+
+      '<b>E-mail:</b> '+j.email+'<br>'+
+      '<b>Nome:</b> '+(j.nome||'—')+'<br>'+
+      '<b>E-mail de acesso enviado em:</b> '+assData(j.boasVindasEm)+'<br>'+
+      '<b>Assinou em:</b> '+assData(j.inicioAssinatura)+'<br>'+
+      '<b>Última alteração:</b> '+assData(j.atualizadoEm)+'<br>'+
+      '<b>Transação:</b> '+(j.transacao||'—');
+  }
+  f.style.display='block';
+}
+async function assConsultar(silencioso){
+  assResetOff();
+  const email = assEmail(); if(!email) return null;
+  try{
+    const r = await fetch('/admin/assinante?email='+encodeURIComponent(email), {headers:headers()});
+    const j = await r.json();
+    if(!r.ok){ assMsg(j.error||'Erro ao consultar.', true); return null; }
+    assFicha(j);
+    if(!silencioso) assMsg(j.existe ? 'Situação carregada.' : 'Esse e-mail ainda não tem conta.', false);
+    return j;
+  }catch(e){ assMsg('Falha de conexão: '+e.message, true); return null; }
+}
+async function assAtivar(reenviar){
+  assResetOff();
+  const email = assEmail(); if(!email) return;
+  assMsg(reenviar ? 'Reenviando o e-mail de acesso…' : 'Ativando e enviando o acesso…', false);
+  try{
+    const r = await fetch('/admin/ativar', {method:'POST', headers:headers(),
+      body: JSON.stringify({ email, nome: ($('a-nome').value||'').trim() || undefined, reenviar: !!reenviar })});
+    const j = await r.json();
+    if(!r.ok){ assMsg(j.error||'Erro ao ativar.', true); return; }
+    assMsg(j.emailEnviado
+      ? 'Pronto: acesso liberado e e-mail enviado para '+email+'. Peça para conferir a caixa de entrada (e o spam, na primeira vez).'
+      : 'Acesso liberado, mas o e-mail NÃO saiu. Confira a chave da Brevo e o remetente verificado.', !j.emailEnviado);
+    assConsultar(true);
+  }catch(e){ assMsg('Falha de conexão: '+e.message, true); }
+}
+async function assDesativar(){
+  const email = assEmail(); if(!email) return;
+  if(!assOffArmado){
+    assOffArmado = true;
+    $('a-btn-off').textContent = 'Confirmar: tirar acesso de '+email;
+    assMsg('Clique de novo para confirmar. Isso corta o acesso ao site imediatamente.', true);
+    return;
+  }
+  assResetOff();
+  try{
+    const r = await fetch('/admin/desativar', {method:'POST', headers:headers(), body: JSON.stringify({ email })});
+    const j = await r.json();
+    if(!r.ok){ assMsg(j.error||'Erro ao desativar.', true); return; }
+    assMsg(j.encontrado ? 'Acesso removido de '+email+'.' : 'Não existe conta com esse e-mail.', !j.encontrado);
+    assConsultar(true);
+  }catch(e){ assMsg('Falha de conexão: '+e.message, true); }
 }
 
 if(TOKEN){ $('token').value=TOKEN; entrar(); }
