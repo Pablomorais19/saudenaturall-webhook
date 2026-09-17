@@ -93,6 +93,31 @@ function escaparHtml(s) {
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+const SITE = process.env.SITE_URL || 'https://saudenaturall.online';
+
+// O link que o Firebase devolve aponta para a página de ação dele. O que vale
+// ali é o oobCode, um código de uso único que qualquer página pode consumir.
+// Então extraímos o código e montamos o endereço da NOSSA página de senha —
+// assim a entrega não depende de configurar a "URL de ação" no console.
+// Se por algum motivo o código não vier, devolvemos o link original, que
+// continua funcionando (só passa pela tela do Firebase).
+function linkDeSenha(linkDoFirebase) {
+  try {
+    const u = new URL(linkDoFirebase);
+    const code = u.searchParams.get('oobCode');
+    if (!code) return linkDoFirebase;
+    const nosso = new URL('/criar-senha', SITE);
+    nosso.searchParams.set('mode', u.searchParams.get('mode') || 'resetPassword');
+    nosso.searchParams.set('oobCode', code);
+    const api = u.searchParams.get('apiKey');
+    if (api) nosso.searchParams.set('apiKey', api);
+    return nosso.toString();
+  } catch (e) {
+    console.error('Não consegui montar o link de senha:', e.message);
+    return linkDoFirebase;
+  }
+}
+
 function emailDeAcesso(nome, link) {
   const primeiro = escaparHtml((nome || '').trim().split(/\s+/)[0] || '');
   const ola = primeiro ? 'Olá, ' + primeiro + '!' : 'Olá!';
@@ -143,7 +168,7 @@ async function ativarAssinante(email, nome, transacao, avisar = true) {
   if (!novo) {
     try { jaAvisado = !!(await ref.get()).get('boasVindasEm'); } catch { /* segue e avisa */ }
   }
-  const resetLink = await auth.generatePasswordResetLink(email);
+  const resetLink = linkDeSenha(await auth.generatePasswordResetLink(email));
   await ref.set({
     email, nome, ativo: true, transacao,
     atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
