@@ -111,15 +111,13 @@ function emailDeAcesso(nome, link) {
         Criar minha senha</a>
     </p>
     <p style="font-size:15px;line-height:1.6;margin:0 0 22px;">
-      Depois de criar a senha, entre em
-      <a href="https://saudenaturall.online" style="color:#2e7d4f;">saudenaturall.online</a>
-      usando <strong>este mesmo e-mail</strong>. Suas 614 receitas, o planejador de refeições
-      e a lista de compras estarão lá esperando.
+      Assim que definir a senha, você <strong>entra direto</strong>, sem precisar digitar nada de novo.
+      Suas 614 receitas, o planejador de refeições e a lista de compras já estarão lá esperando.
     </p>
     <div style="background:#f4f6f4;border-radius:10px;padding:16px 18px;font-size:14px;line-height:1.6;color:#55645a;">
       <strong>O link acima expirou?</strong> É normal, ele tem validade curta por segurança.
-      Basta abrir <a href="https://saudenaturall.online" style="color:#2e7d4f;">saudenaturall.online</a>,
-      clicar em <em>Entrar</em> e depois em <em>Esqueci minha senha</em> — você recebe um link novo na hora.
+      Abra <a href="https://saudenaturall.online/criar-senha" style="color:#2e7d4f;">saudenaturall.online/criar-senha</a>,
+      coloque o seu e-mail e você recebe um link novo na hora.
     </div>
     <p style="font-size:14px;line-height:1.6;color:#55645a;margin:22px 0 0;">
       Qualquer dúvida, é só responder este e-mail. Bom proveito!
@@ -274,6 +272,11 @@ app.get('/admin/assinante', async (req, res) => {
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
+
+// Página própria de criação de senha, para onde o Firebase manda os links do
+// e-mail de acesso (configurada em Authentication > Templates > URL de ação).
+app.get('/criar-senha', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'criar-senha.html')));
 
 app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
 
