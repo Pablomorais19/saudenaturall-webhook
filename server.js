@@ -6,6 +6,9 @@ const crypto = require('crypto');
 const app = express();
 
 app.disable('x-powered-by');
+// O Railway fica na frente do app; sem isso todo mundo chega com o mesmo IP
+// interno e o limite por IP puniria todos juntos.
+app.set('trust proxy', 1);
 app.use((req, res, next) => {
   res.locals.nonce = crypto.randomBytes(16).toString('base64');
   res.set({
@@ -52,6 +55,87 @@ const auth = admin.auth();
 
 const HOTMART_TOKEN = process.env.HOTMART_TOKEN || '';
 const ADMIN_TOKEN   = process.env.ADMIN_TOKEN   || '';
+
+// ── Limite de tentativas ─────────────────────────────────────────────────────
+// Sem isso, o ADMIN_TOKEN pode ser testado à exaustão e o /lead pode ser
+// inundado. Guardamos em memória de propósito: o Railway roda uma instância só,
+// e assim não há dependência nova nem escrita no banco a cada requisição.
+
+// Compara sem vazar informação pelo tempo de resposta: comparar strings com !==
+// para no primeiro caractere diferente, o que deixa medir acertos parciais.
+function tokenIgual(recebido, esperado) {
+  if (!esperado) return false;
+  const a = Buffer.from(String(recebido || ''), 'utf8');
+  const b = Buffer.from(esperado, 'utf8');
+  if (a.length !== b.length) {
+    // ainda assim compara algo do mesmo tamanho, para o tempo não denunciar
+    crypto.timingSafeEqual(b, b);
+    return false;
+  }
+  return crypto.timingSafeEqual(a, b);
+}
+
+function ipDe(req) {
+  return String(req.ip || req.socket.remoteAddress || 'sem-ip').replace(/^::ffff:/, '');
+}
+
+const baldes = new Map();   // 'nome:ip' -> { contagem, ate }
+setInterval(() => {
+  const agora = Date.now();
+  for (const [k, v] of baldes) if (v.ate <= agora) baldes.delete(k);
+}, 5 * 60 * 1000).unref?.();
+
+function bater(nome, ip, janelaMs, max) {
+  const chave = nome + ':' + ip;
+  const agora = Date.now();
+  let b = baldes.get(chave);
+  if (!b || b.ate <= agora) { b = { contagem: 0, ate: agora + janelaMs }; baldes.set(chave, b); }
+  b.contagem++;
+  return { excedeu: b.contagem > max, esperar: Math.ceil((b.ate - agora) / 1000) };
+}
+
+function zerar(nome, ip) { baldes.delete(nome + ':' + ip); }
+
+// Limite de volume para rotas públicas de escrita.
+function limitar(nome, janelaMs, max) {
+  return (req, res, next) => {
+    const { excedeu, esperar } = bater(nome, ipDe(req), janelaMs, max);
+    if (excedeu) {
+      console.warn(`⛔ Limite ${nome} atingido por ${ipDe(req)}`);
+      res.set('Retry-After', String(esperar));
+      return res.status(429).json({ error: 'Muitas tentativas. Tente de novo em alguns minutos.' });
+    }
+    next();
+  };
+}
+
+// Para rotas com token: conta apenas as tentativas ERRADAS. Quem acerta não é
+// limitado — a Hotmart pode mandar uma rajada de eventos legítimos, e o painel
+// pode ser usado à vontade.
+const MAX_FALHAS = 8, JANELA_FALHAS = 15 * 60 * 1000;
+
+function exigirToken(nome, esperado) {
+  return (req, res, next) => {
+    const ip = ipDe(req);
+    const chave = 'falha-' + nome + ':' + ip;
+    const b = baldes.get(chave);
+    if (b && b.ate > Date.now() && b.contagem > MAX_FALHAS) {
+      res.set('Retry-After', String(Math.ceil((b.ate - Date.now()) / 1000)));
+      return res.status(429).json({ error: 'Bloqueado por tentativas demais.' });
+    }
+    const recebido = req.headers[nome === 'admin' ? 'x-admin-token' : 'x-hotmart-webhook-token'];
+    if (!tokenIgual(recebido, esperado)) {
+      const r = bater('falha-' + nome, ip, JANELA_FALHAS, MAX_FALHAS);
+      if (r.excedeu) console.warn(`🚨 ${nome}: ${MAX_FALHAS}+ tentativas erradas de ${ip}`);
+      return res.status(401).json({ error: nome === 'admin' ? 'Não autorizado' : 'Token inválido' });
+    }
+    zerar('falha-' + nome, ip);   // acertou: limpa o histórico de falhas
+    next();
+  };
+}
+
+const exigirAdmin   = exigirToken('admin', ADMIN_TOKEN);
+const exigirHotmart = exigirToken('hotmart', HOTMART_TOKEN);
 
 // ── E-mail transacional (Brevo) ──────────────────────────────────────────────
 const REMETENTE_EMAIL = process.env.BREVO_REMETENTE_EMAIL || 'contato@saudenaturall.online';
@@ -210,10 +294,7 @@ async function desativarAssinante(email) {
   return true;
 }
 
-app.post('/webhook/hotmart', async (req, res) => {
-  const token = req.headers['x-hotmart-webhook-token'];
-  if (!HOTMART_TOKEN || token !== HOTMART_TOKEN)
-    return res.status(401).json({ error: 'Token inválido' });
+app.post('/webhook/hotmart', exigirHotmart, async (req, res) => {
   const body = req.body;
   const event = body.event;
   const data  = body.data || {};
@@ -240,9 +321,7 @@ app.post('/webhook/hotmart', async (req, res) => {
   }
 });
 
-app.post('/admin/ativar', async (req, res) => {
-  if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN)
-    return res.status(401).json({ error: 'Não autorizado' });
+app.post('/admin/ativar', exigirAdmin, async (req, res) => {
   const { email, nome } = req.body;
   // avisar: false ativa sem mandar e-mail; reenviar: true reenvia mesmo para
   // quem já recebeu (útil para resgatar quem comprou antes e nunca entrou).
@@ -261,9 +340,7 @@ app.post('/admin/ativar', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/admin/desativar', async (req, res) => {
-  if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN)
-    return res.status(401).json({ error: 'Não autorizado' });
+app.post('/admin/desativar', exigirAdmin, async (req, res) => {
   const email = String((req.body || {}).email || '').trim().toLowerCase();
   try {
     const achou = await desativarAssinante(email);
@@ -272,9 +349,7 @@ app.post('/admin/desativar', async (req, res) => {
 });
 
 // Consulta a situação de um assinante, para o painel mostrar antes de agir.
-app.get('/admin/assinante', async (req, res) => {
-  if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN)
-    return res.status(401).json({ error: 'Não autorizado' });
+app.get('/admin/assinante', exigirAdmin, async (req, res) => {
   const email = String(req.query.email || '').trim().toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
     return res.status(400).json({ error: 'E-mail inválido' });
@@ -457,7 +532,7 @@ app.get('/api/estado', async (req, res) => {
   }
 });
 
-app.put('/api/estado', async (req, res) => {
+app.put('/api/estado', limitar('estado', 60 * 1000, 60), async (req, res) => {
   try {
     if (!(await exigirAssinante(req, res))) return;
     const b = req.body || {};
@@ -1040,12 +1115,12 @@ app.get('/blog/:slug', async (req, res) => {
 });
 
 // ── Admin do blog (protegido por ADMIN_TOKEN) ───────────────────────────────
+// Mantido para as rotas do blog, agora passando pelo mesmo controle de
+// tentativas das demais.
 function checkAdmin(req, res) {
-  if (!ADMIN_TOKEN || req.headers['x-admin-token'] !== ADMIN_TOKEN) {
-    res.status(401).json({ error: 'Não autorizado' });
-    return false;
-  }
-  return true;
+  let liberou = false;
+  exigirAdmin(req, res, () => { liberou = true; });
+  return liberou;
 }
 
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
@@ -1255,7 +1330,7 @@ app.get('/receitas/:slug', (req, res) => {
 });
 
 // Captura de leads
-app.post('/lead', async (req, res) => {
+app.post('/lead', limitar('lead', 10 * 60 * 1000, 5), async (req, res) => {
   const email = ((req.body || {}).email || '').trim().toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
     return res.status(400).json({ error: 'E-mail inválido' });
