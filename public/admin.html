@@ -112,7 +112,9 @@ Linha em branco separa parágrafos."></textarea>
         <button type="button" onclick="assAtivar(false)">✅ Ativar e enviar acesso</button>
         <button class="sec" type="button" onclick="assAtivar(true)">📨 Reenviar e-mail de acesso</button>
         <button class="danger" id="a-btn-off" type="button" onclick="assDesativar()">Desativar acesso</button>
+        <button class="danger" id="a-btn-lgpd" type="button" onclick="assExcluir()">🗑 Apagar dados (LGPD)</button>
       </div>
+      <p class="hint" style="margin-top:.7rem"><b>Apagar dados</b> atende pedido de exclusão do titular: remove a conta, a assinatura, o planejador/favoritos e o cadastro de lead. Não tem volta, e guarda um comprovante sem o e-mail em claro.</p>
       <div id="a-ficha" class="ficha"></div>
       <div class="msg" id="a-msg"></div>
     </div>
@@ -246,6 +248,7 @@ function htmlBack(h){
 
 /* ── Assinantes ─────────────────────────────────────────────────────────── */
 let assOffArmado = false;
+let assLgpdArmado = false;
 
 function assMsg(texto, erro){
   const m = $('a-msg');
@@ -261,6 +264,33 @@ function assResetOff(){
   assOffArmado = false;
   $('a-btn-off').textContent = 'Desativar acesso';
   $('a-btn-off').classList.remove('sec');
+  assLgpdArmado = false;
+  $('a-btn-lgpd').textContent = '🗑 Apagar dados (LGPD)';
+}
+
+async function assExcluir(){
+  const email = assEmail(); if(!email) return;
+  assOffArmado = false; $('a-btn-off').textContent = 'Desativar acesso';
+  if(!assLgpdArmado){
+    assLgpdArmado = true;
+    $('a-btn-lgpd').textContent = 'Confirmar: apagar TUDO de ' + email;
+    assMsg('Isso apaga a conta, a assinatura, o planejador, os favoritos e o cadastro de lead de ' + email + '. Não tem volta. Clique de novo para confirmar.', true);
+    return;
+  }
+  assResetOff();
+  assMsg('Apagando…', false);
+  try{
+    const r = await fetch('/admin/excluir-dados', {method:'POST', headers:headers(),
+      body: JSON.stringify({ email, confirmar: true, motivo: 'pedido do titular' })});
+    const j = await r.json();
+    if(!r.ok){ assMsg(j.error||'Erro ao apagar.', true); return; }
+    const feito = Object.keys(j.apagado||{}).filter(k=>j.apagado[k]);
+    if(!j.encontrado){ assMsg('Não havia nada guardado com esse e-mail.', false); }
+    else assMsg('Dados apagados (' + feito.join(', ') + '). Comprovante: ' + j.comprovante
+                + (j.avisos && j.avisos.length ? ' — atenção: ' + j.avisos.join(' | ') : ''),
+                !!(j.avisos && j.avisos.length));
+    assConsultar(true);
+  }catch(e){ assMsg('Falha de conexão: '+e.message, true); }
 }
 function assData(iso){
   if(!iso) return '—';
