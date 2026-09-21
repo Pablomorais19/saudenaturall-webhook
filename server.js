@@ -373,6 +373,73 @@ app.get('/admin/assinante', exigirAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Exclusão de dados pessoais (LGPD). A Política de Privacidade promete atender
+// em até 15 dias, mas desativar só virava uma chave ativo:false — a conta no
+// Firebase ficava, e o planejador/favoritos/lista em estado_usuario ficavam
+// guardados sem prazo. Aqui os quatro lugares saem de uma vez, e fica o
+// registro de quando e por quê, que é o que a lei pede que se possa comprovar.
+app.post('/admin/excluir-dados', exigirAdmin, async (req, res) => {
+  const email = String((req.body || {}).email || '').trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+    return res.status(400).json({ error: 'E-mail inválido' });
+  if ((req.body || {}).confirmar !== true)
+    return res.status(400).json({ error: 'Falta confirmar: isso apaga os dados e não tem volta.' });
+
+  const apagado = { conta: false, assinante: false, estado: false, lead: false };
+  const avisos = [];
+  try {
+    let user = null;
+    try { user = await auth.getUserByEmail(email); } catch { /* já não existe */ }
+
+    // Apagar no Firestore dá sucesso mesmo quando o documento não existe, então
+    // conferimos antes: assim o painel relata o que de fato havia, em vez de
+    // dizer que apagou coisas que nunca existiram.
+    async function sumir(colecao, id) {
+      const ref = db.collection(colecao).doc(id);
+      const snap = await ref.get();
+      if (!snap.exists) return false;
+      await ref.delete();
+      return true;
+    }
+
+    if (user) {
+      try { apagado.estado    = await sumir('estado_usuario', user.uid); }
+      catch (e) { avisos.push('estado_usuario: ' + e.message); }
+      try { apagado.assinante = await sumir('assinantes', user.uid); }
+      catch (e) { avisos.push('assinantes: ' + e.message); }
+    }
+
+    try { apagado.lead = await sumir('leads', email); }
+    catch (e) { avisos.push('leads: ' + e.message); }
+
+    // A conta do Auth sai por último: enquanto ela existe, dá para repetir a
+    // operação se algo acima falhar. Apagada antes, perderíamos o uid.
+    if (user) {
+      try {
+        await auth.deleteUser(user.uid);
+        apagado.conta = true;
+      } catch (e) { avisos.push('auth: ' + e.message); }
+    }
+
+    // O comprovante NÃO guarda o e-mail em claro: só o hash, que serve para
+    // conferir um pedido específico sem manter o dado que se pediu para apagar.
+    const marca = crypto.createHash('sha256').update(email).digest('hex').slice(0, 16);
+    try {
+      await db.collection('exclusoes').doc(marca).set({
+        marca, quando: admin.firestore.FieldValue.serverTimestamp(),
+        motivo: String((req.body.motivo || 'pedido do titular')).slice(0, 200),
+        apagado, avisos
+      });
+    } catch (e) { avisos.push('registro: ' + e.message); }
+
+    const nada = !user && !apagado.lead;
+    console.log(`🗑️ Exclusão LGPD (${marca}):`, JSON.stringify(apagado));
+    res.json({ ok: true, encontrado: !nada, apagado, avisos, comprovante: marca });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Página própria de criação de senha, para onde o Firebase manda os links do
 // e-mail de acesso (configurada em Authentication > Templates > URL de ação).
 app.get('/criar-senha', (req, res) =>
@@ -1217,6 +1284,7 @@ function leadBox(origem, nonce) {
       <input type="email" name="email" required placeholder="Seu melhor e-mail" style="flex:1;min-width:200px;padding:.8rem 1rem;border:2px solid #e8d5c8;border-radius:50px;font-size:.95rem;font-family:inherit">
       <button type="submit" style="background:#E76F51;color:#fff;border:none;border-radius:50px;padding:.8rem 1.5rem;font-weight:800;cursor:pointer;font-size:.92rem;font-family:inherit">Quero o PDF →</button>
     </form>
+    <p style="color:#8a8178;font-size:.78rem;line-height:1.5;margin-top:.8rem">Ao enviar, você também passa a receber e-mails da NuvLev com receitas e novidades. Pode sair quando quiser, em um clique. <a href="/privacidade" style="color:#8a8178;text-decoration:underline">Política de Privacidade</a>.</p>
     <p class="nl-lead-ok" style="display:none;margin-top:1rem;font-weight:700"><a class="nl-lead-link" href="#" style="color:#1e7e46" download>✅ Pronto! Clique aqui para baixar seu PDF →</a></p>
   </div>
   <script${n}>
