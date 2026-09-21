@@ -1168,7 +1168,44 @@ function normalizeRecipe(r) {
   };
 }
 const PUBLIC_RECIPES = require('./public-recipes.json').map(normalizeRecipe);
-const LEAD_PDF = '/downloads/10-jantares-saudaveis-15-minutos.pdf';
+// O PDF do brinde saiu de /public: enquanto ele era estático e o caminho
+// estava escrito no HTML, dar o e-mail era opcional. Agora mora fora da pasta
+// pública e só é entregue por um link assinado, de curta duração, que o
+// POST /lead devolve depois de gravar o contato.
+const LEAD_ARQUIVO  = path.join(__dirname, 'privados', '10-jantares-saudaveis-15-minutos.pdf');
+const LEAD_NOME     = '10-Jantares-Saudaveis-15-Minutos.pdf';
+const LEAD_VALIDADE = 30 * 60 * 1000;   // meia hora basta para baixar
+const LEAD_SEGREDO  = process.env.LEAD_SECRET || ADMIN_TOKEN ||
+                      crypto.randomBytes(32).toString('hex');
+
+function assinaturaBrinde(ate) {
+  return crypto.createHmac('sha256', LEAD_SEGREDO).update('brinde:' + ate).digest('hex');
+}
+function linkDoBrinde() {
+  const ate = Date.now() + LEAD_VALIDADE;
+  return `/brinde?ate=${ate}&t=${assinaturaBrinde(ate)}`;
+}
+
+app.get('/brinde', (req, res) => {
+  const ate = Number(req.query.ate || 0);
+  const t   = String(req.query.t || '');
+  const esperada = assinaturaBrinde(ate);
+  const valida = t.length === esperada.length &&
+                 crypto.timingSafeEqual(Buffer.from(t), Buffer.from(esperada));
+  if (!ate || !valida || Date.now() > ate) {
+    return res.status(403).type('html').send(
+      '<!DOCTYPE html><html lang="pt-BR"><meta charset="utf-8">' +
+      '<body style="font-family:system-ui;background:#FFF3EE;color:#2D2D2D;padding:3rem 1.5rem;text-align:center">' +
+      '<h1 style="font-size:1.3rem">Esse link do PDF expirou</h1>' +
+      '<p style="color:#6B6B6B;line-height:1.6;max-width:420px;margin:1rem auto">' +
+      'Os links do brinde valem por pouco tempo. Volte em ' +
+      '<a href="/" style="color:#E76F51;font-weight:700">saudenaturall.online</a> ' +
+      'e peça de novo com o seu e-mail — chega na hora.</p></body></html>');
+  }
+  res.download(LEAD_ARQUIVO, LEAD_NOME, (err) => {
+    if (err) console.error('Falha ao entregar o brinde:', err.message);
+  });
+});
 
 function leadBox(origem, nonce) {
   const n = nonce ? ` nonce="${nonce}"` : '';
@@ -1180,7 +1217,7 @@ function leadBox(origem, nonce) {
       <input type="email" name="email" required placeholder="Seu melhor e-mail" style="flex:1;min-width:200px;padding:.8rem 1rem;border:2px solid #e8d5c8;border-radius:50px;font-size:.95rem;font-family:inherit">
       <button type="submit" style="background:#E76F51;color:#fff;border:none;border-radius:50px;padding:.8rem 1.5rem;font-weight:800;cursor:pointer;font-size:.92rem;font-family:inherit">Quero o PDF →</button>
     </form>
-    <p class="nl-lead-ok" style="display:none;margin-top:1rem;font-weight:700"><a href="${LEAD_PDF}" style="color:#1e7e46" download>✅ Pronto! Clique aqui para baixar seu PDF →</a></p>
+    <p class="nl-lead-ok" style="display:none;margin-top:1rem;font-weight:700"><a class="nl-lead-link" href="#" style="color:#1e7e46" download>✅ Pronto! Clique aqui para baixar seu PDF →</a></p>
   </div>
   <script${n}>
   if (!window.__nlLeadPronto) {
@@ -1194,8 +1231,12 @@ function leadBox(origem, nonce) {
         const response = await fetch('/lead', { method:'POST', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ email: f.email.value, origem: f.dataset.leadOrigem }) });
         if (!response.ok) throw new Error('HTTP ' + response.status);
+        const dados = await response.json();
         f.style.display = 'none';
-        f.parentElement.querySelector('.nl-lead-ok').style.display = 'block';
+        const aviso = f.parentElement.querySelector('.nl-lead-ok');
+        const link  = aviso.querySelector('.nl-lead-link');
+        if (link && dados.pdf) link.href = dados.pdf;
+        aviso.style.display = 'block';
       } catch(e) { btn.disabled = false; btn.textContent = 'Quero o PDF →'; alert('Erro de conexão, tente de novo.'); }
     });
   }
@@ -1352,7 +1393,7 @@ app.post('/lead', limitar('lead', 10 * 60 * 1000, 5), async (req, res) => {
       console.log('📨 Lead enviado à Brevo:', email);
     } catch (e) { console.error('Erro Brevo:', e.message); }
   }
-  res.json({ ok: true, pdf: LEAD_PDF });
+  res.json({ ok: true, pdf: linkDoBrinde() });
 });
 
 // Exportar leads (CSV) — protegido
