@@ -255,6 +255,9 @@ async function ativarAssinante(email, nome, transacao, avisar = true) {
   const resetLink = linkDeSenha(await auth.generatePasswordResetLink(email));
   await ref.set({
     email, nome, ativo: true, transacao,
+    // quem volta a pagar deixa de ter fim de acesso agendado
+    cancelada: false,
+    acessoAte: admin.firestore.FieldValue.delete(),
     atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
     inicioAssinatura: admin.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
@@ -275,6 +278,27 @@ async function ativarAssinante(email, nome, transacao, avisar = true) {
   return { user, resetLink, novo, emailEnviado: enviado };
 }
 
+// Cancelamento não é reembolso. A documentação da Hotmart diz que o evento de
+// cancelamento chega no dia em que a pessoa cancela, mas que ela "deveria ter
+// acesso" até a data do próximo pagamento (date_next_charge), que é o fim do
+// ciclo já pago. Então cancelar AGENDA o fim do acesso; reembolso e chargeback
+// continuam cortando na hora, porque aí o dinheiro voltou.
+async function agendarFimDoAcesso(email, ateMs) {
+  let user;
+  try { user = await auth.getUserByEmail(email); }
+  catch {
+    console.warn(`⚠️ Usuário não encontrado para agendar fim de acesso: ${email}`);
+    return false;
+  }
+  await db.collection('assinantes').doc(user.uid).set({
+    cancelada: true,
+    acessoAte: ateMs,
+    atualizadoEm: admin.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
+  console.log(`🗓️ Cancelou: ${email} mantém acesso até ${new Date(ateMs).toISOString()}`);
+  return true;
+}
+
 async function desativarAssinante(email) {
   let user;
   try {
@@ -287,7 +311,9 @@ async function desativarAssinante(email) {
   // responde 500 e a Hotmart reenvia. Antes, o catch engolia essa falha e o
   // cancelado continuava com acesso.
   await db.collection('assinantes').doc(user.uid).set(
-    { ativo: false, atualizadoEm: admin.firestore.FieldValue.serverTimestamp() },
+    { ativo: false, cancelada: false,
+      acessoAte: admin.firestore.FieldValue.delete(),
+      atualizadoEm: admin.firestore.FieldValue.serverTimestamp() },
     { merge: true }
   );
   console.log(`❌ Desativado: ${email}`);
@@ -304,11 +330,25 @@ app.post('/webhook/hotmart', exigirHotmart, async (req, res) => {
   const trans = data?.purchase?.transaction || data?.subscription?.subscriber_code || '';
   if (!email) return res.status(400).json({ error: 'Email não encontrado' });
   const ATIVAR    = ['PURCHASE_COMPLETE','PURCHASE_APPROVED','SUBSCRIPTION_REACTIVATED'];
-  const DESATIVAR = ['PURCHASE_REFUNDED','PURCHASE_CHARGEBACK','SUBSCRIPTION_CANCELLATION','PURCHASE_CANCELED'];
+  // Corte imediato: o dinheiro voltou para o comprador.
+  const DESATIVAR = ['PURCHASE_REFUNDED','PURCHASE_CHARGEBACK','PURCHASE_CANCELED'];
   try {
     if (ATIVAR.includes(event)) {
       await ativarAssinante(email, nome, trans);
       return res.json({ ok: true, acao: 'ativado' });
+    }
+    // Cancelamento: o serviço já foi pago até o fim do ciclo. A Hotmart manda a
+    // data do próximo pagamento justamente para isso. Sem ela (formato antigo
+    // ou data no passado), cai no comportamento antigo de cortar na hora.
+    if (event === 'SUBSCRIPTION_CANCELLATION') {
+      const ate = Number(data.date_next_charge || 0);
+      if (ate > Date.now()) {
+        const achou = await agendarFimDoAcesso(email, ate);
+        return res.json({ ok: true, acao: 'acesso agendado',
+                          ate: new Date(ate).toISOString(), encontrado: achou });
+      }
+      await desativarAssinante(email);
+      return res.json({ ok: true, acao: 'desativado', motivo: 'sem data de fim de ciclo' });
     }
     if (DESATIVAR.includes(event)) {
       await desativarAssinante(email);
@@ -364,6 +404,9 @@ app.get('/admin/assinante', exigirAdmin, async (req, res) => {
       existe: true, email, uid: user.uid,
       nome: d.nome || user.displayName || '',
       ativo: d.ativo === true,
+      cancelada: d.cancelada === true,
+      acessoAte: typeof d.acessoAte === 'number' ? new Date(d.acessoAte).toISOString() : null,
+      expirado: typeof d.acessoAte === 'number' && Date.now() > d.acessoAte,
       temFicha: !!snap.exists,
       transacao: d.transacao || '',
       boasVindasEm:     quando(d.boasVindasEm),
@@ -557,6 +600,12 @@ async function exigirAssinante(req, res) {
   catch { res.status(401).json({ error: 'Token inválido' }); return false; }
   const doc = await db.collection('assinantes').doc(decoded.uid).get();
   if (!doc.exists || doc.data().ativo !== true) { res.status(403).json({ error: 'Assinatura inativa' }); return false; }
+  // Cancelou mas ainda está dentro do ciclo pago: continua entrando. Passou da
+  // data, a porta fecha aqui mesmo — sem depender de nenhuma tarefa agendada.
+  const ate = doc.data().acessoAte;
+  if (typeof ate === 'number' && Date.now() > ate) {
+    res.status(403).json({ error: 'Assinatura encerrada' }); return false;
+  }
   req.uid = decoded.uid;
   return true;
 }
