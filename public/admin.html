@@ -303,8 +303,13 @@ function assFicha(j){
   if(!j.existe){
     f.innerHTML = 'Nenhuma conta com <b>'+j.email+'</b>. Use <b>Ativar e enviar acesso</b> para criar.';
   } else {
+    const temAcesso = j.ativo && !j.expirado;
+    let etiqueta = temAcesso ? 'ACESSO ATIVO' : 'SEM ACESSO';
+    if (j.expirado) etiqueta = 'ACESSO ENCERRADO';
+    else if (j.cancelada && j.ativo) etiqueta = 'CANCELADA — ACESSO ATÉ O FIM DO CICLO';
     f.innerHTML =
-      '<span class="pill '+(j.ativo?'on':'off')+'">'+(j.ativo?'ACESSO ATIVO':'SEM ACESSO')+'</span><br>'+
+      '<span class="pill '+(temAcesso?'on':'off')+'">'+etiqueta+'</span><br>'+
+      (j.acessoAte ? '<b>Acesso vai até:</b> '+assData(j.acessoAte)+'<br>' : '')+
       '<b>E-mail:</b> '+j.email+'<br>'+
       '<b>Nome:</b> '+(j.nome||'—')+'<br>'+
       '<b>E-mail de acesso enviado em:</b> '+assData(j.boasVindasEm)+'<br>'+
