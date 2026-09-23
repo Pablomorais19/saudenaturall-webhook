@@ -1246,23 +1246,55 @@ app.get('/admin/blog/list', async (req, res) => {
   res.json({ posts: await getAllPosts() });
 });
 
+// Só estes campos entram no banco. Antes o corpo inteiro do pedido era gravado,
+// então qualquer campo extra virava documento — inclusive uma data inválida, que
+// depois ia parar no <lastmod> do sitemap e confundir o Google.
+const CAMPOS_POST = ['slug','title','description','category','content','date','dateFormatted','readTime'];
+
+function dataISO(v) {
+  const t = String(v || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return null;
+  const d = new Date(t + 'T00:00:00Z');
+  // rejeita 2025-02-31 e afins: o JS "conserta" datas impossíveis, então
+  // comparamos com o que foi pedido.
+  return (!isNaN(d) && d.toISOString().slice(0, 10) === t) ? t : null;
+}
+
 app.post('/admin/blog', async (req, res) => {
   if (!checkAdmin(req, res)) return;
   try {
     const p = req.body || {};
-    if (!p.slug || !p.title || !p.content)
+    // slugSeguro() já existia no arquivo, mas só era usado na hora de EXIBIR.
+    // Sem ele aqui, um slug como "a/b/c" era aceito e virava um identificador
+    // que não corresponde ao endereço servido depois.
+    const slug = slugSeguro(p.slug);
+    if (!slug || !p.title || !p.content)
       return res.status(400).json({ error: 'slug, title e content são obrigatórios' });
-    await db.collection('blog_posts').doc(p.slug).set(p, { merge: true });
-    console.log('📝 Post publicado/atualizado:', p.slug);
-    res.json({ ok: true, url: '/blog/' + p.slug });
+    if (slug !== String(p.slug || ''))
+      console.warn('✂️ Slug ajustado:', JSON.stringify(p.slug), '→', slug);
+
+    const limpo = {};
+    for (const campo of CAMPOS_POST) {
+      if (typeof p[campo] === 'string') limpo[campo] = p[campo].slice(0, campo === 'content' ? 200000 : 400);
+    }
+    limpo.slug = slug;
+    const data = dataISO(limpo.date);
+    if (limpo.date && !data) return res.status(400).json({ error: 'Data inválida (use AAAA-MM-DD)' });
+    limpo.date = data || new Date().toISOString().slice(0, 10);
+
+    await db.collection('blog_posts').doc(slug).set(limpo, { merge: true });
+    console.log('📝 Post publicado/atualizado:', slug);
+    res.json({ ok: true, slug, url: '/blog/' + slug });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/admin/blog/delete', async (req, res) => {
   if (!checkAdmin(req, res)) return;
   try {
-    await db.collection('blog_posts').doc((req.body || {}).slug).delete();
-    res.json({ ok: true });
+    const slug = slugSeguro((req.body || {}).slug);
+    if (!slug) return res.status(400).json({ error: 'slug obrigatório' });
+    await db.collection('blog_posts').doc(slug).delete();
+    res.json({ ok: true, slug });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
