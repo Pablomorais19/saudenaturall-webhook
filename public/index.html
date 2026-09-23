@@ -112,6 +112,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 .results-count strong{color:var(--primary)}
 .aviso-tempo{color:var(--mid);font-size:.82rem;margin:-1rem 0 1.5rem;opacity:.85}
 
+/* Busca sem resultado: diz o que houve, em vez de deixar a tela vazia. */
+.sem-resultado{grid-column:1/-1;text-align:center;padding:3rem 1.5rem;border:2px dashed #eee;border-radius:16px}
+.sem-resultado .sr-icone{font-size:2.5rem;line-height:1;margin-bottom:.75rem}
+.sem-resultado h3{font-size:1.15rem;margin-bottom:.4rem}
+.sem-resultado p{color:var(--mid);font-size:.95rem;margin-bottom:1.25rem}
+.sem-resultado button{background:var(--primary);color:#fff;border:none;border-radius:50px;
+  padding:.7rem 1.6rem;font-size:.95rem;font-family:inherit;cursor:pointer}
+.sem-resultado button:hover{filter:brightness(1.05)}
+.sem-resultado button:focus-visible{outline:3px solid var(--primary);outline-offset:3px}
+
 /* RECIPE GRID */
 .recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
 .recipe-card{background:#fff;border-radius:var(--radius);border:1px solid #f0ebe8;padding:1.5rem;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
@@ -1690,12 +1700,64 @@ function avisoDeTempo(teto){
   if(st) st.addEventListener('change', applyFilter);
 })();
 
+/* ── busca sem resultado ─────────────────────────────────────────────────── */
+function escapaHtml(t){
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                  .replace(/"/g,'&quot;');
+}
+// Lista, em português, quais filtros estão segurando o resultado.
+function filtrosLigados(){
+  const f = [];
+  const busca = (document.getElementById('search-input')||{}).value;
+  if(busca && busca.trim()) f.push('a busca por “' + escapaHtml(busca.trim()) + '”');
+  if(activeVol !== null && typeof VOLUMES !== 'undefined' && VOLUMES[activeVol])
+    f.push('o ' + escapaHtml(VOLUMES[activeVol].label || ('Volume ' + VOLUMES[activeVol].vol)));
+  if(filterFav) f.push('só favoritas');
+  if(filterQuick) f.push('só até 6 ingredientes');
+  const st = document.getElementById('time-filter');
+  if(st && st.value) f.push('o filtro de tempo');
+  return f;
+}
+function telaVazia(){
+  const f = filtrosLigados();
+  const motivo = f.length
+    ? 'Nada combinou com ' + (f.length === 1 ? f[0] : f.slice(0, -1).join(', ') + ' e ' + f[f.length - 1]) + '.'
+    : 'Nenhuma receita para mostrar agora.';
+  return '<div class="sem-resultado">' +
+           '<div class="sr-icone" aria-hidden="true">🍽️</div>' +
+           '<h3>Nenhuma receita encontrada</h3>' +
+           '<p>' + motivo + ' Tente outra palavra, ou limpe os filtros para ver tudo de novo.</p>' +
+           '<button type="button" onclick="limparBusca()">Limpar busca e filtros</button>' +
+         '</div>';
+}
+function limparBusca(){
+  const si = document.getElementById('search-input');
+  if(si) si.value = '';
+  const st = document.getElementById('time-filter');
+  if(st) st.value = '';
+  activeVol = null; filterFav = false; filterQuick = false;
+  if(typeof updateChips === 'function') updateChips();
+  const sel = document.getElementById('vol-filter');
+  if(sel) sel.value = '';
+  if(typeof renderVolCards === 'function') renderVolCards();
+  applyFilter();
+  if(si) si.focus();
+}
+
 /* ── grid de receitas (trava estável no demo + coração) ── */
 function renderRecipes(){
   const grid=document.getElementById('recipe-grid');
   const count=document.getElementById('results-count');
   const loadBtn=document.getElementById('load-more');
   if(displayed===0) grid.innerHTML='';
+
+  // Nenhum resultado: explica e oferece a saída, em vez de sumir com tudo.
+  if(filtered.length===0){
+    grid.innerHTML = telaVazia();
+    count.innerHTML = '';
+    loadBtn.style.display = 'none';
+    return;
+  }
   const slice=filtered.slice(displayed, displayed+PER_PAGE);
   slice.forEach(r=>{
     const isLocked = isDemoMode && !isDemoUnlocked(r);
