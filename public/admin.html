@@ -198,7 +198,15 @@ async function publicar(){
   try{
     const r = await fetch('/admin/blog',{method:'POST',headers:headers(),body:JSON.stringify(post)});
     const j = await r.json();
-    if(j.ok){ m.className='msg ok'; m.innerHTML='✅ Publicado! <a href="'+j.url+'" target="_blank" style="color:#1e7e46;font-weight:700">Ver artigo →</a>'; carregarLista(); }
+    if(j.ok){
+      m.className='msg ok';
+      // o servidor pode ter limpado o slug; mostramos o que ficou de verdade
+      const ajustado = j.slug && j.slug !== slug;
+      m.innerHTML = '✅ Publicado! <a href="'+j.url+'" target="_blank" style="color:#1e7e46;font-weight:700">Ver artigo →</a>'
+        + (ajustado ? '<br><small>O endereço foi ajustado para <b>'+j.slug+'</b> (só letras, números e hífen).</small>' : '');
+      if(ajustado){ $('f-slug').value = j.slug; $('slug-echo').textContent = j.slug; }
+      carregarLista();
+    }
     else { m.className='msg err'; m.textContent='Erro: '+(j.error||r.status); }
   }catch(e){ m.className='msg err'; m.textContent='Erro de conexão: '+e.message; }
   $('btn-pub').disabled=false;
