@@ -114,15 +114,20 @@ function limitar(nome, janelaMs, max) {
 // pode ser usado à vontade.
 const MAX_FALHAS = 8, JANELA_FALHAS = 15 * 60 * 1000;
 
+function bloqueado(nome, ip, res) {
+  const b = baldes.get('falha-' + nome + ':' + ip);
+  if (b && b.ate > Date.now() && b.contagem > MAX_FALHAS) {
+    res.set('Retry-After', String(Math.ceil((b.ate - Date.now()) / 1000)));
+    res.status(429).json({ error: 'Bloqueado por tentativas demais.' });
+    return true;
+  }
+  return false;
+}
+
 function exigirToken(nome, esperado) {
   return (req, res, next) => {
     const ip = ipDe(req);
-    const chave = 'falha-' + nome + ':' + ip;
-    const b = baldes.get(chave);
-    if (b && b.ate > Date.now() && b.contagem > MAX_FALHAS) {
-      res.set('Retry-After', String(Math.ceil((b.ate - Date.now()) / 1000)));
-      return res.status(429).json({ error: 'Bloqueado por tentativas demais.' });
-    }
+    if (bloqueado(nome, ip, res)) return;
     const recebido = req.headers[nome === 'admin' ? 'x-admin-token' : 'x-hotmart-webhook-token'];
     if (!tokenIgual(recebido, esperado)) {
       const r = bater('falha-' + nome, ip, JANELA_FALHAS, MAX_FALHAS);
@@ -134,8 +139,107 @@ function exigirToken(nome, esperado) {
   };
 }
 
-const exigirAdmin   = exigirToken('admin', ADMIN_TOKEN);
 const exigirHotmart = exigirToken('hotmart', HOTMART_TOKEN);
+
+// ── Sessão do painel ─────────────────────────────────────────────────────────
+// O token do admin não fica mais guardado no navegador. Quem digita a senha
+// certa recebe um cookie HttpOnly (o JavaScript da página não consegue ler) com
+// prazo de validade. O cookie é só uma data assinada: o servidor não guarda
+// nada, e uma data adulterada não bate com a assinatura.
+const SESSAO_SEGREDO = process.env.ADMIN_SESSION_SECRET || ADMIN_TOKEN ||
+                       crypto.randomBytes(32).toString('hex');
+const SESSAO_DURACAO = 4 * 60 * 60 * 1000;   // 4 horas
+const SESSAO_COOKIE  = 'nuvlev_admin';
+
+function assinaturaSessao(ate) {
+  return crypto.createHmac('sha256', SESSAO_SEGREDO).update('admin|' + ate).digest('hex');
+}
+
+function lerCookie(req, nome) {
+  const bruto = req.headers.cookie;
+  if (!bruto) return '';
+  for (const parte of bruto.split(';')) {
+    const i = parte.indexOf('=');
+    if (i < 0) continue;
+    if (parte.slice(0, i).trim() === nome) {
+      try { return decodeURIComponent(parte.slice(i + 1).trim()); } catch { return ''; }
+    }
+  }
+  return '';
+}
+
+function sessaoValida(req) {
+  const valor = lerCookie(req, SESSAO_COOKIE);
+  const corte = valor.indexOf('.');
+  if (corte < 1) return 0;
+  const ate = Number(valor.slice(0, corte));
+  if (!Number.isFinite(ate) || ate <= Date.now()) return 0;
+  if (!tokenIgual(valor.slice(corte + 1), assinaturaSessao(ate))) return 0;
+  return ate;
+}
+
+function darSessao(req, res) {
+  const ate = Date.now() + SESSAO_DURACAO;
+  const pedacos = [
+    SESSAO_COOKIE + '=' + ate + '.' + assinaturaSessao(ate),
+    'Path=/', 'HttpOnly', 'SameSite=Strict',
+    'Max-Age=' + Math.floor(SESSAO_DURACAO / 1000)
+  ];
+  if (req.secure) pedacos.push('Secure');
+  res.set('Set-Cookie', pedacos.join('; '));
+  return ate;
+}
+
+function tirarSessao(req, res) {
+  const pedacos = [SESSAO_COOKIE + '=', 'Path=/', 'HttpOnly', 'SameSite=Strict', 'Max-Age=0'];
+  if (req.secure) pedacos.push('Secure');
+  res.set('Set-Cookie', pedacos.join('; '));
+}
+
+// Aceita a sessão OU o cabeçalho x-admin-token (para chamadas por fora do
+// painel, como curl). Tentativa errada conta no mesmo balde de sempre.
+function exigirAdmin(req, res, next) {
+  const ip = ipDe(req);
+  if (bloqueado('admin', ip, res)) return;
+  const ate = sessaoValida(req);
+  if (ate) {
+    // Renova quando já passou da metade, para não expirar no meio do trabalho.
+    if (ate - Date.now() < SESSAO_DURACAO / 2) darSessao(req, res);
+    return next();
+  }
+  if (tokenIgual(req.headers['x-admin-token'], ADMIN_TOKEN)) {
+    zerar('falha-admin', ip);
+    return next();
+  }
+  const r = bater('falha-admin', ip, JANELA_FALHAS, MAX_FALHAS);
+  if (r.excedeu) console.warn(`🚨 admin: ${MAX_FALHAS}+ tentativas erradas de ${ip}`);
+  res.status(401).json({ error: 'Não autorizado' });
+}
+
+app.post('/admin/login', (req, res) => {
+  const ip = ipDe(req);
+  if (bloqueado('admin', ip, res)) return;
+  const enviado = req.body && typeof req.body.token === 'string' ? req.body.token : '';
+  if (!ADMIN_TOKEN || !tokenIgual(enviado, ADMIN_TOKEN)) {
+    const r = bater('falha-admin', ip, JANELA_FALHAS, MAX_FALHAS);
+    if (r.excedeu) console.warn(`🚨 admin: ${MAX_FALHAS}+ tentativas erradas de ${ip}`);
+    return res.status(401).json({ error: 'Senha incorreta' });
+  }
+  zerar('falha-admin', ip);
+  res.json({ ok: true, ate: darSessao(req, res) });
+});
+
+app.post('/admin/logout', (req, res) => {
+  tirarSessao(req, res);
+  res.json({ ok: true });
+});
+
+// Devolve 200 mesmo sem sessão: é só uma pergunta que a página faz ao abrir, e
+// um 401 aqui encheria o console do navegador de erro em toda visita.
+app.get('/admin/sessao', (req, res) => {
+  const ate = sessaoValida(req);
+  res.json({ ativa: !!ate, ate: ate || null });
+});
 
 // ── E-mail transacional (Brevo) ──────────────────────────────────────────────
 const REMETENTE_EMAIL = process.env.BREVO_REMETENTE_EMAIL || 'contato@saudenaturall.online';
