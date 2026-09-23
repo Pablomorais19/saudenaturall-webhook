@@ -52,12 +52,15 @@ button:disabled{opacity:.5;cursor:wait}
   <div class="card" id="auth-card">
     <label>Senha do painel (token de admin)</label>
     <input type="password" id="token" placeholder="Cole aqui o ADMIN_TOKEN configurado no Railway">
-    <p class="hint">Fica salva só neste navegador.</p>
+    <p class="hint">A senha não fica guardada no navegador. A sessão dura 4 horas.</p>
     <div class="actions"><button onclick="entrar()">Entrar →</button></div>
     <div class="msg" id="auth-msg"></div>
   </div>
 
   <div id="panel" style="display:none">
+    <div style="text-align:right;margin-bottom:.75rem">
+      <button onclick="sair()" style="background:none;border:1px solid #ddd;color:#666;padding:.4rem .9rem">Sair</button>
+    </div>
     <div class="card">
       <h2 style="font-size:1.1rem;margin-bottom:.5rem">✍️ Novo artigo / editar</h2>
       <label>Título *</label>
@@ -128,18 +131,39 @@ Linha em branco separa parágrafos."></textarea>
 
 <script>
 const $ = id => document.getElementById(id);
-let TOKEN = localStorage.getItem('nuvlev-admin-token') || '';
 
-function headers(){ return {'Content-Type':'application/json','x-admin-token':TOKEN}; }
+// A senha não mora mais aqui. Quem guarda a sessão é um cookie que este
+// JavaScript não consegue ler, e que o navegador manda sozinho a cada pedido.
+function headers(){ return {'Content-Type':'application/json'}; }
 
-async function entrar(){
-  TOKEN = $('token').value.trim();
+async function abrirPainel(){
   const r = await fetch('/admin/blog/list',{headers:headers()});
-  const m = $('auth-msg');
-  if(r.status===401){ m.className='msg err'; m.textContent='Senha incorreta.'; return; }
-  localStorage.setItem('nuvlev-admin-token',TOKEN);
+  if(r.status===401) return false;
   $('auth-card').style.display='none'; $('panel').style.display='block';
   renderList((await r.json()).posts);
+  return true;
+}
+
+async function entrar(){
+  const m = $('auth-msg');
+  const senha = $('token').value.trim();
+  if(!senha){ m.className='msg err'; m.textContent='Digite a senha.'; return; }
+  m.className='msg'; m.textContent='Entrando…';
+  try{
+    const r = await fetch('/admin/login',{method:'POST',headers:headers(),
+                                          body:JSON.stringify({token:senha})});
+    if(r.status===429){ m.className='msg err';
+      m.textContent='Tentativas demais. Espere alguns minutos.'; return; }
+    if(!r.ok){ m.className='msg err'; m.textContent='Senha incorreta.'; return; }
+    $('token').value='';
+    m.textContent='';
+    await abrirPainel();
+  }catch(e){ m.className='msg err'; m.textContent='Falha de conexão: '+e.message; }
+}
+
+async function sair(){
+  try{ await fetch('/admin/logout',{method:'POST',headers:headers()}); }catch(e){}
+  location.reload();
 }
 
 function slugify(s){
@@ -372,7 +396,10 @@ async function assDesativar(){
   }catch(e){ assMsg('Falha de conexão: '+e.message, true); }
 }
 
-if(TOKEN){ $('token').value=TOKEN; entrar(); }
+// Se a sessão anterior ainda vale, entra direto — sem senha guardada em lugar nenhum.
+fetch('/admin/sessao').then(r => r.json()).then(j => { if(j.ativa) abrirPainel(); }).catch(()=>{});
+// Limpeza de uma vez: a versão antiga guardava o token aqui.
+try{ localStorage.removeItem('nuvlev-admin-token'); }catch(e){}
 </script>
 </body>
 </html>
