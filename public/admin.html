@@ -339,8 +339,21 @@ function assFicha(j){
     let etiqueta = temAcesso ? 'ACESSO ATIVO' : 'SEM ACESSO';
     if (j.expirado) etiqueta = 'ACESSO ENCERRADO';
     else if (j.cancelada && j.ativo) etiqueta = 'CANCELADA — ACESSO ATÉ O FIM DO CICLO';
+    // Pagou e não recebeu o e-mail: é o caso mais urgente que esta tela mostra.
+    const socorro = (j.falhaEmailEm && !j.boasVindasEm)
+      ? '<div style="background:#FDECEA;border-left:4px solid #C0392B;padding:.7rem .9rem;margin:.6rem 0">'+
+        '<b style="color:#C0392B">⚠ O e-mail de acesso não chegou nesta pessoa.</b><br>'+
+        'Falhou em '+assData(j.falhaEmailEm)+'. Ela pagou e não consegue entrar.<br>'+
+        'Clique em <b>Reenviar e-mail de acesso</b>. Se falhar de novo, mande este link por WhatsApp — vale 1 hora:<br>'+
+        (j.linkDeSocorro
+          ? '<input readonly onclick="this.select()" value="'+j.linkDeSocorro.replace(/"/g,'&quot;')+'" '+
+            'style="width:100%;margin-top:.4rem;font-size:.8rem">'
+          : '<i>link não guardado — use Reenviar para gerar um novo</i>')+
+        '</div>'
+      : '';
     f.innerHTML =
       '<span class="pill '+(temAcesso?'on':'off')+'">'+etiqueta+'</span><br>'+
+      socorro+
       (j.acessoAte ? '<b>Acesso vai até:</b> '+assData(j.acessoAte)+'<br>' : '')+
       '<b>E-mail:</b> '+j.email+'<br>'+
       '<b>Nome:</b> '+(j.nome||'—')+'<br>'+
