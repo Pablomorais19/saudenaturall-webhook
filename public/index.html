@@ -366,10 +366,20 @@ footer strong{color:var(--primary)}
 }
 </style>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script>
+// Quem nunca entrou não precisa esperar o Firebase: a landing aparece na hora.
+// Quem tem sessão salva vê o carregando, para não piscar a página de vendas.
+try {
+  for (const k in localStorage) if (k.indexOf('firebase:authUser') === 0) {
+    document.documentElement.classList.add('tem-sessao'); break;
+  }
+} catch (e) {}
+</script>
+
+<!-- Firebase SDK (defer: não travam a primeira pintura) -->
+<script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <style>
 /* ── AUTH LOADING ── */
@@ -380,7 +390,10 @@ footer strong{color:var(--primary)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ── LANDING PAGE ── */
-#landing{display:none}
+#landing{display:block}
+#auth-loading{display:none}
+:root.tem-sessao #landing{display:none}
+:root.tem-sessao #auth-loading{display:flex}
 .land-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-bottom:1px solid #f0e8e4;padding:0 5%}
 .land-nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
 .land-logo{font-size:1.5rem;font-weight:900;color:#E76F51}
@@ -1102,7 +1115,23 @@ function abrirDemo() {
       applyFilter();
       renderPlanner();
     }
+    // Quem clicou em "ver demonstração" quer ver receita, não outro bloco de
+    // vendas. Sem isto, a primeira receita fica quase três telas abaixo.
+    mostrarReceitas();
   }, 200);
+}
+
+// Leva a tela até a grade de receitas e acerta a aba marcada na barra de baixo.
+function mostrarReceitas() {
+  const alvo = document.getElementById('receitas');
+  if (!alvo) return;
+  const barra = document.querySelector('.land-nav');
+  const folga = (barra && barra.offsetHeight ? barra.offsetHeight : 60) + 48;
+  const y = alvo.getBoundingClientRect().top + window.pageYOffset - folga;
+  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+  document.querySelectorAll('.mob-nav a').forEach(a => {
+    a.classList.toggle('ativo', a.getAttribute('href') === '#receitas');
+  });
 }
 
 function mostrarCTADemo() {
@@ -1176,9 +1205,13 @@ const firebaseConfig = {
   appId:             "1:491763004558:web:aa8eedda234b6728e6c5df"
 };
 
+// Os scripts do Firebase agora são defer, então só existem a partir do
+// DOMContentLoaded. auth e db continuam globais para o resto da página.
+var auth, db;
+window.addEventListener('DOMContentLoaded', () => {
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
+auth = firebase.auth();
+db   = firebase.firestore();
 
 // ── Verificação de autenticação ao carregar ──────────────────
 auth.onAuthStateChanged(async (user) => {
@@ -1235,6 +1268,7 @@ auth.onAuthStateChanged(async (user) => {
   }
   loading.style.opacity = '0';
   setTimeout(() => { loading.style.display = 'none'; landing.style.display = 'block'; }, 400);
+});
 });
 
 // ── Login ────────────────────────────────────────────────────
@@ -1969,7 +2003,7 @@ function fecharModoCozinha(){
 }
 
 /* ── área de membro + onboarding ── */
-auth.onAuthStateChanged(async (user)=>{
+window.addEventListener('DOMContentLoaded', () => auth.onAuthStateChanged(async (user)=>{
   if(!user){ document.body.classList.remove('is-member'); return; }
   try{
     const doc=await db.collection('assinantes').doc(user.uid).get();
@@ -1984,7 +2018,7 @@ auth.onAuthStateChanged(async (user)=>{
       if(!nlLS.get(NL_ONB)) setTimeout(()=>document.getElementById('onboarding-modal').classList.add('show'),900);
     }
   }catch(e){}
-});
+}));
 function onbPular(){ nlLS.set(NL_ONB,'skip'); document.getElementById('onboarding-modal').classList.remove('show'); }
 function onbEscolher(goal){
   nlLS.set(NL_ONB,goal);
@@ -2241,10 +2275,13 @@ function fecharLeadPopup(){ document.getElementById('lead-popup').classList.remo
   // a seção "atual" é a última cujo topo já passou da barra de cima
   function atualizar(){
     const limite = 80;
-    let atual = secoes[0];
-    for(const s of secoes){ if(s.getBoundingClientRect().top <= limite) atual = s; }
+    // Seção escondida mede 0 e ficaria "no topo" — só conta quem está na tela.
+    const visiveis = secoes.filter(s => s.getBoundingClientRect().height > 0);
+    if(!visiveis.length) return;
+    let atual = visiveis[0];
+    for(const s of visiveis){ if(s.getBoundingClientRect().top <= limite) atual = s; }
     // no fim da página, a última seção sempre vence
-    if(window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) atual = secoes[secoes.length-1];
+    if(window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) atual = visiveis[visiveis.length-1];
     marcar(atual.id);
   }
   let agendado = false;
