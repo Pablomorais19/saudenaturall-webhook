@@ -370,8 +370,11 @@ footer strong{color:var(--primary)}
 // Quem nunca entrou não precisa esperar o Firebase: a landing aparece na hora.
 // Quem tem sessão salva vê o carregando, para não piscar a página de vendas.
 try {
-  for (const k in localStorage) if (k.indexOf('firebase:authUser') === 0) {
-    document.documentElement.classList.add('tem-sessao'); break;
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k && k.indexOf('firebase:authUser') === 0) {
+      document.documentElement.classList.add('tem-sessao'); break;
+    }
   }
 } catch (e) {}
 </script>
@@ -1250,6 +1253,9 @@ auth.onAuthStateChanged(async (user) => {
         const userBar = document.getElementById('user-bar');
         if (userBar) userBar.style.display = '';
         document.getElementById('user-email-display').textContent = '👤 ' + user.email;
+        // Esconder aqui, e não pelo CSS: este caminho não pode depender de
+        // qual é o estado inicial da landing.
+        landing.style.display = 'none';
         loading.style.opacity = '0';
         setTimeout(() => { loading.style.display = 'none'; mainApp.style.display = 'block'; }, 400);
         return;
