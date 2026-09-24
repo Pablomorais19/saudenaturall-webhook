@@ -342,7 +342,7 @@ function emailDeAcesso(nome, link) {
 </div></body></html>`;
 }
 
-async function ativarAssinante(email, nome, transacao, avisar = true) {
+async function ativarAssinante(email, nome, transacao, avisar = true, querLink = false) {
   let user, novo = false;
   try {
     user = await auth.getUserByEmail(email);
@@ -356,7 +356,13 @@ async function ativarAssinante(email, nome, transacao, avisar = true) {
   if (!novo) {
     try { jaAvisado = !!(await ref.get()).get('boasVindasEm'); } catch { /* segue e avisa */ }
   }
-  const resetLink = linkDeSenha(await auth.generatePasswordResetLink(email));
+  // O Firebase só mantém válido o código de senha mais recente. Gerar um novo
+  // mata o link do e-mail que a pessoa já recebeu, então só geramos quando o
+  // link vai mesmo ser usado.
+  const precisaLink = (avisar && !jaAvisado) || querLink;
+  const resetLink = precisaLink
+    ? linkDeSenha(await auth.generatePasswordResetLink(email))
+    : '';
   await ref.set({
     email, nome, ativo: true, transacao,
     // quem volta a pagar deixa de ter fim de acesso agendado
@@ -368,18 +374,27 @@ async function ativarAssinante(email, nome, transacao, avisar = true) {
 
   // Só manda "crie sua senha" uma vez. Numa reativação, quem já tem senha
   // não precisa receber de novo.
-  let enviado = false;
+  let enviado = false, tentou = false;
   if (avisar && !jaAvisado) {
+    tentou = true;
     enviado = await enviarEmail(email, nome, 'Seu acesso ao NuvLev está liberado 🌿',
                                 emailDeAcesso(nome, resetLink));
-    if (enviado) {
-      try {
-        await ref.set({ boasVindasEm: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
-      } catch (e) { console.error('Não gravou boasVindasEm:', e.message); }
-    }
+    try {
+      await ref.set(enviado
+        ? { boasVindasEm: admin.firestore.FieldValue.serverTimestamp(),
+            falhaEmailEm: admin.firestore.FieldValue.delete(),
+            linkDeSocorro: admin.firestore.FieldValue.delete() }
+        // Falhou: guarda a marca e o link, para o painel poder socorrer à mão
+        // mesmo que a Hotmart não reenvie o evento.
+        : { falhaEmailEm: admin.firestore.FieldValue.serverTimestamp(),
+            linkDeSocorro: resetLink }, { merge: true });
+    } catch (e) { console.error('Não gravou o estado do e-mail:', e.message); }
+  }
+  if (tentou && !enviado) {
+    console.error(`🚨 E-MAIL DE ACESSO NÃO SAIU para ${email} — a pessoa pagou e não recebeu nada`);
   }
   console.log(`✅ Ativado: ${email}${enviado ? ' (e-mail de acesso enviado)' : ''}`);
-  return { user, resetLink, novo, emailEnviado: enviado };
+  return { user, resetLink, novo, emailEnviado: enviado, emailFalhou: tentou && !enviado };
 }
 
 // Cancelamento não é reembolso. A documentação da Hotmart diz que o evento de
@@ -438,7 +453,15 @@ app.post('/webhook/hotmart', exigirHotmart, async (req, res) => {
   const DESATIVAR = ['PURCHASE_REFUNDED','PURCHASE_CHARGEBACK','PURCHASE_CANCELED'];
   try {
     if (ATIVAR.includes(event)) {
-      await ativarAssinante(email, nome, trans);
+      const r = await ativarAssinante(email, nome, trans);
+      // O acesso ficou liberado, mas a pessoa não recebeu o e-mail com o link
+      // para criar a senha — ou seja, pagou e não consegue entrar. Devolvemos
+      // erro de propósito: a Hotmart reenvia o evento, e ativar de novo é
+      // seguro (não cria conta repetida nem manda dois e-mails).
+      if (r.emailFalhou) {
+        return res.status(503).json({ ok: false, acao: 'ativado sem e-mail',
+                                      error: 'Falha ao enviar o e-mail de acesso. Reenvie o evento.' });
+      }
       return res.json({ ok: true, acao: 'ativado' });
     }
     // Cancelamento: o serviço já foi pago até o fim do ciclo. A Hotmart manda a
@@ -478,9 +501,12 @@ app.post('/admin/ativar', exigirAdmin, async (req, res) => {
                 .set({ boasVindasEm: admin.firestore.FieldValue.delete() }, { merge: true });
       } catch { /* usuário novo: nada a limpar */ }
     }
+    // querLink: true — o painel sempre mostra o link, para você poder mandar na
+    // mão quando o e-mail não sair.
     const r = await ativarAssinante(String(email || '').trim().toLowerCase(),
-                                    nome || 'Admin', 'manual', avisar);
-    res.json({ ok: true, uid: r.user.uid, resetLink: r.resetLink, emailEnviado: r.emailEnviado });
+                                    nome || 'Admin', 'manual', avisar, true);
+    res.json({ ok: true, uid: r.user.uid, resetLink: r.resetLink,
+               emailEnviado: r.emailEnviado, emailFalhou: r.emailFalhou });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -514,6 +540,8 @@ app.get('/admin/assinante', exigirAdmin, async (req, res) => {
       temFicha: !!snap.exists,
       transacao: d.transacao || '',
       boasVindasEm:     quando(d.boasVindasEm),
+      falhaEmailEm:     quando(d.falhaEmailEm),
+      linkDeSocorro:    d.linkDeSocorro || '',
       atualizadoEm:     quando(d.atualizadoEm),
       inicioAssinatura: quando(d.inicioAssinatura)
     });
@@ -592,7 +620,37 @@ app.post('/admin/excluir-dados', exigirAdmin, async (req, res) => {
 app.get('/criar-senha', (req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'criar-senha.html')));
 
-app.get('/health', (req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }));
+// Sem estas, o site sobe com cara de saudável e para de funcionar em silêncio:
+// sem HOTMART_TOKEN todo webhook volta 401 e ninguém mais é ativado; sem
+// BREVO_API_KEY nenhum e-mail de acesso sai; sem ADMIN_TOKEN o painel fecha.
+const ESSENCIAIS = {
+  HOTMART_TOKEN: 'ninguém mais é ativado depois de comprar',
+  BREVO_API_KEY: 'nenhum e-mail de acesso é enviado',
+  ADMIN_TOKEN:   'o painel de administração fica inacessível'
+};
+function faltando() {
+  return Object.keys(ESSENCIAIS).filter(k => !String(process.env[k] || '').trim());
+}
+(() => {
+  const faltam = faltando();
+  if (!faltam.length) return;
+  console.error('\n' + '🚨'.repeat(20));
+  console.error('CONFIGURAÇÃO INCOMPLETA — o site subiu, mas parte dele não funciona:');
+  faltam.forEach(k => console.error(`   • ${k} está vazia → ${ESSENCIAIS[k]}`));
+  console.error('Configure no Railway em Variables e faça o deploy.');
+  console.error('🚨'.repeat(20) + '\n');
+})();
+
+app.get('/health', (req, res) => {
+  const faltam = faltando();
+  const corpo = { status: faltam.length ? 'degradado' : 'ok', ts: new Date().toISOString() };
+  if (faltam.length) {
+    corpo.faltando = faltam;
+    corpo.consequencia = faltam.map(k => ESSENCIAIS[k]);
+    return res.status(503).json(corpo);
+  }
+  res.json(corpo);
+});
 
 // Links diretos das seções do app -> âncoras da página principal
 app.get(['/planejador', '/planner'], (req, res) => res.redirect(301, '/#planejador'));
