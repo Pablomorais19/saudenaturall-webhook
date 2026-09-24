@@ -1,6 +1,7 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors');
+const compression = require('compression');
 const path = require('path');
 const crypto = require('crypto');
 const app = express();
@@ -31,6 +32,11 @@ function cspEstrita(res) {
     "frame-src https://pay.hotmart.com; base-uri 'self'; " +
     "form-action 'self' https://pay.hotmart.com; frame-ancestors 'self'");
 }
+
+// Nada saía comprimido: a página principal ia 137 KB crus, e num 3G isso é
+// mais de 5 segundos só para o HTML chegar. Comprimido são cerca de 35 KB.
+// Precisa vir antes do express.static para pegar também os arquivos do public.
+app.use(compression());
 
 app.use(express.json({ limit: '1mb' }));
 app.use(cors({ origin: 'https://saudenaturall.online' }));
