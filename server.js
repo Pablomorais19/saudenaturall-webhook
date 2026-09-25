@@ -348,14 +348,22 @@ function emailDeAcesso(nome, link) {
 </div></body></html>`;
 }
 
-async function ativarAssinante(email, nome, transacao, avisar = true, querLink = false) {
+async function ativarAssinante(email, nome, transacao, avisar = true, querLink = false, codigo = '') {
   let user, novo = false;
   try {
     user = await auth.getUserByEmail(email);
   } catch {
     const senha = crypto.randomBytes(24).toString('base64url') + 'Aa1!';
-    user = await auth.createUser({ email, displayName: nome, emailVerified: true, password: senha });
-    novo = true;
+    // Antes de criar conta nova, ver se é a mesma pessoa com outro e-mail. Se
+    // for, migrar o e-mail preserva favoritos, planejador e lista de compras.
+    const antigo = await acharPorCodigo(codigo);
+    if (antigo) {
+      user = await auth.updateUser(antigo.uid, { email, displayName: nome });
+      console.warn(`✏️ E-mail migrado: ${antigo.dados.email || '(sem e-mail)'} → ${email}`);
+    } else {
+      user = await auth.createUser({ email, displayName: nome, emailVerified: true, password: senha });
+      novo = true;
+    }
   }
   const ref = db.collection('assinantes').doc(user.uid);
   let jaAvisado = false;
@@ -371,6 +379,7 @@ async function ativarAssinante(email, nome, transacao, avisar = true, querLink =
     : '';
   await ref.set({
     email, nome, ativo: true, transacao,
+    ...(codigo ? { codigoAssinante: codigo } : {}),
     // quem volta a pagar deixa de ter fim de acesso agendado
     cancelada: false,
     acessoAte: admin.firestore.FieldValue.delete(),
@@ -403,19 +412,74 @@ async function ativarAssinante(email, nome, transacao, avisar = true, querLink =
   return { user, resetLink, novo, emailEnviado: enviado, emailFalhou: tentou && !enviado };
 }
 
+// A Hotmart manda a data do próximo pagamento em formatos diferentes conforme
+// o evento e a versão: número em milissegundos, número em segundos, ou texto
+// ISO — e às vezes aninhada dentro de subscription. Number() sozinho devolvia
+// NaN no texto, e NaN nunca é maior que agora: o acesso já pago era cortado no
+// mesmo dia do cancelamento, que é o oposto do que este código quer fazer.
+function dataDeFimDeCiclo(data) {
+  const candidatos = [
+    data && data.date_next_charge,
+    data && data.subscription && data.subscription.date_next_charge,
+    data && data.purchase && data.purchase.date_next_charge
+  ];
+  for (const bruto of candidatos) {
+    if (bruto === undefined || bruto === null || bruto === '') continue;
+    if (typeof bruto === 'number' || /^\d+$/.test(String(bruto).trim())) {
+      let n = Number(bruto);
+      if (!Number.isFinite(n) || n <= 0) continue;
+      if (n < 1e11) n *= 1000;          // veio em segundos
+      return n;
+    }
+    const t = Date.parse(String(bruto));   // texto ISO
+    if (Number.isFinite(t) && t > 0) return t;
+  }
+  const visto = candidatos.find(x => x !== undefined && x !== null && x !== '');
+  if (visto !== undefined) console.warn(`⚠️ Data de fim de ciclo não compreendida: ${JSON.stringify(visto)}`);
+  return null;
+}
+
+// O e-mail não é identidade confiável: a pessoa pode trocá-lo na Hotmart.
+// O código do assinante é. Guardamos os dois e procuramos pelos dois.
+async function acharPorCodigo(codigo) {
+  if (!codigo) return null;
+  try {
+    const q = await db.collection('assinantes').where('codigoAssinante', '==', codigo).limit(1).get();
+    if (q.empty) return null;
+    const doc = q.docs[0];
+    return { uid: doc.id, dados: doc.data() };
+  } catch (e) {
+    console.error('Busca por código falhou:', e.message);
+    return null;
+  }
+}
+
+// Procura primeiro pelo e-mail; se ele mudou na Hotmart, cai no código.
+async function acharAssinante(email, codigo) {
+  try {
+    const user = await auth.getUserByEmail(email);
+    return { uid: user.uid, porCodigo: false };
+  } catch (e) {
+    if (e && e.code && e.code !== 'auth/user-not-found') throw e;   // falha de rede sobe
+  }
+  const achado = await acharPorCodigo(codigo);
+  if (!achado) return null;
+  console.warn(`⚠️ ${email} não existe, mas o código ${codigo} é de uma conta que já existe`);
+  return { uid: achado.uid, porCodigo: true, emailAntigo: achado.dados.email || '' };
+}
+
 // Cancelamento não é reembolso. A documentação da Hotmart diz que o evento de
 // cancelamento chega no dia em que a pessoa cancela, mas que ela "deveria ter
 // acesso" até a data do próximo pagamento (date_next_charge), que é o fim do
 // ciclo já pago. Então cancelar AGENDA o fim do acesso; reembolso e chargeback
 // continuam cortando na hora, porque aí o dinheiro voltou.
-async function agendarFimDoAcesso(email, ateMs) {
-  let user;
-  try { user = await auth.getUserByEmail(email); }
-  catch {
-    console.warn(`⚠️ Usuário não encontrado para agendar fim de acesso: ${email}`);
+async function agendarFimDoAcesso(email, ateMs, codigo) {
+  const achado = await acharAssinante(email, codigo);
+  if (!achado) {
+    console.warn(`⚠️ Ninguém encontrado para agendar fim de acesso: ${email} / ${codigo || 'sem código'}`);
     return false;
   }
-  await db.collection('assinantes').doc(user.uid).set({
+  await db.collection('assinantes').doc(achado.uid).set({
     cancelada: true,
     acessoAte: ateMs,
     atualizadoEm: admin.firestore.FieldValue.serverTimestamp()
@@ -424,18 +488,16 @@ async function agendarFimDoAcesso(email, ateMs) {
   return true;
 }
 
-async function desativarAssinante(email) {
-  let user;
-  try {
-    user = await auth.getUserByEmail(email);
-  } catch {
-    console.warn(`⚠️ Usuário não encontrado para desativar: ${email}`);
+async function desativarAssinante(email, codigo) {
+  const achado = await acharAssinante(email, codigo);
+  if (!achado) {
+    console.warn(`⚠️ Ninguém encontrado para desativar: ${email} / ${codigo || 'sem código'}`);
     return false;
   }
   // Fora do try acima de propósito: se a gravação falhar, o erro sobe, o webhook
   // responde 500 e a Hotmart reenvia. Antes, o catch engolia essa falha e o
   // cancelado continuava com acesso.
-  await db.collection('assinantes').doc(user.uid).set(
+  await db.collection('assinantes').doc(achado.uid).set(
     { ativo: false, cancelada: false,
       acessoAte: admin.firestore.FieldValue.delete(),
       atualizadoEm: admin.firestore.FieldValue.serverTimestamp() },
@@ -453,13 +515,17 @@ app.post('/webhook/hotmart', exigirHotmart, async (req, res) => {
   const email = (data?.buyer?.email || data?.subscriber?.email || '').trim().toLowerCase();
   const nome  = data?.buyer?.name  || data?.subscriber?.name || 'Assinante';
   const trans = data?.purchase?.transaction || data?.subscription?.subscriber_code || '';
+  // O número da transação muda a cada cobrança mensal — não serve de identidade.
+  // O código do assinante é o mesmo durante toda a assinatura; é por ele que
+  // reconhecemos a pessoa quando o e-mail dela muda na Hotmart.
+  const codigo = data?.subscription?.subscriber_code || '';
   if (!email) return res.status(400).json({ error: 'Email não encontrado' });
   const ATIVAR    = ['PURCHASE_COMPLETE','PURCHASE_APPROVED','SUBSCRIPTION_REACTIVATED'];
   // Corte imediato: o dinheiro voltou para o comprador.
   const DESATIVAR = ['PURCHASE_REFUNDED','PURCHASE_CHARGEBACK','PURCHASE_CANCELED'];
   try {
     if (ATIVAR.includes(event)) {
-      const r = await ativarAssinante(email, nome, trans);
+      const r = await ativarAssinante(email, nome, trans, true, false, codigo);
       // O acesso ficou liberado, mas a pessoa não recebeu o e-mail com o link
       // para criar a senha — ou seja, pagou e não consegue entrar. Devolvemos
       // erro de propósito: a Hotmart reenvia o evento, e ativar de novo é
@@ -474,17 +540,22 @@ app.post('/webhook/hotmart', exigirHotmart, async (req, res) => {
     // data do próximo pagamento justamente para isso. Sem ela (formato antigo
     // ou data no passado), cai no comportamento antigo de cortar na hora.
     if (event === 'SUBSCRIPTION_CANCELLATION') {
-      const ate = Number(data.date_next_charge || 0);
-      if (ate > Date.now()) {
-        const achou = await agendarFimDoAcesso(email, ate);
+      const ate = dataDeFimDeCiclo(data);
+      if (ate && ate > Date.now()) {
+        const achou = await agendarFimDoAcesso(email, ate, codigo);
+        if (!achou) return res.status(404).json({ ok: false, acao: 'assinante não encontrado', email });
         return res.json({ ok: true, acao: 'acesso agendado',
-                          ate: new Date(ate).toISOString(), encontrado: achou });
+                          ate: new Date(ate).toISOString(), encontrado: true });
       }
-      await desativarAssinante(email);
+      const achou = await desativarAssinante(email, codigo);
+      if (!achou) return res.status(404).json({ ok: false, acao: 'assinante não encontrado', email });
       return res.json({ ok: true, acao: 'desativado', motivo: 'sem data de fim de ciclo' });
     }
     if (DESATIVAR.includes(event)) {
-      await desativarAssinante(email);
+      // Não encontrar ninguém para cortar é um problema, não um "tudo certo":
+      // pode ser troca de e-mail, e alguém ficaria com acesso de graça.
+      const achou = await desativarAssinante(email, codigo);
+      if (!achou) return res.status(404).json({ ok: false, acao: 'assinante não encontrado', email });
       return res.json({ ok: true, acao: 'desativado' });
     }
     return res.json({ ok: true, acao: 'ignorado', event });
@@ -545,6 +616,7 @@ app.get('/admin/assinante', exigirAdmin, async (req, res) => {
       expirado: typeof d.acessoAte === 'number' && Date.now() > d.acessoAte,
       temFicha: !!snap.exists,
       transacao: d.transacao || '',
+      codigoAssinante: d.codigoAssinante || '',
       boasVindasEm:     quando(d.boasVindasEm),
       falhaEmailEm:     quando(d.falhaEmailEm),
       linkDeSocorro:    d.linkDeSocorro || '',
