@@ -1067,6 +1067,7 @@ async function carregarReceitas(modo) {
     } else {
       resp = await fetch('/api/receitas/demo');
     }
+    if (resp.status === 403) { const e = new Error('assinatura encerrada'); e.encerrada = true; throw e; }
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     VOLUMES = data; ALL_RECIPES = [];
@@ -1075,7 +1076,17 @@ async function carregarReceitas(modo) {
     filtered = [...ALL_RECIPES]; initVolFilter(); renderVolCards(); applyFilter(); renderPlanner();
   } catch(err) {
     console.error('Erro ao carregar receitas:', err);
-    document.getElementById('recipe-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:4rem 1rem"><p style="color:#E76F51;font-size:1.2rem;font-weight:700">Erro ao carregar receitas</p><p style="color:#888;margin-top:.5rem">Por favor, recarregue a página e tente novamente.</p></div>';
+    // Assinatura encerrada não é falha do site: é a hora de convidar de volta.
+    document.getElementById('recipe-grid').innerHTML = err && err.encerrada
+      ? '<div style="grid-column:1/-1;text-align:center;padding:3.5rem 1.2rem">' +
+        '<div style="font-size:2.5rem;margin-bottom:.8rem">🌿</div>' +
+        '<p style="color:#E76F51;font-size:1.2rem;font-weight:700">Sua assinatura foi encerrada</p>' +
+        '<p style="color:#888;margin:.6rem auto 1.4rem;max-width:34ch">Seu acesso ao acervo terminou. ' +
+        'Seus favoritos e o planejador continuam guardados — é só voltar a assinar.</p>' +
+        '<a href="https://pay.hotmart.com/M106116851N" style="display:inline-block;background:#E76F51;color:#fff;' +
+        'padding:.85rem 1.8rem;border-radius:50px;font-weight:700;text-decoration:none;min-height:44px">Voltar a assinar →</a>' +
+        '</div>'
+      : '<div style="grid-column:1/-1;text-align:center;padding:4rem 1rem"><p style="color:#E76F51;font-size:1.2rem;font-weight:700">Erro ao carregar receitas</p><p style="color:#888;margin-top:.5rem">Por favor, recarregue a página e tente novamente.</p></div>';
   }
 }
 
@@ -1282,7 +1293,11 @@ auth.onAuthStateChanged(async (user) => {
       return;
     }
     {
-      if (doc.exists && doc.data().ativo === true) {
+      const d = doc.exists ? doc.data() : {};
+      // O servidor também barra por acessoAte. Sem conferir aqui, a pessoa
+      // entrava na tela de assinante e levava um erro genérico de carregamento.
+      const venceu = typeof d.acessoAte === 'number' && Date.now() > d.acessoAte;
+      if (doc.exists && d.ativo === true && !venceu) {
         // ✅ Assinante ativo — mostra o app
         isDemoMode = false;
         carregarReceitas('membro');

@@ -128,15 +128,24 @@ function salvar(){
   if (s1 !== s2)     { aviso('As duas senhas não são iguais.', true); return; }
   $('btn-salvar').disabled = true;
   $('btn-salvar').textContent = 'Criando…';
+  // Quem falhou importa. Se a senha foi mesmo gravada e só o login caiu, dá
+  // para mandar a pessoa entrar. Se foi a gravação que falhou, dizer que a
+  // senha foi criada é mentira — ela vai tentar entrar e ouvir "senha errada".
+  var senhaGravada = false;
   auth.confirmPasswordReset(codigo, s1)
-    .then(function(){ return auth.signInWithEmailAndPassword(email, s1); })
+    .then(function(){ senhaGravada = true; return auth.signInWithEmailAndPassword(email, s1); })
     .then(function(){ location.replace('/'); })
     .catch(function(e){
       var t = traduzir(e);
-      if (t === 'expirado') {
-        // a senha pode ter sido salva antes de o login falhar: manda para a entrada
+      if (senhaGravada) {
         aviso('Sua senha foi criada. Entre no NuvLev com ela.', false);
         setTimeout(function(){ location.replace('/'); }, 2200);
+        return;
+      }
+      if (t === 'expirado') {
+        // O link venceu antes de a senha ser gravada: pedir outro é o caminho.
+        mostrar('form-novo');
+        aviso('Esse link venceu antes de a senha ser salva. Coloque seu e-mail que a gente manda um novo.', true);
         return;
       }
       aviso(t, true);
