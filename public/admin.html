@@ -203,6 +203,10 @@ function togglePreview(){
   p.style.display='block';
 }
 
+// Qual artigo foi aberto em "Editar". Publicar por cima de um endereço que já
+// existe só é permitido quando foi isso que se pediu.
+let editandoSlug = '';
+
 async function publicar(){
   const title=$('f-title').value.trim(), slug=$('f-slug').value.trim()||slugify(title),
         desc=$('f-desc').value.trim(), raw=$('f-content').value.trim();
@@ -216,7 +220,8 @@ async function publicar(){
     content: mdToHtml(raw),
     date: now.toISOString().slice(0,10),
     dateFormatted: now.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'}),
-    readTime: Math.max(2, Math.round(words/200)) + ' min de leitura'
+    readTime: Math.max(2, Math.round(words/200)) + ' min de leitura',
+    editando: editandoSlug
   };
   $('btn-pub').disabled=true;
   try{
@@ -229,8 +234,10 @@ async function publicar(){
       m.innerHTML = '✅ Publicado! <a href="'+j.url+'" target="_blank" style="color:#1e7e46;font-weight:700">Ver artigo →</a>'
         + (ajustado ? '<br><small>O endereço foi ajustado para <b>'+j.slug+'</b> (só letras, números e hífen).</small>' : '');
       if(ajustado){ $('f-slug').value = j.slug; $('slug-echo').textContent = j.slug; }
+      editandoSlug = j.slug || slug;
       carregarLista();
     }
+    else if(r.status===409){ m.className='msg err'; m.textContent=j.error||'Esse endereço já está ocupado.'; }
     else { m.className='msg err'; m.textContent='Erro: '+(j.error||r.status); }
   }catch(e){ m.className='msg err'; m.textContent='Erro de conexão: '+e.message; }
   $('btn-pub').disabled=false;
@@ -238,6 +245,7 @@ async function publicar(){
 
 function limpar(){
   ['f-title','f-slug','f-desc','f-content'].forEach(i=>$(i).value='');
+  editandoSlug='';
   $('f-slug').dataset.locked=''; $('slug-echo').textContent='…';
   $('preview').style.display='none'; $('pub-msg').className='msg';
 }
@@ -253,13 +261,20 @@ function renderList(posts){
   box.innerHTML='';
   posts.forEach(p=>{
     const d=document.createElement('div'); d.className='post-item';
-    d.innerHTML=`<div><strong>${p.title}</strong><small>/blog/${p.slug} · ${p.dateFormatted||p.date||''} · ${p.category||''}</small></div>`;
+    // textContent, não innerHTML: o título vem cru do banco agora, e um título
+    // com "<" ou "&" tem de aparecer como foi escrito, sem virar marcação.
+    const info=document.createElement('div');
+    const forte=document.createElement('strong'); forte.textContent=p.title||'(sem título)';
+    const peq=document.createElement('small');
+    peq.textContent='/blog/'+(p.slug||'')+' · '+(p.dateFormatted||p.date||'')+' · '+(p.category||'');
+    info.appendChild(forte); info.appendChild(peq); d.appendChild(info);
     const btns=document.createElement('div');
     btns.style.cssText='display:flex;gap:.5rem';
     const ed=document.createElement('button'); ed.className='mini'; ed.textContent='Editar';
     ed.onclick=()=>{ $('f-title').value=p.title; $('f-slug').value=p.slug; $('f-slug').dataset.locked='1';
       $('slug-echo').textContent=p.slug; $('f-desc').value=p.description||''; $('f-cat').value=p.category||'';
-      $('f-content').value=p._raw || htmlBack(p.content||''); window.scrollTo({top:0,behavior:'smooth'}); };
+      $('f-content').value=p._raw || htmlBack(p.content||''); editandoSlug=p.slug;
+      window.scrollTo({top:0,behavior:'smooth'}); };
     const del=document.createElement('button'); del.className='danger'; del.textContent='Excluir';
     del.onclick=async()=>{ if(!confirm('Excluir "'+p.title+'"?'))return;
       const r=await fetch('/admin/blog/delete',{method:'POST',headers:headers(),body:JSON.stringify({slug:p.slug})});
@@ -274,7 +289,11 @@ function htmlBack(h){
     .replace(/<li>(.*?)<\/li>/g,'- $1').replace(/<\/?[uo]l>/g,'')
     .replace(/<strong>(.*?)<\/strong>/g,'**$1**').replace(/<em>(.*?)<\/em>/g,'*$1*')
     .replace(/<a href="([^"]+)"[^>]*>(.*?)<\/a>/g,'[$2]($1)')
-    .replace(/<p>/g,'\n').replace(/<\/p>/g,'\n').replace(/&amp;/g,'&').replace(/&lt;/g,'<')
+    .replace(/<p>/g,'\n').replace(/<\/p>/g,'\n')
+    // desfaz o escape na ordem certa: &amp; por último, senão "&amp;lt;" voltaria
+    // como "<" e o texto mudaria de significado a cada ida e volta.
+    .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+    .replace(/&#39;/g,"'").replace(/&amp;/g,'&')
     .split('\n').map(s=>s.trim()).join('\n').replace(/\n{3,}/g,'\n\n').trim();
 }
 
