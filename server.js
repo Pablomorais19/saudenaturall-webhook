@@ -152,13 +152,31 @@ const exigirHotmart = exigirToken('hotmart', HOTMART_TOKEN);
 // certa recebe um cookie HttpOnly (o JavaScript da página não consegue ler) com
 // prazo de validade. O cookie é só uma data assinada: o servidor não guarda
 // nada, e uma data adulterada não bate com a assinatura.
-const SESSAO_SEGREDO = process.env.ADMIN_SESSION_SECRET || ADMIN_TOKEN ||
-                       crypto.randomBytes(32).toString('hex');
+// O segredo nasce SEMPRE do ADMIN_TOKEN. Assim, trocar a senha do painel
+// invalida na hora todo cookie que já andava por aí — era o que não acontecia
+// quando ADMIN_SESSION_SECRET podia ser definido por fora e sobrepor a senha.
+const SESSAO_SEGREDO = crypto.createHash('sha256')
+  .update('nuvlev-sessao|' + (process.env.ADMIN_SESSION_SECRET || '') + '|' +
+          (ADMIN_TOKEN || crypto.randomBytes(32).toString('hex')))
+  .digest();
 const SESSAO_DURACAO = 4 * 60 * 60 * 1000;   // 4 horas
 const SESSAO_COOKIE  = 'nuvlev_admin';
 
-function assinaturaSessao(ate) {
-  return crypto.createHmac('sha256', SESSAO_SEGREDO).update('admin|' + ate).digest('hex');
+// Uma data assinada não dá para cancelar: ela vale até vencer, mesmo depois de
+// clicar em "Sair". Então cada sessão ganha um número próprio, e o servidor
+// guarda quais números estão de pé. Sair apaga o número — e o cookie copiado
+// para outro lugar morre junto. A lista some se o servidor reiniciar, o que só
+// significa entrar de novo.
+const sessoes = new Map();   // numero → vence em (ms)
+
+function limparSessoes() {
+  const agora = Date.now();
+  for (const [sid, ate] of sessoes) if (ate <= agora) sessoes.delete(sid);
+}
+
+function assinaturaSessao(ate, sid) {
+  return crypto.createHmac('sha256', SESSAO_SEGREDO)
+               .update('admin|' + ate + '|' + sid).digest('hex');
 }
 
 function lerCookie(req, nome) {
@@ -174,20 +192,30 @@ function lerCookie(req, nome) {
   return '';
 }
 
+// Devolve { ate, sid } quando a sessão vale, ou null. Três exigências: a
+// assinatura tem de bater, a data não pode ter vencido, e o número precisa
+// estar na lista de sessões de pé.
 function sessaoValida(req) {
   const valor = lerCookie(req, SESSAO_COOKIE);
-  const corte = valor.indexOf('.');
-  if (corte < 1) return 0;
-  const ate = Number(valor.slice(0, corte));
-  if (!Number.isFinite(ate) || ate <= Date.now()) return 0;
-  if (!tokenIgual(valor.slice(corte + 1), assinaturaSessao(ate))) return 0;
-  return ate;
+  const partes = valor.split('.');
+  if (partes.length !== 3) return null;
+  const ate = Number(partes[0]);
+  const sid = partes[1];
+  if (!Number.isFinite(ate) || ate <= Date.now()) return null;
+  if (!/^[a-f0-9]{24,64}$/.test(sid)) return null;
+  if (!tokenIgual(partes[2], assinaturaSessao(ate, sid))) return null;
+  limparSessoes();
+  if (sessoes.get(sid) !== ate) return null;
+  return { ate, sid };
 }
 
-function darSessao(req, res) {
+function darSessao(req, res, sid) {
   const ate = Date.now() + SESSAO_DURACAO;
+  if (!sid) sid = crypto.randomBytes(16).toString('hex');
+  limparSessoes();
+  sessoes.set(sid, ate);
   const pedacos = [
-    SESSAO_COOKIE + '=' + ate + '.' + assinaturaSessao(ate),
+    SESSAO_COOKIE + '=' + ate + '.' + sid + '.' + assinaturaSessao(ate, sid),
     'Path=/', 'HttpOnly', 'SameSite=Strict',
     'Max-Age=' + Math.floor(SESSAO_DURACAO / 1000)
   ];
@@ -197,6 +225,8 @@ function darSessao(req, res) {
 }
 
 function tirarSessao(req, res) {
+  const s = sessaoValida(req);
+  if (s) sessoes.delete(s.sid);
   const pedacos = [SESSAO_COOKIE + '=', 'Path=/', 'HttpOnly', 'SameSite=Strict', 'Max-Age=0'];
   if (req.secure) pedacos.push('Secure');
   res.set('Set-Cookie', pedacos.join('; '));
@@ -207,10 +237,11 @@ function tirarSessao(req, res) {
 function exigirAdmin(req, res, next) {
   const ip = ipDe(req);
   if (bloqueado('admin', ip, res)) return;
-  const ate = sessaoValida(req);
-  if (ate) {
+  const s = sessaoValida(req);
+  if (s) {
     // Renova quando já passou da metade, para não expirar no meio do trabalho.
-    if (ate - Date.now() < SESSAO_DURACAO / 2) darSessao(req, res);
+    // O mesmo número continua valendo: renovar não abre uma segunda sessão.
+    if (s.ate - Date.now() < SESSAO_DURACAO / 2) darSessao(req, res, s.sid);
     return next();
   }
   if (tokenIgual(req.headers['x-admin-token'], ADMIN_TOKEN)) {
@@ -243,8 +274,8 @@ app.post('/admin/logout', (req, res) => {
 // Devolve 200 mesmo sem sessão: é só uma pergunta que a página faz ao abrir, e
 // um 401 aqui encheria o console do navegador de erro em toda visita.
 app.get('/admin/sessao', (req, res) => {
-  const ate = sessaoValida(req);
-  res.json({ ativa: !!ate, ate: ate || null });
+  const s = sessaoValida(req);
+  res.json({ ativa: !!s, ate: s ? s.ate : null });
 });
 
 // ── E-mail transacional (Brevo) ──────────────────────────────────────────────
@@ -971,7 +1002,19 @@ function esc(v) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
-function slugSeguro(v) { return String(v || '').replace(/[^a-z0-9-]/gi, '').slice(0, 120); }
+// Mesma regra do slugify() do painel: acento sai, o que não é letra nem número
+// vira hífen. Antes esta função APAGAVA os caracteres em vez de trocá-los, então
+// "Chá verde" e "Chaverde" davam no mesmo endereço — e um artigo escrevia por
+// cima do outro sem ninguém ver.
+function slugSeguro(v) {
+  return String(v || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+/, '')
+    .slice(0, 120)
+    .replace(/-+$/, '');
+}
 
 const TAGS_OK = new Set(['p','br','strong','b','em','i','u','ul','ol','li','h2','h3','h4',
                          'blockquote','a','code','pre','hr','img','figure','figcaption','table',
@@ -1444,7 +1487,11 @@ function renderBlogPost(post, allPosts, nonce) {
 }
 
 // Posts dinâmicos (Firestore) + estáticos do código
-async function getAllPosts() {
+// Os posts como estão guardados, sem escapar nada. Serve para o painel, que
+// devolve o texto para dentro do formulário. Se ele recebesse a versão já
+// escapada (a de exibir), cada gravação escaparia de novo: um "&" viraria
+// "&amp;", depois "&amp;amp;", e o texto ia apodrecendo a cada salvamento.
+async function getAllPostsCru() {
   let dyn = [];
   try {
     const snap = await db.collection('blog_posts').get();
@@ -1452,8 +1499,12 @@ async function getAllPosts() {
   } catch (e) { console.error('Erro ao ler blog_posts:', e.message); }
   const statics = BLOG_POSTS.filter(p => !dyn.find(d => d.slug === p.slug));
   return [...statics, ...dyn]
-    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-    .map(postSeguro);
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+}
+
+// A versão de exibir: tudo escapado, o corpo passado pelo filtro de HTML.
+async function getAllPosts() {
+  return (await getAllPostsCru()).map(postSeguro);
 }
 
 // Blog routes
@@ -1483,7 +1534,7 @@ app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'adm
 
 app.get('/admin/blog/list', async (req, res) => {
   if (!checkAdmin(req, res)) return;
-  res.json({ posts: await getAllPosts() });
+  res.json({ posts: await getAllPostsCru() });
 });
 
 // Só estes campos entram no banco. Antes o corpo inteiro do pedido era gravado,
@@ -1521,6 +1572,20 @@ app.post('/admin/blog', async (req, res) => {
     const data = dataISO(limpo.date);
     if (limpo.date && !data) return res.status(400).json({ error: 'Data inválida (use AAAA-MM-DD)' });
     limpo.date = data || new Date().toISOString().slice(0, 10);
+
+    // Gravar com merge por cima de um artigo que já existe só pode ser edição
+    // pedida. Quando não é, dois títulos diferentes que caem no mesmo endereço
+    // fariam um apagar o outro em silêncio. Aqui a gente avisa em vez disso.
+    const editando = String(p.editando || '') === slug;
+    if (!editando) {
+      const jaTem = (await db.collection('blog_posts').doc(slug).get()).exists ||
+                    BLOG_POSTS.some(b => b.slug === slug);
+      if (jaTem) return res.status(409).json({
+        error: 'Já existe um artigo em /blog/' + slug +
+               '. Mude o título ou o endereço, ou abra o artigo em "Editar" para alterá-lo.',
+        slug
+      });
+    }
 
     await db.collection('blog_posts').doc(slug).set(limpo, { merge: true });
     console.log('📝 Post publicado/atualizado:', slug);
