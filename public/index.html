@@ -1744,8 +1744,22 @@ function minutosDe(txt){
   _tempoCache.set(txt, n);
   return n;
 }
+/* O tempo que interessa ao filtro é o de COZINHA. Um pudim de chia leva 10
+   minutos de trabalho e 4 horas de geladeira; quem procura "até 15 min" quer
+   esse pudim, e antes não o encontrava porque a conta somava as 4 horas.
+   O campo min já vem separado no acervo; o texto continua dizendo as duas coisas. */
+function minutosCozinha(r){
+  if(r && typeof r.min === 'number') return r.min;
+  return minutosDe(r && r.time);
+}
+function etiquetaTempo(r){
+  if(!r) return '';
+  const n = minutosCozinha(r);
+  if(n === null) return '';
+  return (r.aprox ? '~' : '') + n + ' min';
+}
 function faixaDeTempo(r, teto){
-  const n = minutosDe(r.time);
+  const n = minutosCozinha(r);
   if(n === null) return false;              // sem tempo informado não entra na faixa
   return teto === 31 ? n > 30 : n <= teto;
 }
@@ -1781,7 +1795,10 @@ function avisoDeTempo(teto){
     if(c && c.parentNode) c.parentNode.insertBefore(aviso, c.nextSibling);
   }
   if(teto === null){ aviso.style.display = 'none'; return; }
-  const semTempo = ALL_RECIPES.filter(r => minutosDe(r.time) === null).length;
+  // Os capítulos dos volumes 6 e 7 ("Sumário", "Fase 1") não são receitas e não
+  // têm tempo de preparo: eles ficam de fora do filtro sem que isso seja falta.
+  const semTempo = ALL_RECIPES.filter(r => minutosCozinha(r) === null &&
+                                           (r.ingredients || []).length >= 2).length;
   aviso.style.display = semTempo ? '' : 'none';
   aviso.textContent = semTempo + ' receitas ainda não têm o tempo informado e ficam de fora deste filtro.';
 }
@@ -1865,7 +1882,7 @@ function renderRecipes(){
         ${prev}
         <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
         <div class="recipe-card-name">${r.name}</div>
-        <div class="recipe-card-meta">${minutosDe(r.time)!==null?`<span class="recipe-tag tag-tempo">⏱ ${minutosDe(r.time)} min</span>`:''}${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}</div>
+        <div class="recipe-card-meta">${etiquetaTempo(r)?`<span class="recipe-tag tag-tempo">⏱ ${etiquetaTempo(r)}</span>`:''}${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}</div>
         <div class="lock-overlay"><span>🔒</span>${_lang==='pt'?'Toque para espiar':'Tap to preview'}</div>`;
       card.onclick=()=>openRecipeLocked(r);
     } else {
@@ -1877,7 +1894,7 @@ function renderRecipes(){
         <div class="recipe-card-vol">${r.emoji} ${r.volLabel}</div>
         <div class="recipe-card-name">${r.name}</div>
         <div class="recipe-card-meta">
-          ${minutosDe(r.time)!==null?`<span class="recipe-tag tag-tempo">⏱ ${minutosDe(r.time)} min</span>`:''}
+          ${etiquetaTempo(r)?`<span class="recipe-tag tag-tempo">⏱ ${etiquetaTempo(r)}</span>`:''}
           ${hasIng?`<span class="recipe-tag">${r.ingredients.length} ${I18N[_lang].js_ingredients}</span>`:''}
           ${r.steps&&r.steps.length>1?`<span class="recipe-tag">${r.steps.length} ${I18N[_lang].js_steps}</span>`:''}
         </div>`;
