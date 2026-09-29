@@ -16,7 +16,8 @@
    "Bata açaí + banana com mínima água (só para girar).",
    "Coloque na tigela e finalize com granola/castanhas."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "dia-cafe-021.jpg"
  },
  {
   "slug": "tapioca-recheada-de-tomate-ricota-e-oregano",
@@ -34,7 +35,8 @@
   "steps": [
    "Aqueça uma frigideira e espalhe a goma de tapioca, formando um disco. Deixe cozinhar até unir. Vire, recheie com a ricota e os tomates e tempere com orégano e sal. Dobre ao meio e sirva."
   ],
-  "benefit": "A tapioca é naturalmente sem glúten e fornece energia rápida; a ricota é fonte de proteína magra; o tomate adiciona licopeno antioxidante."
+  "benefit": "A tapioca é naturalmente sem glúten e fornece energia rápida; a ricota é fonte de proteína magra; o tomate adiciona licopeno antioxidante.",
+  "image": "cafe-007.jpg"
  },
  {
   "slug": "tapioca-de-queijo-minas-e-tomate",
@@ -55,7 +57,8 @@
    "Quando “unir”, vire e recheie com queijo e tomate.",
    "Dobre, tampe 1 min e sirva."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "dia-cafe-004.jpg"
  },
  {
   "slug": "iogurte-proteico-com-frutas",
@@ -90,7 +93,8 @@
   "steps": [
    "Bata o café quente com o colágeno e o óleo de coco no liquidificador até espumar. Polvilhe canela antes de servir."
   ],
-  "benefit": "O colágeno fornece proteína que ajuda na saciedade; o óleo de coco adiciona triglicerídeos de cadeia média, que são rapidamente metabolizados como energia; a canela tem efeito termogênico."
+  "benefit": "O colágeno fornece proteína que ajuda na saciedade; o óleo de coco adiciona triglicerídeos de cadeia média, que são rapidamente metabolizados como energia; a canela tem efeito termogênico.",
+  "image": "cafe-025.jpg"
  },
  {
   "slug": "smoothie-bowl-de-melancia-e-coco",
@@ -108,7 +112,8 @@
   "steps": [
    "Bata a melancia congelada com o leite de coco até obter textura cremosa. Coloque em uma tigela e cubra com coco ralado e chia."
   ],
-  "benefit": "A melancia hidrata e é pobre em calorias; o leite de coco fornece gorduras de cadeia média; o coco ralado e a chia adicionam fibras e gorduras boas."
+  "benefit": "A melancia hidrata e é pobre em calorias; o leite de coco fornece gorduras de cadeia média; o coco ralado e a chia adicionam fibras e gorduras boas.",
+  "image": "cafe-039.jpg"
  },
  {
   "slug": "tapioca-doce-de-banana-com-coco-e-canela",
@@ -128,7 +133,8 @@
    "Recheie com banana amassada + coco + canela.",
    "Dobre e aqueça rapidamente (30–60 s) para “firmar” o recheio."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "dia-cafe-005.jpg"
  },
  {
   "slug": "smoothie-de-mamao-com-aveia-e-linhaca",
@@ -147,7 +153,8 @@
    "Bata tudo no liquidificador até cremoso.",
    "Ajuste consistência com gelo/água."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "dia-cafe-020.jpg"
  },
  {
   "slug": "parfait-de-iogurte-granola-sem-gluten-e-pessego",
@@ -165,7 +172,8 @@
   "steps": [
    "Em um copo, intercale camadas de iogurte, granola e pêssego. Finalize com um fio de mel."
   ],
-  "benefit": "Combina proteína do iogurte com fibras da granola e vitaminas do pêssego; prática de montar e ótima para levar."
+  "benefit": "Combina proteína do iogurte com fibras da granola e vitaminas do pêssego; prática de montar e ótima para levar.",
+  "image": "cafe-015.jpg"
  },
  {
   "slug": "bowl-de-kefir-com-mirtilos-e-nozes",
@@ -183,7 +191,8 @@
   "steps": [
    "Coloque o kefir em uma tigela, acrescente os mirtilos e as nozes. Regue com mel se desejar."
   ],
-  "benefit": "O kefir é fonte de probióticos e proteínas; os mirtilos são ricos em antocianinas antioxidantes; as nozes fornecem ômega3 e minerais."
+  "benefit": "O kefir é fonte de probióticos e proteínas; os mirtilos são ricos em antocianinas antioxidantes; as nozes fornecem ômega3 e minerais.",
+  "image": "cafe-037.jpg"
  },
  {
   "slug": "almondegas-assadas-molho-de-tomate-arroz-integral-familia-freezer",
@@ -208,7 +217,8 @@
    "Aqueça molho de tomate.",
    "Monte com arroz; molho por cima."
   ],
-  "benefit": "dá para congelar as almôndegas separadas e montar marmitas depois; a ideia de congelar componentes e finalizar (ex.: airfryer) aparece em listas brasileiras de marmitas."
+  "benefit": "dá para congelar as almôndegas separadas e montar marmitas depois; a ideia de congelar componentes e finalizar (ex.: airfryer) aparece em listas brasileiras de marmitas.",
+  "image": "dia-marmita-008.jpg"
  },
  {
   "slug": "cremoso-de-ervilha-com-hortela-e-raspas-de-laranja",
@@ -232,7 +242,8 @@
    "Bata no liquidificador até obter creme homogêneo. Volte para a panela, adicione hortelã picada e as raspas de laranja. Ajuste temperos.",
    "Sirva quente com croutons de grão-de-bico ou sementes de abóbora."
   ],
-  "benefit": "As ervilhas são ricas em proteína vegetal e fibras, a hortelã ajuda na digestão e as raspas de laranja adicionam vitamina C."
+  "benefit": "As ervilhas são ricas em proteína vegetal e fibras, a hortelã ajuda na digestão e as raspas de laranja adicionam vitamina C.",
+  "image": "almoco-014.jpg"
  },
  {
   "slug": "arroz-negro-com-camarao-ervilhas-e-limao-siciliano",
@@ -255,7 +266,8 @@
    "Adicione as ervilhas e o restante do suco e raspas de limão. Cozinhe por mais 2 minutos.",
    "Misture o arroz negro cozido e ajuste o tempero. Sirva quente, polvilhado com salsinha."
   ],
-  "benefit": "O arroz negro é rico em antioxidantes (antocianinas) e fibras. Camarão fornece proteína magra e a combinação com limão e ervilhas confere frescor."
+  "benefit": "O arroz negro é rico em antioxidantes (antocianinas) e fibras. Camarão fornece proteína magra e a combinação com limão e ervilhas confere frescor.",
+  "image": "almoco-009.jpg"
  },
  {
   "slug": "carne-moida-com-abobora-e-couve-economica-e-proteica",
@@ -305,7 +317,8 @@
    "No processador, bata o manjericão, as amêndoas, o alho e o azeite até obter um pesto. Adicione o parmesão, se desejar.",
    "Escorra o macarrão, misture com o pesto e incorpore os tomates secos. Ajuste temperos."
   ],
-  "benefit": "O macarrão de grão-de-bico é rico em proteínas e fibras, sendo alternativa ao trigo. O pesto de manjericão fornece antioxidantes e gorduras saudáveis."
+  "benefit": "O macarrão de grão-de-bico é rico em proteínas e fibras, sendo alternativa ao trigo. O pesto de manjericão fornece antioxidantes e gorduras saudáveis.",
+  "image": "almoco-018.jpg"
  },
  {
   "slug": "sopa-de-abobora-com-frango-e-gengibre-marmita-para-congelar",
@@ -353,7 +366,8 @@
    "Em uma travessa, monte camadas alternadas de berinjela, ricota com espinafre e molho de tomate. Finalize com orégano e azeite.",
    "Leve ao forno preaquecido a 180 °C por 20 minutos. Sirva com salada verde."
   ],
-  "benefit": "A berinjela substitui a massa, reduzindo calorias e carboidratos. A ricota de amêndoas fornece proteína e gorduras boas."
+  "benefit": "A berinjela substitui a massa, reduzindo calorias e carboidratos. A ricota de amêndoas fornece proteína e gorduras boas.",
+  "image": "almoco-005.jpg"
  },
  {
   "slug": "frango-xadrez-com-legumes-arroz-integral-fitness-rotina-corrida",
@@ -402,7 +416,8 @@
    "Modele bolinhas e disponha em assadeira untada. Asse a 200 °C por 20 minutos, virando na metade do tempo.",
    "Aqueça o molho de tomate e adicione as almôndegas assadas. Cozinhe por 5 minutos para incorporar. Sirva com espaguete integral ou purê de batata-doce."
   ],
-  "benefit": "As lentilhas são ricas em fibras e proteínas vegetais, ajudando a reduzir o consumo de carne. O molho de tomate caseiro garante menos sódio e aditivos."
+  "benefit": "As lentilhas são ricas em fibras e proteínas vegetais, ajudando a reduzir o consumo de carne. O molho de tomate caseiro garante menos sódio e aditivos.",
+  "image": "almoco-006.jpg"
  },
  {
   "slug": "assadeira-unica-de-frango-legumes-marmita-familiar-e-para-semana",
@@ -471,7 +486,8 @@
   "steps": [
    "1) Cozinhe batata com cebola e alho até desmanchar. 2) Bata e volte à panela. 3) Acrescente frango, ferva 3 min. 4) Junte couve e cozinhe 2 min."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "dia-jantar-020.jpg"
  },
  {
   "slug": "salada-completa-de-atum-com-feijao-fradinho-e-ovo-marmita-fria",
@@ -486,7 +502,8 @@
   "steps": [
    "1) Misture feijão + tomate + cebola + cheiro-verde. 2) Tempere com limão, sal e azeite. 3) Finalize com atum e ovo."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "dia-almoco-025.jpg"
  },
  {
   "slug": "frango-grelhado-com-vinagrete-e-salada-de-repolho-leve-marmita",
@@ -531,7 +548,8 @@
   "steps": [
    "1) Monte quinoa + legumes + grão-de-bico. 2) Tempere com limão, azeite, sal e salsinha."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "dia-almoco-021.jpg"
  },
  {
   "slug": "abobrinha-salteada-com-frango-desfiado-e-limao",
@@ -576,7 +594,8 @@
   "steps": [
    "1) Bata aveia + ovo + leite + sal. 2) Faça 1–2 discos na frigideira. 3) Salteie espinafre rapidamente e recheie (com queijo se usar)."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "dia-jantar-015.jpg"
  },
  {
   "slug": "brownie-de-cacau-com-abacate",
@@ -595,7 +614,8 @@
    "Despeje em forma forrada e asse a 180 °C por 20 min",
    "Deixe esfriar antes de cortar."
   ],
-  "benefit": "O xilitol fornece doçura similar ao açúcar, porém com menos calorias; o abacate adiciona cremosidade e gorduras saudáveis."
+  "benefit": "O xilitol fornece doçura similar ao açúcar, porém com menos calorias; o abacate adiciona cremosidade e gorduras saudáveis.",
+  "image": "sobremesa-003.jpg"
  },
  {
   "slug": "pudim-de-chia-com-manga",
@@ -611,7 +631,8 @@
    "Misture chia, leite de amêndoas e stevia e deixe descansar 4 horas na geladeira, até obter consistência de pudim",
    "Sirva em taças com manga e raspas de limão."
   ],
-  "benefit": "A chia fornece fibras e ômega3; a stevia adoça sem calorias e é estável em temperatura ambiente."
+  "benefit": "A chia fornece fibras e ômega3; a stevia adoça sem calorias e é estável em temperatura ambiente.",
+  "image": "sobremesa-002.jpg"
  },
  {
   "slug": "barrinha-de-cereais-com-nozes-e-cacau",
@@ -629,7 +650,8 @@
    "Misture todos os ingredientes, espalhe em assadeira forrada e leve à geladeira até firmar",
    "Corte em barras."
   ],
-  "benefit": "Adoçantes naturais mantêm o índice glicêmico baixo; fibras e gorduras boas favorecem saciedade."
+  "benefit": "Adoçantes naturais mantêm o índice glicêmico baixo; fibras e gorduras boas favorecem saciedade.",
+  "image": "sobremesa-022.jpg"
  },
  {
   "slug": "iogurte-congelado-em-cubinhos-com-frutas",
@@ -667,7 +689,8 @@
    "Misture ao chá de hibisco com xilitol e despeje em forma",
    "Adicione frutas e leve à geladeira até firmar."
   ],
-  "benefit": "O hibisco tem propriedades antioxidantes e diuréticas; o xilitol adoça sem grandes calorias."
+  "benefit": "O hibisco tem propriedades antioxidantes e diuréticas; o xilitol adoça sem grandes calorias.",
+  "image": "sobremesa-008.jpg"
  },
  {
   "slug": "mousse-de-maracuja-com-tofu",
@@ -686,7 +709,8 @@
    "Hidrate a gelatina na água, aqueça e adicione à mistura",
    "Bata novamente e leve à geladeira até firmar."
   ],
-  "benefit": "Receita livre de lactose; o eritritol adoça sem elevar a glicemia."
+  "benefit": "Receita livre de lactose; o eritritol adoça sem elevar a glicemia.",
+  "image": "sobremesa-004.jpg"
  },
  {
   "slug": "chips-de-coco-e-cacau",
@@ -705,7 +729,8 @@
    "Misture o coco com o cacau, a canela e o mel até envolver bem.",
    "Espalhe em assadeira e asse a 160 °C por 10 minutos, mexendo na metade do tempo. Deixe esfriar para ficar crocante."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "lanche-007.jpg"
  },
  {
   "slug": "mousse-de-limao-com-creme-de-castanha-de-caju",
@@ -723,7 +748,8 @@
    "Escorra as castanhas e bata no processador com o suco, as raspas, a frutadomonge e a água até ficar cremoso",
    "Refrigere por 2 h."
   ],
-  "benefit": "Frutadomonge adoça sem elevar a glicose; castanhas fornecem gorduras insaturadas."
+  "benefit": "Frutadomonge adoça sem elevar a glicose; castanhas fornecem gorduras insaturadas.",
+  "image": "sobremesa-029.jpg"
  },
  {
   "slug": "fondue-de-chocolate-70-com-frutas",
@@ -741,7 +767,8 @@
    "Derreta o chocolate em banhomaria com o leite de amêndoas até obter creme liso.",
    "Transfira para um pequeno rechaud ou panela de fondue e sirva com as frutas cortadas em pedaços."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "lanche-035.jpg"
  },
  {
   "slug": "mix-de-banana-desidratada-e-castanhas",
@@ -759,6 +786,7 @@
   "steps": [
    "Misture todos os ingredientes em uma tigela e armazene em pote hermético. Leve em porções para o trabalho ou lanche rápido."
   ],
-  "benefit": ""
+  "benefit": "",
+  "image": "lanche-009.jpg"
  }
 ]

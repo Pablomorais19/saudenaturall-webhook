@@ -1712,7 +1712,10 @@ function recipeDesc(r) {
   return `Receita de ${r.name}: ${ing} ingredientes, passo a passo simples e dica de preparo. Veja como fazer — grátis no NuvLev.`.slice(0, 158);
 }
 
-function renderRecipeHead(title, desc, url, jsonld, nonce) {
+function renderRecipeHead(title, desc, url, jsonld, nonce, foto) {
+  // Quando a receita tem foto própria, ela vale mais que a imagem genérica do
+  // site na hora de compartilhar num WhatsApp ou numa rede.
+  const social = foto || 'https://saudenaturall.online/og-image.jpg';
   return `<!DOCTYPE html><html lang="pt-BR"><head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
@@ -1720,10 +1723,9 @@ function renderRecipeHead(title, desc, url, jsonld, nonce) {
   <link rel="canonical" href="${url}">
   <meta property="og:title" content="${title}"><meta property="og:description" content="${desc}">
   <meta property="og:url" content="${url}"><meta property="og:type" content="article">
-  <meta property="og:image" content="https://saudenaturall.online/og-image.jpg">
-  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:image" content="${social}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://saudenaturall.online/og-image.jpg">
+  <meta name="twitter:image" content="${social}">
   ${jsonld ? `<script type="application/ld+json"${nonce ? ` nonce="${nonce}"` : ''}>${jsonld}</scr` + `ipt>` : ''}
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -1735,6 +1737,8 @@ function renderRecipeHead(title, desc, url, jsonld, nonce) {
     .r-cta-nav{background:#E76F51;color:#fff!important;padding:.5rem 1.1rem;border-radius:50px;font-weight:700}
     .wrap{max-width:760px;margin:0 auto;padding:2.5rem 1.2rem}
     h1{font-size:1.9rem;line-height:1.25;margin:.5rem 0 1rem}
+    .r-foto{width:100%;height:auto;border-radius:16px;margin:0 0 1.5rem;display:block;
+            box-shadow:0 4px 18px rgba(0,0,0,.08);background:#f0eae4}
     .crumb{font-size:.85rem;color:#999}.crumb a{color:#E76F51;text-decoration:none}
     .badge{display:inline-block;background:#fdeee7;color:#E76F51;font-size:.75rem;font-weight:800;padding:.3rem .9rem;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem}
     h2{font-size:1.25rem;color:#E76F51;margin:1.8rem 0 .8rem}
@@ -1803,13 +1807,18 @@ function renderRecipePage(r, nonce) {
     recipeCategory: r.category || 'Saudável', recipeCuisine: 'Brasileira',
     recipeIngredient: r.ingredients,
     recipeInstructions: (r.steps || []).map(s => ({ '@type': 'HowToStep', text: s })),
+    // O Google só monta o resultado rico de receita com imagem. Sem "image",
+    // a página aparece como link de texto comum.
+    ...(r.image ? { image: [`${base}/receitas/img/${r.image}`] } : {}),
     description: recipeDesc(r), url
   });
-  return renderRecipeHead(`${r.name} — Receita | NuvLev`, recipeDesc(r), url, jsonld, nonce) + `
+  const foto = r.image ? `${base}/receitas/img/${r.image}` : '';
+  return renderRecipeHead(`${r.name} — Receita | NuvLev`, recipeDesc(r), url, jsonld, nonce, foto) + `
   <div class="wrap">
     <div class="crumb"><a href="/receitas">← Receitas grátis</a></div>
     <div style="margin-top:1rem"><span class="badge">${r.emoji} ${r.volLabel}</span></div>
     <h1>${r.name}</h1>
+    ${r.image ? `<img class="r-foto" src="/receitas/img/${r.image}" alt="${r.name}" width="760" height="760" loading="eager">` : ''}
     <h2>🥘 Ingredientes</h2>
     <ul>${(r.ingredients || []).map(i => `<li>${i}</li>`).join('')}</ul>
     <h2>👨‍🍳 Modo de preparo</h2>
@@ -1839,6 +1848,28 @@ const ENDERECOS_ANTIGOS = {
   'iogurte-congelado-em-cubinhos-com-frutas-meal-prep-doce-leve-tempo-total-10-min-':
     'iogurte-congelado-em-cubinhos-com-frutas'
 };
+
+// As fotos do acervo são de assinante. Estas 28 são a exceção, e por um motivo
+// estreito: pertencem a receitas que já estão publicadas INTEIRAS numa página
+// pública — nome, ingredientes e modo de preparo. A foto não entrega nada que
+// a página já não entregue. A lista é fechada e nasce das próprias receitas
+// públicas, então nenhuma outra foto do acervo passa por aqui.
+let FOTOS_PUBLICAS = null;
+function fotosPublicas() {
+  if (FOTOS_PUBLICAS) return FOTOS_PUBLICAS;
+  FOTOS_PUBLICAS = new Set();
+  PUBLIC_RECIPES.forEach(r => { if (r.image) FOTOS_PUBLICAS.add(String(r.image).toLowerCase()); });
+  return FOTOS_PUBLICAS;
+}
+
+app.get('/receitas/img/:name', (req, res) => {
+  const name = String(req.params.name || '');
+  if (!/^[a-z0-9-]+\.jpg$/i.test(name)) return res.status(400).end();
+  if (!fotosPublicas().has(name.toLowerCase())) return res.status(403).end();
+  res.set('Cache-Control', 'public, max-age=604800');
+  res.sendFile(path.join(__dirname, 'materials', 'img', name),
+               err => { if (err && !res.headersSent) res.status(404).end(); });
+});
 
 app.get('/receitas/:slug', (req, res) => {
   const mudou = ENDERECOS_ANTIGOS[req.params.slug];
