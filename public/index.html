@@ -1744,7 +1744,13 @@ function minutosDe(txt){
   _tempoCache.set(txt, n);
   return n;
 }
-/* O tempo que interessa ao filtro é o de COZINHA. Um pudim de chia leva 10
+/* Os campos de tempo vêm prontos de recipes-data.js, um por receita:
+     min    → minutos de cozinha, é o que o filtro compara
+     espera → geladeira, freezer ou descanso, em minutos, quando houver
+     aprox  → a receita não cronometrava nada e o tempo foi estimado
+   O texto de r.time junta os três para mostrar na tela.
+
+   O tempo que interessa ao filtro é o de COZINHA. Um pudim de chia leva 10
    minutos de trabalho e 4 horas de geladeira; quem procura "até 15 min" quer
    esse pudim, e antes não o encontrava porque a conta somava as 4 horas.
    O campo min já vem separado no acervo; o texto continua dizendo as duas coisas. */
