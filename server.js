@@ -1612,7 +1612,17 @@ function normalizeRecipe(r) {
   let steps = r.steps || [];
   if (steps.length === 1 && /\d\)/.test(steps[0]))
     steps = steps[0].split(/\s*\d+\)\s*/).map(s => s.trim()).filter(Boolean);
-  const name = r.name.replace(/^Receita \d+ — /, '').replace(/\s*Tempo total:.*$/i, '').trim();
+  // O PDF grudava no fim do nome a lista de etiquetas da receita, sem espaço:
+  // "Açaí bowl caseiro (banana e granola)Smoothie bowl ·". A cauda começa onde
+  // uma maiúscula encosta numa minúscula ou num ')' , e só é cortada quando o
+  // que vem depois tem mesmo cara de etiqueta (termina em '·' ou traz '|').
+  let name = r.name.replace(/^Receita \d+ — /, '').replace(/\s*Tempo total:.*$/i, '').trim();
+  const emenda = name.search(/[a-zà-ÿ)\]"”](?=[A-ZÀ-Þ])/);
+  if (emenda > 0) {
+    const cauda = name.slice(emenda + 1);
+    if (/·|\|/.test(cauda)) name = name.slice(0, emenda + 1).trim();
+  }
+  name = name.replace(/[\s·|]+$/, '').trim();
   return {
     ...r,
     name,
@@ -1817,7 +1827,22 @@ function renderRecipePage(r, nonce) {
 }
 
 app.get('/receitas', (req, res) => { cspEstrita(res); res.send(renderRecipeIndex(res.locals.nonce)); });
+// Endereços antigos, limpos depois de já terem sido indexados pelo Google.
+// Mandar 301 (mudou de lugar para sempre) preserva o que a página já tinha
+// conquistado na busca; devolver 404 jogaria isso fora.
+const ENDERECOS_ANTIGOS = {
+  'receita-21-acai-bowl-caseiro-banana-e-granola-smoothie-bowl': 'acai-bowl-caseiro-com-banana-e-granola',
+  'receita-4-tapioca-de-queijo-minas-e-tomate':                  'tapioca-de-queijo-minas-e-tomate',
+  'receita-5-tapioca-doce-de-banana-com-coco-e-canela':          'tapioca-doce-de-banana-com-coco-e-canela',
+  'receita-20-smoothie-de-mamao-com-aveia-e-linhacasmoothie':    'smoothie-de-mamao-com-aveia-e-linhaca',
+  'abobrinha-salteada-com-frango-desfiado-e-limao-510-min':      'abobrinha-salteada-com-frango-desfiado-e-limao',
+  'iogurte-congelado-em-cubinhos-com-frutas-meal-prep-doce-leve-tempo-total-10-min-':
+    'iogurte-congelado-em-cubinhos-com-frutas'
+};
+
 app.get('/receitas/:slug', (req, res) => {
+  const mudou = ENDERECOS_ANTIGOS[req.params.slug];
+  if (mudou) return res.redirect(301, '/receitas/' + mudou);
   const r = PUBLIC_RECIPES.find(x => x.slug === req.params.slug);
   if (!r) return res.status(404).redirect('/receitas');
   cspEstrita(res);
