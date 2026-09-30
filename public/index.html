@@ -2359,7 +2359,16 @@ async function nlLead(f, origem){
   const btn=f.querySelector('button[type=submit]'); btn.disabled=true; btn.textContent='Enviando...';
   try{
     const response=await fetch('/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:f.email.value,origem})});
-    if(!response.ok) throw new Error('HTTP '+response.status);
+    // Antes, QUALQUER resposta fora do 200 caía no mesmo "Erro de conexão".
+    // Quem digitava o e-mail errado, ou tentava demais, era informado de um
+    // problema de rede que não existia — e tentava de novo do mesmo jeito.
+    if(!response.ok){
+      const motivo = response.status===400 ? 'Confira o e-mail: parece que falta algo nele.'
+                   : response.status===429 ? 'Você já pediu há pouco. Espere alguns minutos e tente de novo.'
+                   : response.status>=500  ? 'Nosso servidor tropeçou. Tente de novo em instantes.'
+                   : 'Não foi dessa vez. Tente de novo em instantes.';
+      const erro = new Error(motivo); erro.explicado = true; throw erro;
+    }
     const dados = await response.json();
     f.style.display='none';
     const aviso = f.parentElement.querySelector('.nl-lead-ok');
@@ -2367,7 +2376,11 @@ async function nlLead(f, origem){
     if(link && dados.pdf) link.href = dados.pdf;
     aviso.style.display='block';
     nlLS.set('nuvlev-lead','1');
-  }catch(e){ btn.disabled=false; btn.textContent='Quero o PDF →'; alert('Erro de conexão, tente de novo.'); }
+  }catch(e){
+    btn.disabled=false; btn.textContent='Quero o PDF →';
+    // só chama de "conexão" o que realmente foi conexão
+    alert(e && e.explicado ? e.message : 'Sem conexão no momento. Verifique a internet e tente de novo.');
+  }
   return false;
 }
 function fecharLeadPopup(){ document.getElementById('lead-popup').classList.remove('show'); nlLS.set('nuvlev-lead-popup','1'); }
