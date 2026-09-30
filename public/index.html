@@ -1625,12 +1625,16 @@ const nlSync = {
     this.aplicando = true;
     try {
       const mapa = {}; (typeof ALL_RECIPES !== 'undefined' ? ALL_RECIPES : []).forEach(r => mapa[r.name] = r);
-      const nomes = unir ? new Set([...(remoto.favoritos||[]), ...local.favoritos])
-                         : new Set(remoto.favoritos||[]);
+      // O que vem do servidor pode ter sido salvo quando a receita tinha outro
+      // nome. Sem esta tradução, o favorito voltaria do servidor já quebrado —
+      // e a correção feita neste aparelho seria desfeita na sincronização.
+      const traduz = (n) => mapa[n] ? n : (mapa[nlCleanName(n)] ? nlCleanName(n) : n);
+      const nomes = unir ? new Set([...(remoto.favoritos||[]), ...local.favoritos].map(traduz))
+                         : new Set((remoto.favoritos||[]).map(traduz));
       if(typeof favs !== 'undefined'){ favs = new Set([...nomes]); saveFavs(); }
       if(typeof plan !== 'undefined' && typeof DAYS !== 'undefined'){
         const p = remoto.plano || {};
-        DAYS.forEach(([k]) => { plan[k] = (p[k]||[]).map(n => mapa[n]).filter(Boolean); });
+        DAYS.forEach(([k]) => { plan[k] = (p[k]||[]).map(n => mapa[traduz(n)]).filter(Boolean); });
         if(typeof renderPlanner === 'function') renderPlanner();
         savePlan();
       }
@@ -1681,7 +1685,29 @@ const nlSync = {
   }
 };
 addEventListener('beforeunload', () => { if(nlSync.ligado) nlSync.enviar(); });
-function nlCleanName(n){ let s=String(n||'').replace(/^Receita\s*\d+\s*[—–-]\s*/i,''); s=s.replace(/\s*Tempo total:[\s\S]*$/i,''); s=s.split(' · ')[0]; s=s.replace(/\)(?=[A-ZÀ-Ú])[\s\S]*$/,')'); return s.replace(/\s+/g,' ').trim(); }
+/* Nomes de receita guardados por assinantes antigos. Favoritos e planejador são
+   guardados PELO NOME, então toda vez que um nome é limpo no acervo, o que ficou
+   salvo precisa ser traduzido — senão o favorito de alguém aponta para o vazio.
+   Esta função converte o nome velho no atual. */
+const NL_HIFENS = [['couve-flor','couveflor'],['noz-moscada','nozmoscada'],['batata-doce','batatadoce'],
+  ['erva-doce','ervadoce'],['grão-de-bico','grãodebico'],['bem-estar','bemestar'],
+  ['pimenta-do-reino','pimentadoreino'],['cheiro-verde','cheiroverde'],['banho-maria','banhomaria'],
+  ['erva-cidreira','ervacidreira'],['castanha-de-caju','castanhadecaju'],['alho-poró','alhoporó'],
+  ['capim-limão','capimlimão'],['dente-de-leão','dentedeleão'],['micro-ondas','microondas'],
+  ['anis-estrelado','anisestrelado'],['cravos-da-índia','cravosdaíndia'],['papel-alumínio','papelalumínio'],
+  ['pimenta-caiena','pimentacaiena'],['capim-cidreira','capimcidreira']];
+function nlCleanName(n){
+  let s=String(n||'').replace(/^Receita\s*\d+\s*[—–-]\s*/i,'');
+  s=s.replace(/\s*Tempo total:[\s\S]*$/i,'');
+  s=s.split(' · ')[0];
+  s=s.replace(/\)(?=[A-ZÀ-Ú])[\s\S]*$/,')');
+  s=s.replace(/[\s·|]+$/,'');
+  /* o hífen que a extração do PDF tinha comido */
+  for(const [certo,grud] of NL_HIFENS)
+    s=s.replace(new RegExp('(?<![a-zà-ÿ])'+grud+'(?![a-zà-ÿ])','gi'),
+                a=>/^[A-ZÀ-Þ]/.test(a)?certo.charAt(0).toUpperCase()+certo.slice(1):certo);
+  return s.replace(/\s+/g,' ').trim();
+}
 let favs = new Set(JSON.parse(nlLS.get(NL_FAVS)||'[]'));
 let filterFav=false, filterQuick=false;
 
